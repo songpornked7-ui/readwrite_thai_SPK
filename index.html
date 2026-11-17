@@ -1,0 +1,3038 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadWrite Thai - คลังนิยายและสตูดิโอนักเขียน</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'Prompt', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+    <!-- Google Fonts (Thai Typography) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&family=Sarabun:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-sarabun { font-family: 'Sarabun', sans-serif; }
+        .font-prompt { font-family: 'Prompt', sans-serif; }
+        .font-serifthai { font-family: 'Noto Serif Thai', serif; }
+
+        /* Reader Themes */
+        .reader-theme-light {
+            background-color: #ffffff;
+            color: #1e293b;
+        }
+        .reader-theme-sepia {
+            background-color: #f6eedc;
+            color: #433422;
+        }
+        .reader-theme-dark {
+            background-color: #121418;
+            color: #cbd5e1;
+        }
+
+        /* Novel Paragraph Indentation & Spacing Preservation */
+        .novel-paragraph {
+            text-indent: 2.2em;
+            margin-bottom: 1.15em;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        /* Hide scrollbars cleanly for horizontal pill rows */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Reading Progress Bar (Top Fixed in Reader View) -->
+    <div id="reading-progress-container" class="hidden fixed top-0 left-0 right-0 h-1 bg-slate-200/50 dark:bg-slate-800/50 z-50">
+        <div id="reading-progress-bar" class="h-full bg-indigo-600 transition-all duration-150" style="width: 0%;"></div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- Main Top Navigation Bar -->
+    <header id="main-navbar" class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <!-- Logo & Brand -->
+            <div onclick="navigateTo('library')" class="flex items-center gap-2.5 cursor-pointer group flex-shrink-0">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-feather-pointed text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-prompt font-bold text-lg tracking-tight text-slate-900 dark:text-white block leading-none">
+                        ReadWrite <span class="text-indigo-600 dark:text-indigo-400">Thai</span>
+                    </span>
+                    <span class="text-[11px] text-slate-400 hidden sm:inline-block">คลังนิยายและสตูดิโอนักเขียน</span>
+                </div>
+            </div>
+
+            <!-- Library Scope Switcher (Google Drive vs Public vs Private) -->
+            <div class="hidden md:flex items-center bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl border border-slate-200/70 dark:border-slate-700/70">
+                <button id="scope-btn-gdrive" onclick="switchLibraryScope('gdrive')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700 flex items-center gap-1.5">
+                    <i class="fa-brands fa-google-drive text-emerald-500"></i>
+                    <span>Google Drive</span>
+                    <span id="scope-count-gdrive" class="opacity-80">(0)</span>
+                </button>
+                <button id="scope-btn-public" onclick="switchLibraryScope('public')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 text-white shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>คลังนิยายกลาง</span>
+                    <span id="scope-count-public" class="opacity-80">(0)</span>
+                </button>
+                <button id="scope-btn-private" onclick="switchLibraryScope('private')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>คลังส่วนตัว</span>
+                    <span id="scope-count-private" class="opacity-80">(0)</span>
+                </button>
+            </div>
+
+            <!-- Right Controls -->
+            <div class="flex items-center gap-2">
+                <!-- Google Drive Sync Button -->
+                <button onclick="openGDriveModal()" title="เชื่อมต่อ Google Drive / คัดลอกโค้ด Apps Script" class="px-3 py-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/70 text-xs font-semibold transition-all flex items-center gap-1.5">
+                    <i class="fa-brands fa-google-drive"></i>
+                    <span class="hidden sm:inline">เชื่อมต่อ Drive</span>
+                    <span id="gdrive-nav-dot" class="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                </button>
+
+                <!-- Storage / Cloud Status Pill -->
+                <div class="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs text-slate-500 dark:text-slate-400">
+                    <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span id="cloud-status-text">บันทึกในเครื่องพร้อมใช้</span>
+                </div>
+
+                <!-- Create New Novel CTA -->
+                <button onclick="openNovelModal()" class="px-3.5 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm hover:shadow transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>แต่งเรื่องใหม่</span>
+                </button>
+
+                <!-- Backup / Tools Dropdown -->
+                <div id="backup-menu-wrapper" class="relative">
+                    <button onclick="toggleBackupMenu()" title="เครื่องมือสำรองข้อมูลและกู้คืน" class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                    </button>
+                    <div id="backup-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50 text-sm">
+                        <div class="px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">จัดการข้อมูลและคลังนิยาย</div>
+                        <button onclick="exportDataJSON()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-slate-700 dark:text-slate-200">
+                            <i class="fa-solid fa-file-export text-indigo-500 w-4"></i>
+                            <span>ส่งออกไฟล์สำรอง (.JSON)</span>
+                        </button>
+                        <label class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-slate-700 dark:text-slate-200 cursor-pointer">
+                            <i class="fa-solid fa-file-import text-emerald-500 w-4"></i>
+                            <span>นำเข้าไฟล์สำรอง (.JSON)</span>
+                            <input type="file" accept=".json" onchange="importDataJSON(event)" class="hidden">
+                        </label>
+                        <button onclick="openRecoveryModal()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-slate-700 dark:text-slate-200">
+                            <i class="fa-solid fa-magnifying-glass-chart text-amber-500 w-4"></i>
+                            <span>ตรวจสอบสถานะฐานข้อมูล</span>
+                        </button>
+                        <div class="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+                        <button onclick="seedDemoDataToCloud(false); toggleBackupMenu();" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-indigo-600 dark:text-indigo-400 font-medium">
+                            <i class="fa-solid fa-wand-magic-sparkles w-4"></i>
+                            <span>โหลดนิยายตัวอย่างเข้าคลัง</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dark Mode Toggle -->
+                <button id="global-theme-btn" onclick="cycleAppTheme()" title="สลับโหมดมืด/สว่าง" class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-moon text-base"></i>
+                </button>
+
+                <!-- Account Button -->
+                <button onclick="openAccountModal()" title="บัญชีนักเขียน" class="h-10 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs font-semibold transition-colors">
+                    <i class="fa-solid fa-user-astronaut text-indigo-500"></i>
+                    <span id="nav-account-label" class="hidden sm:inline max-w-[90px] truncate">นักเขียน</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Scope Switcher Bar -->
+        <div class="flex md:hidden items-center justify-center gap-1.5 px-3 py-2 bg-slate-50 dark:bg-slate-950 border-t border-slate-200/60 dark:border-slate-800">
+            <button id="mobile-scope-gdrive" onclick="switchLibraryScope('gdrive')" class="flex-1 py-1.5 rounded-xl text-[11px] font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                <i class="fa-brands fa-google-drive text-emerald-500 mr-1"></i> Drive
+            </button>
+            <button id="mobile-scope-public" onclick="switchLibraryScope('public')" class="flex-1 py-1.5 rounded-xl text-[11px] font-semibold bg-indigo-600 text-white">
+                <i class="fa-solid fa-globe mr-1"></i> คลังกลาง
+            </button>
+            <button id="mobile-scope-private" onclick="switchLibraryScope('private')" class="flex-1 py-1.5 rounded-xl text-[11px] font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                <i class="fa-solid fa-lock mr-1"></i> ส่วนตัว
+            </button>
+        </div>
+    </header>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 1: LIBRARY (หน้าหลักคลังนิยาย)                        -->
+    <!-- ========================================================= -->
+    <main id="view-library" class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <!-- Hero Banner & Search Bar -->
+        <div class="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg mb-7 relative overflow-hidden">
+            <i class="fa-solid fa-book-open-reader text-white/10 text-9xl absolute -right-4 -bottom-6 pointer-events-none"></i>
+            <div class="max-w-2xl relative z-10">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs text-xs font-medium mb-3">
+                    <i class="fa-solid fa-sparkles text-amber-300"></i> พื้นที่อ่านและเขียนนิยายออนไลน์ เชื่อมต่อ Google Docs
+                </span>
+                <h1 class="font-prompt text-2xl sm:text-3xl font-bold mb-2 leading-snug">
+                    ค้นพบเรื่องราวใหม่ หรือซิงค์นิยายจาก Google Drive
+                </h1>
+                <p class="text-indigo-100 text-xs sm:text-sm mb-5">
+                    อ่านสบายตา ปรับฟอนต์และธีมได้ตามใจ พร้อมระบบดึงตอนนิยายอัตโนมัติจากโฟลเดอร์ Google Docs และบันทึกข้อมูลในเครื่องปลอดภัย 100%
+                </p>
+
+                <!-- Search Input -->
+                <div class="relative flex items-center">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 absolute left-4"></i>
+                    <input id="library-search-input" type="text" oninput="renderLibrary()" placeholder="ค้นหาชื่อเรื่อง, นามปากกา, คำโปรย หรือหมวดหมู่..."
+                        class="w-full pl-11 pr-10 py-3 rounded-2xl bg-white text-slate-800 placeholder-slate-400 text-sm shadow-md focus:outline-none focus:ring-2 focus:ring-amber-300">
+                    <button id="clear-search-btn" onclick="clearLibrarySearch()" class="hidden absolute right-3 text-slate-400 hover:text-slate-600 p-1">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Pills & Sort Filter -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div id="category-filter-pills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+                <span class="text-xs text-slate-400">เรียงตาม:</span>
+                <select id="library-sort-select" onchange="renderLibrary()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <option value="updated">อัปเดตล่าสุด</option>
+                    <option value="chapters">จำนวนตอนมากสุด</option>
+                    <option value="title">ชื่อเรื่อง (ก-ฮ)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Section Heading -->
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+                <h2 id="library-section-heading" class="font-prompt font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
+                    รายการนิยายในคลังกลาง
+                </h2>
+                <button id="gdrive-refresh-btn" onclick="syncFromGoogleDrive(false)" class="hidden px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-100 text-xs font-semibold items-center gap-1.5 transition-colors">
+                    <i class="fa-solid fa-rotate"></i>
+                    <span>ซิงค์ล่าสุด</span>
+                </button>
+            </div>
+            <span id="library-total-count" class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 text-xs font-semibold">
+                0 เรื่อง
+            </span>
+        </div>
+
+        <!-- Loading State -->
+        <div id="library-loading-state" class="hidden py-16 text-center text-slate-400">
+            <i class="fa-solid fa-circle-notch fa-spin text-3xl text-indigo-500 mb-3"></i>
+            <p class="text-sm">กำลังโหลดชั้นหนังสือ...</p>
+        </div>
+
+        <!-- Novels Grid -->
+        <div id="novels-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="library-empty-state" class="hidden py-16 px-4 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-500 flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-book-open"></i>
+            </div>
+            <h3 id="empty-state-title" class="font-prompt font-bold text-lg text-slate-800 dark:text-white mb-1">ยังไม่มีนิยายในหมวดนี้</h3>
+            <p id="empty-state-desc" class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-5">
+                เริ่มต้นแต่งนิยายเรื่องแรกของคุณ หรือเชื่อมต่อ Google Drive เพื่อดึงนิยายจากโฟลเดอร์ของคุณได้เลย
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <button id="empty-gdrive-btn" onclick="openGDriveModal()" class="hidden px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-sm transition-all">
+                    <i class="fa-brands fa-google-drive mr-1.5"></i> ตั้งค่าเชื่อมต่อ Google Drive
+                </button>
+                <button onclick="openNovelModal()" class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all">
+                    <i class="fa-solid fa-plus mr-1.5"></i> สร้างนิยายเรื่องใหม่
+                </button>
+                <button onclick="seedDemoDataToCloud(false)" class="px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1.5 text-indigo-500"></i> เพิ่มนิยายตัวอย่าง
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 2: NOVEL DETAIL & TABLE OF CONTENTS (หน้ารายละเอียด)   -->
+    <!-- ========================================================= -->
+    <section id="view-detail" class="hidden flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <!-- Back Button -->
+        <button onclick="navigateTo('library')" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 mb-5 transition-colors">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>กลับสู่หน้าคลังนิยาย</span>
+        </button>
+
+        <!-- Novel Hero Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-8 shadow-sm mb-7">
+            <div class="flex flex-col sm:flex-row gap-6">
+                <!-- Cover Art -->
+                <div id="detail-cover-container" class="w-36 h-52 sm:w-44 sm:h-64 rounded-2xl shadow-lg overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Metadata & Actions -->
+                <div class="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2 mb-2.5">
+                            <span id="detail-category" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300">
+                                หมวดหมู่
+                            </span>
+                            <span id="detail-updated" class="text-xs text-slate-400 flex items-center gap-1">
+                                <i class="fa-regular fa-clock"></i> อัปเดตเมื่อสักครู่
+                            </span>
+                        </div>
+
+                        <h1 id="detail-title" class="font-prompt text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white leading-snug mb-2">
+                            ชื่อเรื่องนิยาย
+                        </h1>
+
+                        <p class="text-sm text-slate-600 dark:text-slate-300 font-medium mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-nib text-indigo-500"></i>
+                            <span>โดย <span id="detail-author">นามปากกา</span></span>
+                        </p>
+
+                        <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line mb-5">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">คำโปรย / เรื่องย่อ</div>
+                            <p id="detail-synopsis">รายละเอียดเรื่องย่อ...</p>
+                        </div>
+                    </div>
+
+                    <!-- Primary Action Buttons -->
+                    <div id="detail-action-buttons" class="flex flex-wrap items-center gap-3 pt-2">
+                        <button id="detail-start-read-btn" onclick="startReadingFirstChapter()" class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-book-open"></i>
+                            <span>เริ่มอ่านตอนแรก</span>
+                        </button>
+                        <button id="detail-edit-novel-btn" onclick="openNovelModal(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-pen"></i>
+                            <span>แก้ไขข้อมูลเรื่อง</span>
+                        </button>
+                        <button id="detail-delete-novel-btn" onclick="confirmDeleteNovel(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>ลบเรื่อง</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table of Contents & Writer Studio Panel -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-7 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                    <h2 class="font-prompt font-bold text-lg sm:text-xl text-slate-900 dark:text-white">สารบัญตอนนิยาย</h2>
+                    <span id="detail-chapter-count" class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 text-xs font-bold">
+                        0 ตอน
+                    </span>
+                </div>
+
+                <!-- Writer Studio Actions -->
+                <div id="detail-writer-actions" class="flex flex-wrap items-center gap-2.5">
+                    <button onclick="openChapterEditor()" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-feather"></i>
+                        <span>+ เขียนตอนใหม่</span>
+                    </button>
+                    <button onclick="openBulkImportModal()" class="px-4 py-2.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-300 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span>วางลงหลายตอนรวดเดียว</span>
+                    </button>
+                </div>
+                <div id="detail-gdrive-badge" class="hidden items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-3.5 py-2 rounded-2xl font-medium">
+                    <i class="fa-brands fa-google-drive"></i>
+                    <span>ซิงค์เนื้อหาจาก Google Docs อัตโนมัติ</span>
+                </div>
+            </div>
+
+            <!-- Chapter Filter & Sort -->
+            <div class="flex items-center justify-between gap-3 py-4">
+                <div class="relative flex-1 max-w-xs">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input id="chapter-search-input" type="text" oninput="renderChapterList()" placeholder="ค้นหาเลขตอน หรือชื่อตอน..."
+                        class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:border-indigo-500">
+                </div>
+                <button id="chapter-sort-btn" onclick="toggleChapterSortOrder()" title="สลับเรียงลำดับตอน" class="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-indigo-400 transition-colors">
+                    <i class="fa-solid fa-arrow-down-1-9"></i>
+                </button>
+            </div>
+
+            <!-- Chapters List -->
+            <div id="chapters-list-container" class="divide-y divide-slate-100 dark:divide-slate-800/80">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Empty Chapters State -->
+            <div id="chapters-empty-state" class="hidden py-12 text-center">
+                <p class="text-sm text-slate-400 mb-4">ยังไม่มีตอนนิยายในเรื่องนี้ เริ่มเขียนตอนที่ 1 ได้เลย!</p>
+                <button onclick="openChapterEditor()" class="px-5 py-2.5 rounded-2xl bg-indigo-600 text-white text-xs sm:text-sm font-semibold">
+                    <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มตอนที่ 1
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 3: READER (หน้าอ่านนิยายปรับแต่งได้)                   -->
+    <!-- ========================================================= -->
+    <section id="view-reader" class="hidden flex-1 reader-theme-light transition-colors duration-200">
+        <!-- Reader Top Bar -->
+        <div id="reader-topbar" class="sticky top-0 z-30 border-b backdrop-blur-md bg-white/95 border-slate-200 text-slate-800 transition-colors">
+            <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+                <button onclick="navigateTo('detail', window.currentNovelId)" class="flex items-center gap-2 text-sm font-medium opacity-80 hover:opacity-100 transition-opacity flex-shrink-0">
+                    <i class="fa-solid fa-chevron-left"></i>
+                    <span class="hidden sm:inline">สารบัญ</span>
+                </button>
+
+                <div class="min-w-0 text-center flex-1">
+                    <div id="reader-nav-novel-title" class="text-[11px] opacity-60 truncate">ชื่อเรื่อง</div>
+                    <div id="reader-nav-chapter-title" class="text-xs sm:text-sm font-bold truncate">ตอนที่ 1</div>
+                </div>
+
+                <button onclick="toggleReaderSettings()" class="px-3 py-1.5 rounded-xl border border-current/20 text-xs font-semibold flex items-center gap-1.5 hover:bg-indigo-500/10 transition-colors flex-shrink-0">
+                    <i class="fa-solid fa-font"></i>
+                    <span>ตั้งค่าการอ่าน</span>
+                </button>
+            </div>
+
+            <!-- Collapsible Reader Settings Drawer -->
+            <div id="reader-settings-panel" class="hidden border-t border-current/10 bg-white px-4 py-4 shadow-lg">
+                <div class="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                    <!-- Background Theme -->
+                    <div>
+                        <div class="font-semibold opacity-70 mb-2">สีพื้นหลัง</div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button data-theme-opt="light" onclick="updateReaderSetting('theme', 'light')" class="theme-opt-btn py-2 rounded-xl bg-white text-slate-800 border border-slate-300 font-medium">สว่าง</button>
+                            <button data-theme-opt="sepia" onclick="updateReaderSetting('theme', 'sepia')" class="theme-opt-btn py-2 rounded-xl bg-[#f6eedc] text-[#433422] border border-[#d6c7ab] font-medium">ถนอมสายตา</button>
+                            <button data-theme-opt="dark" onclick="updateReaderSetting('theme', 'dark')" class="theme-opt-btn py-2 rounded-xl bg-[#121418] text-slate-200 border border-slate-700 font-medium">กลางคืน</button>
+                        </div>
+                    </div>
+
+                    <!-- Font Family -->
+                    <div>
+                        <div class="font-semibold opacity-70 mb-2">รูปแบบตัวอักษร</div>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            <button data-font-opt="sarabun" onclick="updateReaderSetting('fontFamily', 'sarabun')" class="font-opt-btn py-2 rounded-xl border border-current/20 font-sarabun">สารบรรณ</button>
+                            <button data-font-opt="prompt" onclick="updateReaderSetting('fontFamily', 'prompt')" class="font-opt-btn py-2 rounded-xl border border-current/20 font-prompt">พร้อมท์</button>
+                            <button data-font-opt="serifthai" onclick="updateReaderSetting('fontFamily', 'serifthai')" class="font-opt-btn py-2 rounded-xl border border-current/20 font-serifthai">มีหัวคลาสสิก</button>
+                        </div>
+                    </div>
+
+                    <!-- Font Size -->
+                    <div>
+                        <div class="font-semibold opacity-70 mb-2">ขนาดตัวอักษร</div>
+                        <div class="flex items-center justify-between gap-2 bg-current/5 rounded-xl p-1">
+                            <button onclick="changeFontSize(-2)" class="w-9 h-8 rounded-lg border border-current/20 font-bold hover:bg-indigo-500/10">ก-</button>
+                            <span id="reader-font-size-display" class="font-bold">18 px</span>
+                            <button onclick="changeFontSize(2)" class="w-9 h-8 rounded-lg border border-current/20 font-bold hover:bg-indigo-500/10">ก+</button>
+                        </div>
+                    </div>
+
+                    <!-- Line Height -->
+                    <div>
+                        <div class="font-semibold opacity-70 mb-2">ระยะห่างบรรทัด</div>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            <button data-lh-opt="1.7" onclick="updateReaderSetting('lineHeight', '1.7')" class="lh-opt-btn py-2 rounded-xl border border-current/20">กระชับ</button>
+                            <button data-lh-opt="1.95" onclick="updateReaderSetting('lineHeight', '1.95')" class="lh-opt-btn py-2 rounded-xl border border-current/20">พอดี</button>
+                            <button data-lh-opt="2.25" onclick="updateReaderSetting('lineHeight', '2.25')" class="lh-opt-btn py-2 rounded-xl border border-current/20">โปร่ง</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reader Article Body -->
+        <article class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
+            <header class="text-center pb-8 mb-8 border-b border-current/15">
+                <span id="reader-chapter-badge" class="inline-block px-3.5 py-1 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 text-xs font-bold mb-3">
+                    ตอนที่ 1
+                </span>
+                <h1 id="reader-chapter-heading" class="font-prompt text-2xl sm:text-3xl font-bold leading-snug mb-3">
+                    ชื่อตอนนิยาย
+                </h1>
+                <div class="flex items-center justify-center gap-4 text-xs opacity-65">
+                    <span id="reader-author-meta"><i class="fa-solid fa-pen-nib mr-1"></i> นามปากกา</span>
+                    <span id="reader-wordcount-meta"><i class="fa-regular fa-file-lines mr-1"></i> ~0 คำ</span>
+                </div>
+            </header>
+
+            <!-- Chapter Content -->
+            <div id="reader-content-body" class="font-sarabun" style="font-size: 18px; line-height: 1.95;">
+                <!-- Paragraphs rendered by JS -->
+            </div>
+
+            <!-- Bottom Chapter Navigation -->
+            <footer class="mt-14 pt-8 border-t border-current/15 flex items-center justify-between gap-3">
+                <button id="reader-prev-btn" onclick="navigateChapter(-1)" class="px-5 py-3 rounded-2xl border border-current/20 text-sm font-semibold disabled:opacity-30 disabled:pointer-events-none hover:bg-indigo-500/10 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>ตอนก่อนหน้า</span>
+                </button>
+
+                <button onclick="navigateTo('detail', window.currentNovelId)" class="px-4 py-3 rounded-2xl border border-current/20 text-sm font-medium hover:bg-indigo-500/10 transition-colors">
+                    <i class="fa-solid fa-list-ul"></i>
+                </button>
+
+                <button id="reader-next-btn" onclick="navigateChapter(1)" class="px-5 py-3 rounded-2xl bg-indigo-600 text-white text-sm font-semibold disabled:opacity-30 disabled:pointer-events-none hover:bg-indigo-700 shadow-sm transition-colors flex items-center gap-2">
+                    <span>ตอนถัดไป</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </footer>
+        </article>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- MODALS (สร้าง/แก้ไขนิยาย, เขียนตอน, วางหลายตอน, บัญชี, กู้คืน) -->
+    <!-- ========================================================= -->
+
+    <!-- 1. Create / Edit Novel Modal -->
+    <div id="novel-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 sm:p-7 shadow-2xl my-auto">
+            <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
+                <h3 id="novel-modal-title" class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-book-medical text-indigo-500"></i>
+                    <span>สร้างเรื่องนิยายใหม่</span>
+                </h3>
+                <button onclick="closeNovelModal()" class="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="saveNovel(event)" class="space-y-4">
+                <input type="hidden" id="novel-form-id">
+                <input type="hidden" id="novel-form-cover" value="indigo">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">ชื่อเรื่องนิยาย *</label>
+                    <input id="novel-form-title" type="text" required placeholder="เช่น ลิขิตรักข้ามเวลา..."
+                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">นามปากกา *</label>
+                        <input id="novel-form-author" type="text" required placeholder="ระบุนามปากกาของคุณ"
+                            class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">หมวดหมู่</label>
+                        <select id="novel-form-category" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="โรแมนติก">โรแมนติก</option>
+                            <option value="โรมานซ์">โรมานซ์</option>
+                            <option value="แฟนตาซี">แฟนตาซี</option>
+                            <option value="กำลังภายใน / ย้อนยุค">กำลังภายใน / ย้อนยุค</option>
+                            <option value="สืบสวนสอบสวน">สืบสวนสอบสวน</option>
+                            <option value="ไซไฟ / อนาคต">ไซไฟ / อนาคต</option>
+                            <option value="ดราม่า / สะท้อนสังคม">ดราม่า / สะท้อนสังคม</option>
+                            <option value="วาย (BL) / ยูริ (GL)">วาย (BL) / ยูริ (GL)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">สีปกหนังสือ</label>
+                    <div id="cover-theme-selector" class="grid grid-cols-6 gap-2">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">คำโปรย / เรื่องย่อ</label>
+                    <textarea id="novel-form-synopsis" rows="4" placeholder="เขียนคำโปรยดึงดูดนักอ่าน..."
+                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-3">
+                    <button type="button" onclick="closeNovelModal()" class="px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm">
+                        บันทึกข้อมูลเรื่อง
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Chapter Editor Modal -->
+    <div id="chapter-editor-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                    <div id="chapter-editor-novel-name" class="text-xs text-indigo-500 font-semibold truncate">ชื่อเรื่อง</div>
+                    <h3 id="chapter-editor-heading" class="font-prompt font-bold text-base sm:text-lg text-slate-900 dark:text-white">เขียนตอนนิยายใหม่</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="saveChapter()" class="px-5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>เผยแพร่ / บันทึกตอน</span>
+                    </button>
+                    <button onclick="closeChapterEditor()" class="w-9 h-9 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chapter Title & Number Inputs -->
+            <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row gap-3">
+                <div class="w-full sm:w-28">
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">ตอนที่</label>
+                    <input id="chapter-form-number" type="number" min="1" value="1"
+                        class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">ชื่อตอน *</label>
+                    <input id="chapter-form-title" type="text" placeholder="ระบุชื่อตอน..."
+                        class="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+            <!-- Main Writing Area -->
+            <div class="flex-1 p-5 overflow-hidden flex flex-col">
+                <textarea id="chapter-form-content" oninput="handleEditorTyping()" placeholder="เริ่มพิมพ์หรือวางเนื้อหานิยายของคุณที่นี่... (ระบบจะบันทึกฉบับร่างอัตโนมัติ)"
+                    class="flex-1 w-full resize-none bg-transparent text-slate-800 dark:text-slate-100 text-base leading-relaxed focus:outline-none font-sarabun"></textarea>
+            </div>
+
+            <!-- Footer Word Count & Autosave Status -->
+            <div class="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+                <div id="editor-autosave-status">
+                    <i class="fa-solid fa-cloud mr-1"></i> พร้อมบันทึกฉบับร่างอัตโนมัติ
+                </div>
+                <div class="flex items-center gap-4">
+                    <span>ประมาณ <strong id="editor-word-count" class="text-slate-600 dark:text-slate-200">0</strong> คำ</span>
+                    <span><strong id="editor-char-count" class="text-slate-600 dark:text-slate-200">0</strong> ตัวอักษร</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Bulk Chapter Importer Modal -->
+    <div id="bulk-import-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-indigo-500"></i>
+                    <span>วางลงหลายตอนพร้อมกัน (Bulk Import)</span>
+                </h3>
+                <button onclick="closeBulkImportModal()" class="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+                วางข้อความนิยายหลายตอนรวดเดียว ระบบจะแยกตอนให้อัตโนมัติเมื่อขึ้นบรรทัดใหม่ด้วยคำว่า
+                <code class="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-semibold">ตอนที่ 1 ชื่อตอน</code> หรือ
+                <code class="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-semibold">ตอนที่ 2 ชื่อตอน</code>
+            </p>
+
+            <textarea id="bulk-import-textarea" oninput="previewBulkChapters()" rows="10"
+                placeholder="ตัวอย่าง:&#10;ตอนที่ 1 จุดเริ่มต้นแห่งโชคชะตา&#10;เนื้อหาของตอนที่ 1...&#10;&#10;ตอนที่ 2 การพบกันโดยบังเอิญ&#10;เนื้อหาของตอนที่ 2..."
+                class="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500 mb-4"></textarea>
+
+            <div class="flex items-center justify-between gap-3">
+                <span id="bulk-preview-count" class="px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 text-xs font-bold">
+                    ตรวจพบ 0 ตอน
+                </span>
+                <div class="flex items-center gap-2">
+                    <button onclick="closeBulkImportModal()" class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium">
+                        ยกเลิก
+                    </button>
+                    <button onclick="executeBulkImport()" class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm">
+                        นำเข้าทั้งหมด
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Database & Storage Recovery Scanner Modal -->
+    <div id="recovery-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass-chart text-amber-500"></i>
+                    <span>ตรวจสอบสถานะฐานข้อมูลและ LocalStorage</span>
+                </h3>
+                <button onclick="closeRecoveryModal()" class="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="recovery-scan-results" class="space-y-3 mb-5"></div>
+            <div class="flex justify-end">
+                <button onclick="closeRecoveryModal()" class="px-5 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm font-semibold">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Account & Auth Modal -->
+    <div id="account-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-user-astronaut text-indigo-500"></i>
+                    <span>บัญชีนักเขียน & การจัดเก็บข้อมูล</span>
+                </h3>
+                <button onclick="closeAccountModal()" class="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 mb-4 text-xs space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400">สถานะ:</span>
+                    <span id="account-modal-status" class="font-bold text-emerald-600 dark:text-emerald-400">บันทึกในเครื่อง (LocalStorage)</span>
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-slate-400">รหัสผู้ใช้งาน:</span>
+                    <div class="flex items-center gap-1.5">
+                        <code id="account-uid-display" class="text-[11px] bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">-</code>
+                        <button onclick="copyUserId()" title="คัดลอก UID" class="text-indigo-500 hover:text-indigo-600"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <form id="account-email-form" onsubmit="handleEmailAuth(event)" class="space-y-3">
+                <input id="auth-email-input" type="email" required placeholder="อีเมลนักเขียน (example@email.com)"
+                    class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                <input id="auth-password-input" type="password" required placeholder="รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)"
+                    class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <button type="submit" onclick="setAuthMode('login')" class="py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold">
+                        เข้าสู่ระบบ
+                    </button>
+                    <button type="submit" onclick="setAuthMode('register')" class="py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold">
+                        สมัครบัญชีใหม่
+                    </button>
+                </div>
+            </form>
+
+            <button id="account-signout-btn" onclick="handleSignOut()" class="hidden w-full mt-3 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs font-semibold">
+                ออกจากระบบบัญชีอีเมล
+            </button>
+        </div>
+    </div>
+
+    <!-- 6. Custom Confirmation Modal -->
+    <div id="confirm-modal" class="hidden fixed inset-0 z-[60] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-6 shadow-2xl text-center">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-500 flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="confirm-modal-title" class="font-prompt font-bold text-lg text-slate-900 dark:text-white mb-1.5">ยืนยันการดำเนินการ</h3>
+            <p id="confirm-modal-message" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">คุณแน่ใจหรือไม่?</p>
+            <div class="flex items-center justify-center gap-2.5">
+                <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium">
+                    ยกเลิก
+                </button>
+                <button id="confirm-modal-action-btn" class="flex-1 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold">
+                    ยืนยันลบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Google Drive & Apps Script Setup Modal -->
+    <div id="gdrive-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full p-6 sm:p-7 shadow-2xl my-auto">
+            <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-brands fa-google-drive text-emerald-500 text-xl"></i>
+                    <span>เชื่อมต่อนิยายจาก Google Drive (Google Docs)</span>
+                </h3>
+                <button onclick="closeGDriveModal()" class="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        ลิงก์ Web App URL จาก Google Apps Script *
+                    </label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input id="gdrive-url-input" type="url" placeholder="https://script.google.com/macros/s/xxxxx/exec"
+                            class="flex-1 px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-emerald-500">
+                        <button onclick="saveAndConnectGDrive()" class="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-xs transition-all flex items-center justify-center gap-2 flex-shrink-0">
+                            <i class="fa-solid fa-plug"></i>
+                            <span>บันทึกและดึงนิยาย</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span id="gdrive-connection-status" class="text-xs text-slate-400">ยังไม่ได้เชื่อมต่อ URL</span>
+                        <button id="gdrive-disconnect-btn" onclick="disconnectGDrive()" class="hidden text-xs text-rose-500 hover:underline">ยกเลิกการเชื่อมต่อ</button>
+                    </div>
+                </div>
+
+                <!-- Copyable Google Apps Script Code -->
+                <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-code text-indigo-500"></i>
+                            โค้ด Google Apps Script ฉบับสมบูรณ์ (doGet + doPost + CORS/JSONP)
+                        </span>
+                        <button onclick="copyGasCode()" class="px-3 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>คัดลอกโค้ด</span>
+                        </button>
+                    </div>
+                    <pre id="gas-code-display" class="text-[11px] leading-relaxed font-mono bg-slate-900 text-emerald-300 p-3.5 rounded-xl overflow-x-auto max-h-56 select-all"></pre>
+                </div>
+
+                <div class="text-xs text-slate-500 dark:text-slate-400 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/50 rounded-2xl p-3.5 space-y-1.5">
+                    <div class="font-bold text-amber-800 dark:text-amber-300"><i class="fa-solid fa-lightbulb mr-1"></i> สรุปวิธีตั้งค่าและโครงสร้างโฟลเดอร์:</div>
+                    <p>• <strong>Deploy Web App:</strong> ตั้งค่า <strong>Execute as: Me</strong> และ <strong>Who has access: Anyone (ทุกคน)</strong></p>
+                    <p>• <strong>โฟลเดอร์หลายเรื่อง:</strong> สร้างโฟลเดอร์ย่อยตามชื่อเรื่อง (เช่น <em>"นอกเฟรม...เกินเพื่อน"</em>) และนำไฟล์ Google Docs แต่ละตอนใส่ไว้ด้านใน (สร้างไฟล์ชื่อ <code>เรื่องย่อ</code> เพื่อใส่คำโปรย นามปากกา และหมวดหมู่ได้)</p>
+                    <p>• <strong>โฟลเดอร์เรื่องเดียว:</strong> ใส่ไฟล์ Google Docs ทุกตอนลงในโฟลเดอร์หลักโดยตรง ระบบจะใช้ชื่อโฟลเดอร์หลักเป็นชื่อเรื่องให้อัตโนมัติ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- JAVASCRIPT LOGIC, LOCALSTORAGE PERSISTENCE & GOOGLE DRIVE -->
+    <!-- ========================================================= -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+        import {
+            getAuth,
+            signInAnonymously,
+            signInWithCustomToken,
+            onAuthStateChanged,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            signOut
+        } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import {
+            getFirestore,
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            getDocs,
+            deleteDoc,
+            onSnapshot
+        } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        // ---------------------------------------------------------
+        // 1. COVER THEMES & INITIAL SEED NOVELS
+        // ---------------------------------------------------------
+        const COVER_THEMES = {
+            indigo: { name: 'ครามราตรี', gradient: 'from-indigo-600 to-violet-700', swatch: 'bg-indigo-600', icon: 'fa-moon' },
+            rose: { name: 'กุหลาบพันปี', gradient: 'from-rose-500 to-pink-700', swatch: 'bg-rose-500', icon: 'fa-heart' },
+            emerald: { name: 'มรกตพงไพร', gradient: 'from-emerald-600 to-teal-700', swatch: 'bg-emerald-600', icon: 'fa-leaf' },
+            amber: { name: 'สุริยันทอง', gradient: 'from-amber-500 to-orange-700', swatch: 'bg-amber-500', icon: 'fa-sun' },
+            cyan: { name: 'นทีสีคราม', gradient: 'from-cyan-600 to-blue-700', swatch: 'bg-cyan-600', icon: 'fa-water' },
+            slate: { name: 'หมอกรัตติกาล', gradient: 'from-slate-700 to-zinc-900', swatch: 'bg-slate-700', icon: 'fa-feather' }
+        };
+
+        const DEFAULT_NOVELS = [
+            {
+                id: 'novel-seed-starlight-cafe',
+                title: 'ร้านกาแฟใต้แสงดาวกับเรื่องเล่าของนักเดินทาง',
+                author: 'ละอองฝน',
+                category: 'โรมานซ์',
+                coverTheme: 'indigo',
+                synopsis: 'ร้านกาแฟเล็กๆ ที่เปิดให้บริการเฉพาะหลังเที่ยงคืน ในซอยเงียบสงบของกรุงเทพฯ ว่ากันว่ากาแฟทุกแก้วที่นี่สามารถเยียวยาความทรงจำที่หล่นหายได้',
+                chapters: [
+                    {
+                        id: 'ch-cafe-1',
+                        number: 1,
+                        title: 'เอสเปรสโซแก้วแรกหลังเที่ยงคืน',
+                        content: 'เข็มนาฬิกาบนผนังไม้สีเข้มชี้บอกเวลาเที่ยงคืนตรง เสียงกระดิ่งทองเหลืองเหนือประตูร้านดังกรุ๊งกริ๊งเบาๆ ต้อนรับชายหนุ่มในเสื้อโค้ตสีเทาที่เดินฝ่าสายลมหนาวเข้ามา\n"ยินดีต้อนรับสู่ร้านดาราฉายครับ รับเครื่องดื่มอุ่นๆ สักแก้วไหมครับ" บาริสต้าหนุ่มเอ่ยทักด้วยรอยยิ้มอบอุ่น พลางวางเมนูที่เขียนด้วยลายมือลงบนเคาน์เตอร์ไม้โอ๊ก\nชายหนุ่มเงยหน้าขึ้นสบตา ก่อนจะเอ่ยเบาๆ ว่า "ผมอยากได้กาแฟที่ทำให้ผมลืมเรื่องราวเมื่อห้าปีก่อน... พอจะมีไหมครับ"'
+                    },
+                    {
+                        id: 'ch-cafe-2',
+                        number: 2,
+                        title: 'สมุดบันทึกที่ลืมไว้บนโต๊ะริมหน้าต่าง',
+                        content: 'เช้าวันรุ่งขึ้น ขณะที่กำลังจัดโต๊ะริมหน้าต่าง ภัทรพบสมุดปกหนังสีน้ำตาลเล่มหนึ่งวางซ่อนอยู่ใต้เชิงเทียน\nเมื่อเปิดหน้าแรกออก ลายมือหวัดบรรจงได้บันทึกพิกัดของสถานที่แห่งหนึ่งในจังหวัดเชียงใหม่ พร้อมตั๋วรถไฟเก่าๆ ที่ยังไม่ได้ใช้งาน'
+                    }
+                ]
+            },
+            {
+                id: 'novel-seed-destiny-ink',
+                title: 'ลิขิตหมึกข้ามภพ',
+                author: 'พู่กันจันทร์เจ้า',
+                category: 'กำลังภายใน / ย้อนยุค',
+                coverTheme: 'amber',
+                synopsis: 'เมื่อนักบูรณะคัมภีร์โบราณหลุดเข้าไปในนิยายยุทธภพที่ตนเองกำลังซ่อมแซม นางต้องใช้ความรู้ด้านอักษรศาสตร์และสมุนไพรเพื่อเอาชีวิตรอดจากจอมมารผู้เย็นชา',
+                chapters: [
+                    {
+                        id: 'ch-destiny-1',
+                        number: 1,
+                        title: 'หยดหมึกสีชาดในคืนเดือนดับ',
+                        content: 'เสียงฝนโปรยปรายกระทบหน้าต่างกระจกของหอสมุดโบราณในยามวิกาล หลินซูเหยาขยับแว่นสายตาพลางใช้พู่กันขนกระต่ายแตะลงบนหน้ากระดาษที่เหลืองกรอบอย่างเบามือ\nทันทีที่ปลายพู่กันสัมผัสกับอักษรคำว่า "ชะตา" แสงสีชาดพลันสว่างวาบขึ้นโอบล้อมร่างของเธอไว้จนมองไม่เห็นสิ่งใดรอบกาย\nเมื่อลืมตาขึ้นอีกครั้ง กลิ่นหอมของไม้จันทน์และกำยานโบราณก็ลอยมาแตะจมูก พร้อมกับเสียงบ่าวรับใช้ที่ร้องตะโกนด้วยความดีใจว่า "คุณหนูฟื้นแล้วเจ้าค่ะ!"'
+                    }
+                ]
+            },
+            {
+                id: 'novel-game-of-hidden-flames',
+                title: 'เกมรักซ่อนเงาไฟ (Game of Hidden Flames)',
+                author: 'nsvws',
+                category: 'โรแมนติก',
+                coverTheme: 'rose',
+                synopsis: 'ท่ามกลางแสงแฟลชของวงการบันเทิงระดับโลกในปี 2027 ชื่อของ แคนดิซ สวาเนโพล (Candice Swanepoel) นางแบบระดับตำนาน อดีตนางฟ้าวิกตอเรียส์ซีเคร็ต และเจ้าของแบรนด์ชุดว่ายน้ำสุดหรูอย่าง Tropic of C กำลังตกเป็นเป้าสายตาของปาปารัสซี่ทั่วโลก เมื่อมีข่าวลือหนาหูว่าเธอกำลังซุ่มคบหากับซูเปอร์สตาร์อเมริกันฟุตบอลอย่าง ทอม เบรดี้ (Tom Brady) ความสัมพันธ์ลับๆ ที่ต้องหลบซ่อนตามคฤหาสน์ส่วนตัวในไมอามี่และเกาะส่วนตัวในบาฮามาส ทำให้เธอต้องแลกมาด้วยการตัดขาดมิตรภาพ 15 ปีกับเพื่อนสนิทอย่าง โจน สมอลส์ (Joan Smalls) เพื่อผู้ชายคนแรกที่ทำให้เธอรู้สึกว่าตัวเองไม่ต้องเป็นฝ่ายแบกรับหรือเลี้ยงดูใครอีกต่อไป\nเบื้องหลังภาพลักษณ์นางแบบสาวขี้อายและโลกส่วนตัวสูง แท้จริงแล้วแคนดิซคือผู้หญิงที่ร้ายลึก เต็มไปด้วยความปรารถนา และไม่เคยยอมให้ใครอยู่เหนือกว่า เหมือนที่เธอเคยจบความสัมพันธ์ 13 ปีกับอดีตคู่หมั้นชาวบราซิลอย่าง เฮอร์มันน์ นิโคลี พ่อของลูกชายทั้งสองของเธอ ท่ามกลางรอยร้าวและการนอกใจของทั้งสองฝ่าย\nแต่เมื่อความสัมพันธ์ระหว่างเธอกับทอมเริ่มเกิดช่องว่าง และต่างฝ่ายต่างหันไปหาความสุขชั่วคราวจากคนอื่น โชคชะตาก็เหวี่ยงให้เธอได้โคจรมาพบกับ ริกกี้ จอง (Ricky Jung) ซูเปอร์สตาร์ป๊อปสตาร์ชาวอเมริกันเชื้อสายเกาหลีวัย 40 ปี อดีตเด็กอัจฉริยะจากโรงเรียนนานาชาติชื่อดังในนิวยอร์ก และอดีตเมนร้อง-เมนเต้นของบอยแบนด์เกาหลีระดับตำนาน (SJ) ที่ผันตัวจากอาการบาดเจ็บเรื้อรังจนกลายเป็นศิลปินเดี่ยวยอดสตรีมพันล้าน และมหาเศรษฐีนักลงทุนอสังหาริมทรัพย์ผู้ทรงอิทธิพล\nริกกี้คือเพลย์บอยตัวร้ายที่เปลี่ยนคู่ควงระดับนางแบบไม่ซ้ำหน้า การเจอกันของทั้งคู่เริ่มต้นจากเกม "หมาหยอกไก่" ที่ต่างฝ่ายต่างรู้ทันกันดี ไม่มีใครคิดจริงจัง ไม่มีข้อผูกมัด เพราะต่างก็มีตัวจริงและคนอื่นอยู่ในวงโคจร แต่ทุกครั้งที่อยู่ด้วยกัน ไฟปรารถนาที่ซ่อนอยู่ภายใต้หน้ากากเพื่อนกลับลุกโชนจนเกินห้ามใจ\nเมื่อความลับไม่มีในโลก เกมรักที่เริ่มต้นจากความฉาบฉวยและการประชดประชัน กลับค่อยๆ แผดเผาหัวใจของคนทั้งคู่ให้ถลำลึกเกินกว่าจะถอนตัว ท่ามกลางสายตาของสื่อมวลชนที่พร้อมจะขยี้ทุกความเคลื่อนไหว ใครจะเป็นผู้คุมเกม และใครจะเป็นฝ่ายพ่ายแพ้ให้กับเปลวไฟที่ซ่อนอยู่ในเงามืดนี้',
+                chapters: []
+            },
+            {
+                id: 'novel-off-the-record',
+                title: 'นอกเฟรม...เกินเพื่อน (Off the Record)',
+                author: 'nsvws',
+                category: 'โรมานซ์',
+                coverTheme: 'slate',
+                synopsis: 'ปี 2027 ณ ไมอามี่ เบื้องหน้าแสงแฟลช แคนดิซ สวาเนโพล คือซูเปอร์โมเดลระดับโลก คุณแม่เลี้ยงเดี่ยวสุดสตรอง และเจ้าของแบรนด์ชุดว่ายน้ำสุดฮอต ผู้กุมความลับความสัมพันธ์ลับๆ นานนับปีกับ ทอม เบรดี้ ตำนานควอเตอร์แบ็กผู้รักความเป็นส่วนตัว ทอมคือผู้ชายคนแรกที่ทำให้เธอไม่ต้องเป็นฝ่ายแบกรับหรือหาเลี้ยงเหมือนในอดีต จนเธอยอมแลกแม้กระทั่งมิตรภาพ 15 ปีกับเพื่อนรักอย่าง โจน สมอลส์ เพื่อรักษาเขาไว้\nทว่าภายใต้ภาพลักษณ์อันแสนเพอร์เฟกต์และขี้อายที่สื่อรู้จัก แคนดิซกลับมีความร้ายลึกและแรงปรารถนาที่ไม่ต่างจากปุถุชนทั่วไป ในวันที่ความสัมพันธ์ระหว่างเธอกับทอมเริ่มเกิดช่องว่าง เมื่อต่างฝ่ายต่างแอบกลับไปใช้ชีวิตอิสระและมีความสัมพันธ์ชั่วคราวกับคนอื่น การปรากฏตัวของ ริกกี้ จอง ป๊อปสตาร์เอเชียระดับพันล้าน อดีตไอดอลเกาหลีผู้ผันตัวมาเป็นเจ้าพ่ออสังหาริมทรัพย์ในอเมริกา ก็เข้ามาสั่นคลอนพื้นที่ปลอดภัยของเธอ\nเริ่มต้นจากบทสนทนาแบบ "หมาหยอกไก่" ของคนสองคนที่รู้ทันเกมกันทุกอย่าง ริกกี้คือผู้ชายที่อ่านเกมของแคนดิซออกทะลุปรุโปร่ง เขามีทั้งความมั่งคั่งและอิทธิพลไม่แพ้ทอม แต่กลับมีเสน่ห์ ความเร่าร้อน และอิสระในแบบที่ทอมให้เธอไม่ได้\nท่ามกลางเกมการปั่นกระแสของ อาลี คาวูสซี ผู้จัดการส่วนตัวจอมวางแผนที่คอยส่งปาปารัสซี่ตามติดชีวิตเธอเพื่อขายข่าวและแฝงโฆษณาสินค้า แคนดิซต้องประคองเส้นแบ่งระหว่าง "หน้าที่แม่" ที่กันลูกชายทั้งสองออกจากโลกของผู้ใหญ่ "ความมั่นคง" ที่เธอมีร่วมกับทอม และ "ความสัมพันธ์แบบ Situationship" กับริกกี้ ที่ยิ่งห้ามใจ...กลับยิ่งถลำลึกเกินคำว่าเพื่อนเข้าไปทุกที',
+                chapters: []
+            }
+        ];
+
+        // ---------------------------------------------------------
+        // 2. GOOGLE APPS SCRIPT SOURCE CODE (doGet + doPost + CORS)
+        // ---------------------------------------------------------
+        const GAS_SOURCE_CODE = `// 1. ใส่รหัส Folder ID ของ Google Drive หลักที่เก็บนิยายของคุณตรงนี้
+const FOLDER_ID = 'ใส่_FOLDER_ID_ของคุณที่นี่';
+
+// รองรับการเรียกแบบ GET (ดึงรายชื่อนิยาย / ดึงเนื้อหาตอน / JSONP)
+function doGet(e) {
+  const params = (e && e.parameter) ? e.parameter : {};
+  return handleApiRequest(params);
+}
+
+// รองรับการเรียกแบบ POST (CORS-friendly JSON API)
+function doPost(e) {
+  let params = (e && e.parameter) ? Object.assign({}, e.parameter) : {};
+  try {
+    if (e && e.postData && e.postData.contents) {
+      const body = JSON.parse(e.postData.contents);
+      params = Object.assign(params, body);
+    }
+  } catch (err) {
+    // กรณีส่งมาแบบ Form URL-encoded
+  }
+  return handleApiRequest(params);
+}
+
+// ศูนย์รวมจัดการคำสั่ง API ทั้งหมด
+function handleApiRequest(params) {
+  const action = params.action || 'list';
+  const callback = params.callback || '';
+  let result = {};
+
+  try {
+    if (action === 'chapter') {
+      const fileId = params.fileId;
+      if (!fileId) throw new Error('กรุณาระบุ fileId ของเอกสาร Google Docs');
+      result = {
+        status: 'success',
+        content: extractDocContent(fileId)
+      };
+    } else if (action === 'list') {
+      result = {
+        status: 'success',
+        novels: getNovelsFromDrive(FOLDER_ID)
+      };
+    } else {
+      throw new Error('ไม่รู้จักคำสั่ง action: ' + action);
+    }
+  } catch (err) {
+    result = {
+      status: 'error',
+      message: err.toString()
+    };
+  }
+
+  const jsonText = JSON.stringify(result);
+
+  // รองรับ JSONP สำหรับเว็บแอปที่รันใน Sandbox / iframe เพื่อเลี่ยงข้อจำกัด CORS
+  if (callback) {
+    const safeCallback = callback.replace(/[^a-zA-Z0-9_$.]/g, '');
+    return ContentService
+      .createTextOutput(safeCallback + '(' + jsonText + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return ContentService
+    .createTextOutput(jsonText)
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ดึงโฟลเดอร์ย่อยมาเป็น "เรื่องนิยาย" และไฟล์ Google Docs ข้างในมาเป็น "ตอนนิยาย"
+function getNovelsFromDrive(rootFolderId) {
+  const rootFolder = DriveApp.getFolderById(rootFolderId);
+  const novels = [];
+  const subFolders = rootFolder.getFolders();
+  let hasSubFolders = false;
+
+  while (subFolders.hasNext()) {
+    hasSubFolders = true;
+    const folder = subFolders.next();
+    novels.push(buildNovelFromFolder(folder));
+  }
+
+  // กรณีวางไฟล์ Google Docs ไว้ในโฟลเดอร์หลักโดยตรง (ไม่ได้สร้างโฟลเดอร์ย่อย)
+  const rootNovel = buildNovelFromFolder(rootFolder);
+  if (rootNovel.chapters.length > 0 || !hasSubFolders) {
+    novels.unshift(rootNovel);
+  }
+
+  return novels;
+}
+
+// สร้างข้อมูลนิยาย 1 เรื่องจาก 1 โฟลเดอร์
+function buildNovelFromFolder(folder) {
+  const files = folder.getFilesByType(MimeType.GOOGLE_DOCS);
+  const chapters = [];
+  let synopsis = 'ซิงค์เนื้อหาอัตโนมัติจากโฟลเดอร์ Google Drive: ' + folder.getName();
+  let author = 'นักเขียน Google Docs';
+  let category = 'Google Drive';
+
+  while (files.hasNext()) {
+    const file = files.next();
+    const fileName = file.getName().trim();
+
+    // หากมีไฟล์ชื่อ "เรื่องย่อ" หรือ "info" จะดึงมาเป็นคำโปรย นามปากกา และหมวดหมู่
+    if (/^(เรื่องย่อ|คำโปรย|info|synopsis)/i.test(fileName)) {
+      const infoText = extractDocContent(file.getId());
+      const authorMatch = infoText.match(/(?:นามปากกา|ผู้แต่ง|Author)\\s*[:：]\\s*(.+)/i);
+      const catMatch = infoText.match(/(?:หมวดหมู่|ประเภท|Category)\\s*[:：]\\s*(.+)/i);
+      if (authorMatch) author = authorMatch[1].trim();
+      if (catMatch) category = catMatch[1].trim();
+      synopsis = infoText;
+      continue;
+    }
+
+    const parsed = parseChapterFileName(fileName, chapters.length + 1);
+    chapters.push({
+      id: 'gdrive-ch-' + file.getId(),
+      fileId: file.getId(),
+      novelId: 'gdrive-' + folder.getId(),
+      number: parsed.number,
+      title: parsed.title,
+      updatedAt: file.getLastUpdated().getTime()
+    });
+  }
+
+  chapters.sort((a, b) => a.number - b.number);
+
+  return {
+    id: 'gdrive-' + folder.getId(),
+    title: folder.getName(),
+    author: author,
+    category: category,
+    coverTheme: 'emerald',
+    synopsis: synopsis,
+    updatedAt: folder.getLastUpdated().getTime(),
+    chapters: chapters
+  };
+}
+
+// แยกเลขตอนและชื่อตอนจากชื่อไฟล์ เช่น "ตอนที่ 1 จุดเริ่มต้น" หรือ "01 บทนำ"
+function parseChapterFileName(fileName, fallbackNum) {
+  const match = fileName.match(/^(?:ตอนที่|บทที่|Chapter|Ep\\.?|#)?\\s*(\\d+)\\s*[:：\\-–—.]?\\s*(.*)$/i);
+  if (match) {
+    const num = parseInt(match[1], 10);
+    const title = (match[2] || '').trim() || ('ตอนที่ ' + num);
+    return { number: num, title: title };
+  }
+  return { number: fallbackNum, title: fileName };
+}
+
+// อ่านเนื้อหาจาก Google Docs โดยรักษาย่อหน้า การเว้นวรรค และการขึ้นบรรทัดใหม่ครบถ้วน
+function extractDocContent(fileId) {
+  const doc = DocumentApp.openById(fileId);
+  const body = doc.getBody();
+  const numChildren = body.getNumChildren();
+  const blocks = [];
+
+  for (let i = 0; i < numChildren; i++) {
+    const child = body.getChild(i);
+    const type = child.getType();
+
+    if (type === DocumentApp.ElementType.PARAGRAPH) {
+      // แปลง Soft Line Break (Shift+Enter / \\u000b) เป็น \\n และรักษาการเว้นวรรคด้านหน้า/กลางบรรทัด
+      const text = child.asParagraph().getText().replace(/\\u000b/g, '\\n').replace(/\\s+$/g, '');
+      blocks.push(text);
+    } else if (type === DocumentApp.ElementType.LIST_ITEM) {
+      const text = child.asListItem().getText().replace(/\\u000b/g, '\\n').replace(/\\s+$/g, '');
+      blocks.push(text);
+    }
+  }
+
+  return blocks.join('\\n');
+}`;
+
+        // ---------------------------------------------------------
+        // 3. STATE MANAGEMENT & LOCALSTORAGE PERSISTENCE
+        // ---------------------------------------------------------
+        const STORAGE_KEYS = {
+            LOCAL_DB: 'readwrite_thai_local_db_v1',
+            GAS_URL: 'readwrite_thai_gas_url',
+            GDRIVE_CACHE: 'readwrite_thai_gdrive_cache_v1',
+            READER_SETTINGS: 'readwrite_thai_reader_settings_v1'
+        };
+
+        let app = null;
+        let auth = null;
+        let db = null;
+        let isFirebaseReady = false;
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'readwrite-thai-default';
+        let currentUser = null;
+        let currentScope = 'public';
+        let selectedCategory = 'ทั้งหมด';
+        let chapterSortAsc = true;
+        let editingChapterId = null;
+        let autosaveTimer = null;
+        let authMode = 'login';
+        let isInitialLoadDone = false;
+
+        let unsubscribePublicNovels = null;
+        let unsubscribePublicChapters = null;
+        let unsubscribePrivateNovels = null;
+        let unsubscribePrivateChapters = null;
+
+        const publicNovelsMap = new Map();
+        const publicChaptersMap = new Map();
+        const privateNovelsMap = new Map();
+        const privateChaptersMap = new Map();
+        const gdriveNovelsMap = new Map();
+        const gdriveChapterCache = new Map();
+
+        let gdriveWebAppUrl = localStorage.getItem(STORAGE_KEYS.GAS_URL) || '';
+
+        window.currentView = 'library';
+        window.currentNovelId = null;
+        window.currentChapterId = null;
+
+        const readerSettings = {
+            theme: 'light',
+            fontFamily: 'sarabun',
+            fontSize: 18,
+            lineHeight: '1.95'
+        };
+
+        // Load saved reader settings
+        try {
+            const savedReader = localStorage.getItem(STORAGE_KEYS.READER_SETTINGS);
+            if (savedReader) Object.assign(readerSettings, JSON.parse(savedReader));
+        } catch (e) {}
+
+        // Save ALL Public & Private Novels/Chapters to localStorage unconditionally
+        function persistAllToLocalStorage() {
+            try {
+                const payload = {
+                    savedAt: Date.now(),
+                    publicNovels: Array.from(publicNovelsMap.values()),
+                    publicChapters: Array.from(publicChaptersMap.values()),
+                    privateNovels: Array.from(privateNovelsMap.values()),
+                    privateChapters: Array.from(privateChaptersMap.values())
+                };
+                localStorage.setItem(STORAGE_KEYS.LOCAL_DB, JSON.stringify(payload));
+            } catch (e) {
+                console.warn('LocalStorage persistence warning:', e);
+            }
+        }
+
+        // Load ALL Public & Private Novels/Chapters from localStorage immediately on startup
+        function hydrateFromLocalStorage() {
+            let loadedAny = false;
+            try {
+                // Support both current key and legacy key for seamless migration
+                const raw = localStorage.getItem(STORAGE_KEYS.LOCAL_DB) || localStorage.getItem('readwrite_thai_local_db');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    (parsed.publicNovels || []).forEach(n => {
+                        if (n && n.id) {
+                            publicNovelsMap.set(n.id, n);
+                            loadedAny = true;
+                        }
+                    });
+                    (parsed.publicChapters || []).forEach(c => {
+                        if (c && c.id) publicChaptersMap.set(c.id, c);
+                    });
+                    (parsed.privateNovels || []).forEach(n => {
+                        if (n && n.id) {
+                            privateNovelsMap.set(n.id, n);
+                            loadedAny = true;
+                        }
+                    });
+                    (parsed.privateChapters || []).forEach(c => {
+                        if (c && c.id) privateChaptersMap.set(c.id, c);
+                    });
+                }
+            } catch (e) {
+                console.warn('Error hydrating localStorage:', e);
+            }
+
+            // Seed default sample novels only if public library is completely empty
+            if (publicNovelsMap.size === 0 && !loadedAny) {
+                const now = Date.now();
+                DEFAULT_NOVELS.forEach((item, idx) => {
+                    publicNovelsMap.set(item.id, {
+                        id: item.id,
+                        title: item.title,
+                        author: item.author,
+                        category: item.category,
+                        coverTheme: item.coverTheme,
+                        synopsis: item.synopsis,
+                        createdAt: now - idx * 1000,
+                        updatedAt: now - idx * 1000
+                    });
+                    (item.chapters || []).forEach((ch, cIdx) => {
+                        publicChaptersMap.set(ch.id, {
+                            id: ch.id,
+                            novelId: item.id,
+                            number: ch.number,
+                            title: ch.title,
+                            content: ch.content,
+                            updatedAt: now + cIdx
+                        });
+                    });
+                });
+                persistAllToLocalStorage();
+            } else {
+                const requiredIds = ['novel-game-of-hidden-flames', 'novel-off-the-record'];
+                let addedRequired = false;
+                requiredIds.forEach((reqId, idx) => {
+                    if (!publicNovelsMap.has(reqId)) {
+                        const targetNovel = DEFAULT_NOVELS.find(n => n.id === reqId);
+                        if (targetNovel) {
+                            const now = Date.now() + idx;
+                            publicNovelsMap.set(targetNovel.id, {
+                                id: targetNovel.id,
+                                title: targetNovel.title,
+                                author: targetNovel.author,
+                                category: targetNovel.category,
+                                coverTheme: targetNovel.coverTheme,
+                                synopsis: targetNovel.synopsis,
+                                createdAt: now,
+                                updatedAt: now
+                            });
+                            addedRequired = true;
+                        }
+                    }
+                });
+                if (addedRequired) {
+                    persistAllToLocalStorage();
+                }
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 4. UTILITY & UI HELPER FUNCTIONS
+        // ---------------------------------------------------------
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatRelativeTime(timestamp) {
+            if (!timestamp) return 'เมื่อสักครู่';
+            const diffSec = Math.max(0, Math.floor((Date.now() - Number(timestamp)) / 1000));
+            if (diffSec < 60) return 'เมื่อสักครู่';
+            const diffMin = Math.floor(diffSec / 60);
+            if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
+            const diffHr = Math.floor(diffMin / 60);
+            if (diffHr < 24) return `${diffHr} ชั่วโมงที่แล้ว`;
+            const diffDay = Math.floor(diffHr / 24);
+            if (diffDay < 30) return `${diffDay} วันที่แล้ว`;
+            return new Date(Number(timestamp)).toLocaleDateString('th-TH', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        function estimateWordCount(text) {
+            if (!text || !text.trim()) return 0;
+            const cleaned = text.trim();
+            // Count space-separated tokens + approximate Thai syllables/words by character length
+            const spaceTokens = cleaned.split(/\s+/).filter(Boolean).length;
+            const thaiChars = (cleaned.match(/[\u0E00-\u0E7F]/g) || []).length;
+            return Math.max(spaceTokens, Math.round(thaiChars / 4.2));
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const styles = {
+                success: 'bg-emerald-600 text-white border-emerald-500',
+                error: 'bg-rose-600 text-white border-rose-500',
+                warning: 'bg-amber-500 text-white border-amber-400',
+                info: 'bg-slate-900 dark:bg-slate-800 text-white border-slate-700'
+            };
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-exclamation',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border shadow-xl text-xs sm:text-sm font-medium transition-all duration-300 opacity-0 translate-y-2 ${styles[type] || styles.info}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} flex-shrink-0"></i>
+                <span class="flex-1 leading-snug">${escapeHtml(message)}</span>
+            `;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3400);
+        }
+
+        function updateGDriveIndicatorUI() {
+            const dot = document.getElementById('gdrive-nav-dot');
+            if (!dot) return;
+            if (gdriveWebAppUrl) {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600';
+            }
+        }
+
+        function updateAccountUI() {
+            const labelEl = document.getElementById('nav-account-label');
+            const statusEl = document.getElementById('account-modal-status');
+            const uidEl = document.getElementById('account-uid-display');
+            const signOutBtn = document.getElementById('account-signout-btn');
+            const emailForm = document.getElementById('account-email-form');
+
+            const isEmailUser = currentUser && !currentUser.isAnonymous && currentUser.email;
+            if (labelEl) {
+                labelEl.textContent = isEmailUser ? currentUser.email.split('@')[0] : 'นักเขียน';
+            }
+            if (uidEl) {
+                uidEl.textContent = currentUser?.uid ? `${currentUser.uid.slice(0, 12)}...` : 'local-storage';
+            }
+            if (statusEl) {
+                statusEl.textContent = isEmailUser
+                    ? `เข้าสู่ระบบแล้ว (${currentUser.email})`
+                    : (isFirebaseReady ? 'เชื่อมต่อ Cloud + บันทึกในเครื่อง' : 'บันทึกในเครื่อง (LocalStorage)');
+            }
+            if (signOutBtn) {
+                signOutBtn.classList.toggle('hidden', !isEmailUser);
+            }
+            if (emailForm) {
+                emailForm.classList.toggle('hidden', Boolean(isEmailUser));
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 5. DATA ACCESSORS & AUTH / CLOUD INITIALIZATION
+        // ---------------------------------------------------------
+        function getActiveNovelsList() {
+            if (currentScope === 'gdrive') {
+                return Array.from(gdriveNovelsMap.values());
+            }
+            const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
+            const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+            const allChapters = Array.from(cMap.values());
+
+            return Array.from(nMap.values()).map(novel => {
+                const chapters = allChapters
+                    .filter(ch => ch.novelId === novel.id)
+                    .sort((a, b) => (Number(a.number) || 0) - (Number(b.number) || 0));
+                return { ...novel, chapters };
+            });
+        }
+
+        function getNovelById(novelId) {
+            if (!novelId) return null;
+            if (currentScope === 'gdrive' || String(novelId).startsWith('gdrive-')) {
+                return gdriveNovelsMap.get(novelId) || null;
+            }
+            const isPrivate = currentScope === 'private' && privateNovelsMap.has(novelId);
+            const nMap = isPrivate ? privateNovelsMap : (publicNovelsMap.has(novelId) ? publicNovelsMap : privateNovelsMap);
+            const cMap = isPrivate ? privateChaptersMap : (publicNovelsMap.has(novelId) ? publicChaptersMap : privateChaptersMap);
+
+            const novel = nMap.get(novelId);
+            if (!novel) return null;
+
+            const chapters = Array.from(cMap.values())
+                .filter(ch => ch.novelId === novelId)
+                .sort((a, b) => (Number(a.number) || 0) - (Number(b.number) || 0));
+            return { ...novel, chapters };
+        }
+
+        function getNovelsCollectionRef() {
+            if (!isFirebaseReady || !db) return null;
+            if (currentScope === 'private' && currentUser?.uid) {
+                return collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels');
+            }
+            return collection(db, 'artifacts', appId, 'public', 'data', 'novels');
+        }
+
+        function getChaptersCollectionRef() {
+            if (!isFirebaseReady || !db) return null;
+            if (currentScope === 'private' && currentUser?.uid) {
+                return collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters');
+            }
+            return collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
+        }
+
+        function attachFirestoreListeners() {
+            if (!isFirebaseReady || !db) return;
+
+            if (unsubscribePublicNovels) unsubscribePublicNovels();
+            if (unsubscribePublicChapters) unsubscribePublicChapters();
+            if (unsubscribePrivateNovels) unsubscribePrivateNovels();
+            if (unsubscribePrivateChapters) unsubscribePrivateChapters();
+
+            const pubNovelsCol = collection(db, 'artifacts', appId, 'public', 'data', 'novels');
+            const pubChaptersCol = collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
+
+            unsubscribePublicNovels = onSnapshot(pubNovelsCol, (snap) => {
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data && data.id) publicNovelsMap.set(data.id, data);
+                });
+                persistAllToLocalStorage();
+                updateScopeCounts();
+                refreshCurrentView();
+            }, (err) => console.warn('Public novels sync error:', err));
+
+            unsubscribePublicChapters = onSnapshot(pubChaptersCol, (snap) => {
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data && data.id) publicChaptersMap.set(data.id, data);
+                });
+                persistAllToLocalStorage();
+                refreshCurrentView();
+            }, (err) => console.warn('Public chapters sync error:', err));
+
+            if (currentUser?.uid) {
+                const privNovelsCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels');
+                const privChaptersCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters');
+
+                unsubscribePrivateNovels = onSnapshot(privNovelsCol, (snap) => {
+                    snap.forEach(d => {
+                        const data = d.data();
+                        if (data && data.id) privateNovelsMap.set(data.id, data);
+                    });
+                    persistAllToLocalStorage();
+                    updateScopeCounts();
+                    refreshCurrentView();
+                }, (err) => console.warn('Private novels sync error:', err));
+
+                unsubscribePrivateChapters = onSnapshot(privChaptersCol, (snap) => {
+                    snap.forEach(d => {
+                        const data = d.data();
+                        if (data && data.id) privateChaptersMap.set(data.id, data);
+                    });
+                    persistAllToLocalStorage();
+                    refreshCurrentView();
+                }, (err) => console.warn('Private chapters sync error:', err));
+            }
+        }
+
+        async function initAuth() {
+            // Restore cached Google Drive novels if available
+            try {
+                const rawGDrive = localStorage.getItem(STORAGE_KEYS.GDRIVE_CACHE);
+                if (rawGDrive) {
+                    const parsed = JSON.parse(rawGDrive);
+                    (parsed.novels || []).forEach(n => {
+                        if (n && n.id) gdriveNovelsMap.set(n.id, n);
+                    });
+                }
+            } catch (e) {}
+
+            updateGDriveIndicatorUI();
+            updateScopeCounts();
+            isInitialLoadDone = true;
+            renderLibrary();
+
+            const statusDot = document.getElementById('cloud-status-dot');
+            const statusText = document.getElementById('cloud-status-text');
+
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+                    isFirebaseReady = true;
+
+                    if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+                    if (statusText) statusText.textContent = 'ซิงค์ Cloud + ในเครื่อง';
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, (user) => {
+                        currentUser = user;
+                        updateAccountUI();
+                        if (user) {
+                            attachFirestoreListeners();
+                        }
+                    });
+                } else {
+                    updateAccountUI();
+                }
+            } catch (err) {
+                console.warn('Running in standalone LocalStorage mode:', err);
+                isFirebaseReady = false;
+                updateAccountUI();
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 6. SEEDING DEMO NOVELS TO STORAGE
+        // ---------------------------------------------------------
+        async function seedDemoDataToCloud(silent = false) {
+            const now = Date.now();
+            let addedCount = 0;
+
+            for (let idx = 0; idx < DEFAULT_NOVELS.length; idx++) {
+                const item = DEFAULT_NOVELS[idx];
+                if (!publicNovelsMap.has(item.id)) {
+                    publicNovelsMap.set(item.id, {
+                        id: item.id,
+                        title: item.title,
+                        author: item.author,
+                        category: item.category,
+                        coverTheme: item.coverTheme || 'indigo',
+                        synopsis: item.synopsis || '',
+                        createdAt: now - idx * 1000,
+                        updatedAt: now - idx * 1000
+                    });
+                    addedCount++;
+                }
+                if (Array.isArray(item.chapters)) {
+                    for (let cIdx = 0; cIdx < item.chapters.length; cIdx++) {
+                        const ch = item.chapters[cIdx];
+                        if (!publicChaptersMap.has(ch.id)) {
+                            publicChaptersMap.set(ch.id, {
+                                id: ch.id,
+                                novelId: item.id,
+                                number: Number(ch.number) || 1,
+                                title: ch.title,
+                                content: ch.content,
+                                updatedAt: now + cIdx
+                            });
+                        }
+                    }
+                }
+            }
+
+            persistAllToLocalStorage();
+            updateScopeCounts();
+            refreshCurrentView();
+
+            if (!silent) {
+                showToast(addedCount > 0 ? `เพิ่มนิยายตัวอย่างสำเร็จ ${addedCount} เรื่อง` : 'มีนิยายตัวอย่างอยู่ในคลังแล้ว', 'success');
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 7. VIEW NAVIGATION & LIBRARY RENDERING
+        // ---------------------------------------------------------
+        function updateScopeCounts() {
+            const gdriveCountEl = document.getElementById('scope-count-gdrive');
+            const pubCountEl = document.getElementById('scope-count-public');
+            const privCountEl = document.getElementById('scope-count-private');
+            if (gdriveCountEl) gdriveCountEl.textContent = `(${gdriveNovelsMap.size})`;
+            if (pubCountEl) pubCountEl.textContent = `(${publicNovelsMap.size})`;
+            if (privCountEl) privCountEl.textContent = `(${privateNovelsMap.size})`;
+        }
+
+        function switchLibraryScope(scope) {
+            currentScope = scope;
+            const btnGdrive = document.getElementById('scope-btn-gdrive');
+            const btnPub = document.getElementById('scope-btn-public');
+            const btnPriv = document.getElementById('scope-btn-private');
+            const mGdrive = document.getElementById('mobile-scope-gdrive');
+            const mPub = document.getElementById('mobile-scope-public');
+            const mPriv = document.getElementById('mobile-scope-private');
+            const heading = document.getElementById('library-section-heading');
+            const refreshBtn = document.getElementById('gdrive-refresh-btn');
+
+            const activeClasses = ['bg-indigo-600', 'text-white', 'shadow-xs'];
+            const inactiveClasses = ['text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-200/60', 'dark:hover:bg-slate-700'];
+
+            const buttons = [
+                { key: 'gdrive', el: btnGdrive, mEl: mGdrive },
+                { key: 'public', el: btnPub, mEl: mPub },
+                { key: 'private', el: btnPriv, mEl: mPriv }
+            ];
+
+            buttons.forEach(({ key, el, mEl }) => {
+                const isActive = key === scope;
+                if (el) {
+                    if (isActive) {
+                        el.classList.add(...activeClasses);
+                        el.classList.remove(...inactiveClasses);
+                    } else {
+                        el.classList.remove(...activeClasses);
+                        el.classList.add(...inactiveClasses);
+                    }
+                }
+                if (mEl) {
+                    mEl.className = isActive
+                        ? 'flex-1 py-1.5 rounded-xl text-[11px] font-semibold bg-indigo-600 text-white'
+                        : 'flex-1 py-1.5 rounded-xl text-[11px] font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
+                }
+            });
+
+            if (heading) {
+                if (scope === 'gdrive') heading.textContent = 'รายการนิยายจาก Google Drive';
+                else if (scope === 'public') heading.textContent = 'รายการนิยายในคลังกลาง';
+                else heading.textContent = 'รายการนิยายในคลังส่วนตัว';
+            }
+
+            if (refreshBtn) {
+                refreshBtn.classList.toggle('hidden', scope !== 'gdrive');
+                refreshBtn.classList.toggle('inline-flex', scope === 'gdrive');
+            }
+
+            if (scope === 'gdrive' && !gdriveWebAppUrl) {
+                openGDriveModal();
+            }
+
+            selectedCategory = 'ทั้งหมด';
+            if (window.currentView !== 'library') {
+                navigateTo('library');
+            } else {
+                renderLibrary();
+            }
+        }
+
+        function navigateTo(view, novelId = null, chapterId = null) {
+            window.currentView = view;
+            if (novelId) window.currentNovelId = novelId;
+            if (chapterId) window.currentChapterId = chapterId;
+
+            const viewLibrary = document.getElementById('view-library');
+            const viewDetail = document.getElementById('view-detail');
+            const viewReader = document.getElementById('view-reader');
+            const mainNavbar = document.getElementById('main-navbar');
+            const progressContainer = document.getElementById('reading-progress-container');
+
+            viewLibrary.classList.add('hidden');
+            viewDetail.classList.add('hidden');
+            viewReader.classList.add('hidden');
+
+            if (view === 'library') {
+                mainNavbar.classList.remove('hidden');
+                progressContainer.classList.add('hidden');
+                viewLibrary.classList.remove('hidden');
+                renderLibrary();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (view === 'detail') {
+                mainNavbar.classList.remove('hidden');
+                progressContainer.classList.add('hidden');
+                viewDetail.classList.remove('hidden');
+                renderNovelDetail(window.currentNovelId);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (view === 'reader') {
+                mainNavbar.classList.add('hidden');
+                progressContainer.classList.remove('hidden');
+                viewReader.classList.remove('hidden');
+                renderReader(window.currentNovelId, window.currentChapterId);
+                window.scrollTo({ top: 0, behavior: 'auto' });
+            }
+        }
+
+        function refreshCurrentView() {
+            if (window.currentView === 'library') {
+                renderLibrary();
+            } else if (window.currentView === 'detail' && window.currentNovelId) {
+                renderNovelDetail(window.currentNovelId);
+            } else if (window.currentView === 'reader' && window.currentNovelId && window.currentChapterId) {
+                renderReader(window.currentNovelId, window.currentChapterId);
+            }
+        }
+
+        function renderCategoryPills(novels) {
+            const container = document.getElementById('category-filter-pills');
+            if (!container) return;
+
+            const categories = ['ทั้งหมด'];
+            novels.forEach(n => {
+                if (n.category && !categories.includes(n.category)) {
+                    categories.push(n.category);
+                }
+            });
+
+            if (!categories.includes(selectedCategory)) {
+                selectedCategory = 'ทั้งหมด';
+            }
+
+            container.innerHTML = categories.map(cat => {
+                const isSelected = cat === selectedCategory;
+                const cls = isSelected
+                    ? 'bg-indigo-600 text-white shadow-xs border-indigo-600'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-indigo-400';
+                return `<button onclick="selectCategoryFilter('${escapeHtml(cat)}')" class="px-3.5 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap transition-all ${cls}">${escapeHtml(cat)}</button>`;
+            }).join('');
+        }
+
+        function selectCategoryFilter(cat) {
+            selectedCategory = cat;
+            renderLibrary();
+        }
+
+        function clearLibrarySearch() {
+            const input = document.getElementById('library-search-input');
+            if (input) input.value = '';
+            renderLibrary();
+        }
+
+        function renderLibrary() {
+            const allNovels = getActiveNovelsList();
+            renderCategoryPills(allNovels);
+
+            const searchInput = document.getElementById('library-search-input');
+            const clearBtn = document.getElementById('clear-search-btn');
+            const sortSelect = document.getElementById('library-sort-select');
+            const grid = document.getElementById('novels-grid');
+            const emptyState = document.getElementById('library-empty-state');
+            const emptyTitle = document.getElementById('empty-state-title');
+            const emptyDesc = document.getElementById('empty-state-desc');
+            const emptyGdriveBtn = document.getElementById('empty-gdrive-btn');
+            const totalCountEl = document.getElementById('library-total-count');
+
+            const query = (searchInput?.value || '').trim().toLowerCase();
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', query.length === 0);
+            }
+
+            let filtered = allNovels.filter(novel => {
+                const matchCat = selectedCategory === 'ทั้งหมด' || novel.category === selectedCategory;
+                const matchQuery = !query ||
+                    (novel.title || '').toLowerCase().includes(query) ||
+                    (novel.author || '').toLowerCase().includes(query) ||
+                    (novel.synopsis || '').toLowerCase().includes(query) ||
+                    (novel.category || '').toLowerCase().includes(query);
+                return matchCat && matchQuery;
+            });
+
+            const sortBy = sortSelect?.value || 'updated';
+            filtered.sort((a, b) => {
+                if (sortBy === 'chapters') {
+                    return (b.chapters?.length || 0) - (a.chapters?.length || 0);
+                } else if (sortBy === 'title') {
+                    return (a.title || '').localeCompare(b.title || '', 'th');
+                }
+                return (b.updatedAt || 0) - (a.updatedAt || 0);
+            });
+
+            if (totalCountEl) {
+                totalCountEl.textContent = `${filtered.length} เรื่อง`;
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                if (isInitialLoadDone) {
+                    emptyState.classList.remove('hidden');
+                    if (currentScope === 'gdrive') {
+                        emptyTitle.textContent = gdriveWebAppUrl ? 'ไม่พบเรื่องนิยายในโฟลเดอร์ Google Drive' : 'ยังไม่ได้เชื่อมต่อ Google Drive';
+                        emptyDesc.textContent = 'กดปุ่ม "ตั้งค่าเชื่อมต่อ Google Drive" เพื่อวาง Web App URL จาก Google Apps Script และดึงไฟล์ Google Docs ของคุณ';
+                        emptyGdriveBtn.classList.remove('hidden');
+                    } else {
+                        emptyTitle.textContent = 'ยังไม่มีนิยายในหมวดนี้';
+                        emptyDesc.textContent = 'เริ่มต้นแต่งนิยายเรื่องแรกของคุณ ข้อมูลจะถูกบันทึกไว้ใน LocalStorage อย่างปลอดภัย';
+                        emptyGdriveBtn.classList.add('hidden');
+                    }
+                }
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = filtered.map(novel => {
+                const theme = COVER_THEMES[novel.coverTheme] || COVER_THEMES.indigo;
+                const chapterCount = novel.chapters ? novel.chapters.length : 0;
+                const latestChapter = chapterCount > 0 ? novel.chapters[chapterCount - 1] : null;
+
+                return `
+                    <div onclick="navigateTo('detail', '${escapeHtml(novel.id)}')" class="group bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 shadow-xs hover:shadow-xl hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 cursor-pointer flex flex-col justify-between">
+                        <div>
+                            <div class="flex gap-4 mb-4">
+                                <div class="w-20 h-28 rounded-2xl bg-gradient-to-br ${theme.gradient} text-white p-2.5 flex flex-col justify-between shadow-md flex-shrink-0 group-hover:scale-105 transition-transform relative overflow-hidden">
+                                    <i class="fa-solid ${theme.icon} text-white/25 text-3xl absolute -right-1 -bottom-1"></i>
+                                    <span class="text-[9px] uppercase tracking-wider font-semibold bg-black/25 px-1.5 py-0.5 rounded-md w-fit truncate max-w-full">
+                                        ${escapeHtml(novel.category || 'นิยาย')}
+                                    </span>
+                                    <div class="text-[11px] font-bold leading-tight line-clamp-3 relative z-10">
+                                        ${escapeHtml(novel.title)}
+                                    </div>
+                                </div>
+
+                                <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                    <div>
+                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 mb-1.5">
+                                            ${escapeHtml(novel.category || 'ทั่วไป')}
+                                        </span>
+                                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-snug line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                            ${escapeHtml(novel.title)}
+                                        </h3>
+                                    </div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-1">
+                                        <i class="fa-solid fa-pen-nib text-indigo-500 mr-1"></i>${escapeHtml(novel.author || 'ไม่ระบุนามปากกา')}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed mb-4">
+                                ${escapeHtml(novel.synopsis || 'ไม่มีคำโปรย')}
+                            </p>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span class="font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-layer-group"></i>
+                                ${chapterCount} ตอน
+                            </span>
+                            <span class="truncate max-w-[160px]" title="${latestChapter ? escapeHtml(latestChapter.title) : ''}">
+                                ${latestChapter ? `ตอนที่ ${latestChapter.number}: ${escapeHtml(latestChapter.title)}` : formatRelativeTime(novel.updatedAt)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ---------------------------------------------------------
+        // 8. NOVEL DETAIL & CHAPTER TABLE OF CONTENTS
+        // ---------------------------------------------------------
+        function renderNovelDetail(novelId) {
+            const novel = getNovelById(novelId);
+            if (!novel) {
+                navigateTo('library');
+                return;
+            }
+
+            const theme = COVER_THEMES[novel.coverTheme] || COVER_THEMES.indigo;
+            const coverEl = document.getElementById('detail-cover-container');
+            if (coverEl) {
+                coverEl.innerHTML = `
+                    <div class="w-full h-full bg-gradient-to-br ${theme.gradient} text-white p-4 flex flex-col justify-between relative overflow-hidden">
+                        <i class="fa-solid ${theme.icon} text-white/15 text-7xl absolute -right-3 -bottom-3"></i>
+                        <span class="text-[10px] font-semibold uppercase tracking-wider bg-black/25 px-2.5 py-1 rounded-full w-fit">
+                            ${escapeHtml(novel.category || 'นิยาย')}
+                        </span>
+                        <div class="relative z-10">
+                            <div class="font-bold text-base sm:text-lg leading-snug line-clamp-4 mb-1.5">
+                                ${escapeHtml(novel.title)}
+                            </div>
+                            <div class="text-xs text-white/80 truncate">
+                                ${escapeHtml(novel.author)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('detail-category').textContent = novel.category || 'ทั่วไป';
+            document.getElementById('detail-updated').innerHTML = `<i class="fa-regular fa-clock"></i> อัปเดต ${formatRelativeTime(novel.updatedAt)}`;
+            document.getElementById('detail-title').textContent = novel.title;
+            document.getElementById('detail-author').textContent = novel.author;
+            document.getElementById('detail-synopsis').textContent = novel.synopsis || 'ยังไม่มีรายละเอียดเรื่องย่อ';
+
+            const isGDrive = currentScope === 'gdrive';
+            const editNovelBtn = document.getElementById('detail-edit-novel-btn');
+            const deleteNovelBtn = document.getElementById('detail-delete-novel-btn');
+            const writerActions = document.getElementById('detail-writer-actions');
+            const gdriveBadge = document.getElementById('detail-gdrive-badge');
+
+            if (editNovelBtn) editNovelBtn.classList.toggle('hidden', isGDrive);
+            if (deleteNovelBtn) deleteNovelBtn.classList.toggle('hidden', isGDrive);
+            if (writerActions) writerActions.classList.toggle('hidden', isGDrive);
+            if (gdriveBadge) {
+                gdriveBadge.classList.toggle('hidden', !isGDrive);
+                gdriveBadge.classList.toggle('flex', isGDrive);
+            }
+
+            const startBtn = document.getElementById('detail-start-read-btn');
+            if (startBtn) {
+                if (novel.chapters && novel.chapters.length > 0) {
+                    startBtn.disabled = false;
+                    startBtn.classList.remove('opacity-50', 'pointer-events-none');
+                } else {
+                    startBtn.disabled = true;
+                    startBtn.classList.add('opacity-50', 'pointer-events-none');
+                }
+            }
+
+            renderChapterList();
+        }
+
+        function toggleChapterSortOrder() {
+            chapterSortAsc = !chapterSortAsc;
+            const btn = document.getElementById('chapter-sort-btn');
+            if (btn) {
+                btn.innerHTML = chapterSortAsc
+                    ? '<i class="fa-solid fa-arrow-down-1-9"></i>'
+                    : '<i class="fa-solid fa-arrow-up-9-1"></i>';
+            }
+            renderChapterList();
+        }
+
+        function renderChapterList() {
+            const novel = getNovelById(window.currentNovelId);
+            if (!novel) return;
+
+            const chapters = [...(novel.chapters || [])];
+            const searchQuery = (document.getElementById('chapter-search-input')?.value || '').trim().toLowerCase();
+            const container = document.getElementById('chapters-list-container');
+            const emptyState = document.getElementById('chapters-empty-state');
+            const countBadge = document.getElementById('detail-chapter-count');
+
+            if (countBadge) {
+                countBadge.textContent = `${chapters.length} ตอน`;
+            }
+
+            if (chapters.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            let filtered = chapters.filter(ch => {
+                if (!searchQuery) return true;
+                return String(ch.number).includes(searchQuery) ||
+                    (ch.title || '').toLowerCase().includes(searchQuery);
+            });
+
+            filtered.sort((a, b) => {
+                const diff = (Number(a.number) || 0) - (Number(b.number) || 0);
+                return chapterSortAsc ? diff : -diff;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="py-8 text-center text-sm text-slate-400">ไม่พบตอนที่ตรงกับคำค้นหา</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(ch => {
+                const words = estimateWordCount(ch.content);
+                const isGDrive = currentScope === 'gdrive';
+                const wordLabel = isGDrive && !ch.content ? 'Google Docs' : `~${words.toLocaleString()} คำ`;
+                return `
+                    <div class="py-3.5 px-2 sm:px-3 flex items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-colors group">
+                        <div onclick="navigateTo('reader', '${escapeHtml(novel.id)}', '${escapeHtml(ch.id)}')" class="flex-1 min-w-0 cursor-pointer flex items-center gap-3">
+                            <span class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold text-xs sm:text-sm flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                #${escapeHtml(ch.number)}
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <h4 class="font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                    ตอนที่ ${escapeHtml(ch.number)}: ${escapeHtml(ch.title)}
+                                </h4>
+                                <div class="text-xs text-slate-400 flex items-center gap-3 mt-0.5">
+                                    <span><i class="fa-regular fa-file-lines mr-1"></i>${wordLabel}</span>
+                                    <span>${formatRelativeTime(ch.updatedAt)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1">
+                            <button onclick="navigateTo('reader', '${escapeHtml(novel.id)}', '${escapeHtml(ch.id)}')" title="อ่านตอนนี้" class="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white text-xs font-medium transition-colors">
+                                อ่าน
+                            </button>
+                            ${isGDrive ? '' : `
+                            <button onclick="openChapterEditor('${escapeHtml(ch.id)}')" title="แก้ไขตอน" class="p-2 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="confirmDeleteChapter('${escapeHtml(ch.id)}')" title="ลบตอน" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function startReadingFirstChapter() {
+            const novel = getNovelById(window.currentNovelId);
+            if (!novel || !novel.chapters || novel.chapters.length === 0) {
+                showToast('เรื่องนี้ยังไม่มีตอนให้อ่าน', 'warning');
+                return;
+            }
+            navigateTo('reader', novel.id, novel.chapters[0].id);
+        }
+
+        // ---------------------------------------------------------
+        // 9. READER VIEW & READING SETTINGS (PRESERVES DOCS FORMAT)
+        // ---------------------------------------------------------
+        async function renderReader(novelId, chapterId) {
+            const novel = getNovelById(novelId);
+            if (!novel) {
+                navigateTo('library');
+                return;
+            }
+
+            const chapters = novel.chapters || [];
+            const chapterIndex = chapters.findIndex(c => c.id === chapterId);
+            const chapter = chapterIndex >= 0 ? chapters[chapterIndex] : chapters[0];
+
+            if (!chapter) {
+                navigateTo('detail', novelId);
+                return;
+            }
+
+            window.currentChapterId = chapter.id;
+
+            document.getElementById('reader-nav-novel-title').textContent = novel.title;
+            document.getElementById('reader-nav-chapter-title').textContent = `ตอนที่ ${chapter.number}: ${chapter.title}`;
+            document.getElementById('reader-chapter-badge').textContent = `ตอนที่ ${chapter.number}`;
+            document.getElementById('reader-chapter-heading').textContent = chapter.title;
+            document.getElementById('reader-author-meta').innerHTML = `<i class="fa-solid fa-pen-nib mr-1"></i> ${escapeHtml(novel.author)}`;
+
+            const prevBtn = document.getElementById('reader-prev-btn');
+            const nextBtn = document.getElementById('reader-next-btn');
+            if (prevBtn) prevBtn.disabled = chapterIndex <= 0;
+            if (nextBtn) nextBtn.disabled = chapterIndex >= chapters.length - 1;
+
+            applyReaderSettings();
+
+            const bodyEl = document.getElementById('reader-content-body');
+            let contentText = chapter.content || '';
+
+            // Fetch chapter content on-demand from Google Docs when opened
+            if (currentScope === 'gdrive' && chapter.fileId && !gdriveChapterCache.has(chapter.fileId)) {
+                document.getElementById('reader-wordcount-meta').innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดจาก Google Docs...`;
+                bodyEl.innerHTML = `
+                    <div class="py-16 text-center opacity-70">
+                        <i class="fa-solid fa-circle-notch fa-spin text-3xl text-emerald-500 mb-3"></i>
+                        <p class="text-sm">กำลังดึงเนื้อหา ย่อหน้า และการเว้นวรรคจาก Google Docs...</p>
+                    </div>
+                `;
+                try {
+                    const data = await callGDriveWebApp({ action: 'chapter', fileId: chapter.fileId });
+                    if (data.status === 'success') {
+                        contentText = data.content || '';
+                        gdriveChapterCache.set(chapter.fileId, contentText);
+                    } else {
+                        throw new Error(data.message || 'ไม่สามารถอ่านไฟล์ได้');
+                    }
+                } catch (err) {
+                    console.error('Fetch Google Doc chapter error:', err);
+                    bodyEl.innerHTML = `<p class="text-rose-500 text-center py-8">เกิดข้อผิดพลาดในการดึงเนื้อหาจาก Google Docs: ${escapeHtml(err.message)}</p>`;
+                    return;
+                }
+            }
+
+            document.getElementById('reader-wordcount-meta').innerHTML = `<i class="fa-regular fa-file-lines mr-1"></i> ~${estimateWordCount(contentText).toLocaleString()} คำ`;
+
+            // Preserve paragraphs, empty blank lines (scene breaks), and leading spaces from Google Docs
+            const rawLines = contentText.split(/\r?\n/);
+            const hasContent = rawLines.some(line => line.trim().length > 0);
+
+            if (!hasContent) {
+                bodyEl.innerHTML = `<p class="opacity-50 italic text-center py-8">(ยังไม่มีเนื้อหาในตอนนี้)</p>`;
+            } else {
+                bodyEl.innerHTML = rawLines.map(line => {
+                    if (line.trim().length === 0) {
+                        return `<div class="h-4" aria-hidden="true"></div>`;
+                    }
+                    // If the author already indented with spaces/tabs in Docs, avoid double-indenting
+                    const alreadyIndented = /^[\s\u00A0\t]{2,}/.test(line);
+                    const styleAttr = alreadyIndented ? 'style="text-indent: 0;"' : '';
+                    return `<p class="novel-paragraph" ${styleAttr}>${escapeHtml(line)}</p>`;
+                }).join('');
+            }
+
+            updateReadingProgress();
+        }
+
+        function navigateChapter(offset) {
+            const novel = getNovelById(window.currentNovelId);
+            if (!novel || !novel.chapters) return;
+            const idx = novel.chapters.findIndex(c => c.id === window.currentChapterId);
+            const target = novel.chapters[idx + offset];
+            if (target) {
+                navigateTo('reader', novel.id, target.id);
+            }
+        }
+
+        function toggleReaderSettings() {
+            const panel = document.getElementById('reader-settings-panel');
+            if (panel) panel.classList.toggle('hidden');
+        }
+
+        function updateReaderSetting(key, value) {
+            readerSettings[key] = value;
+            try {
+                localStorage.setItem(STORAGE_KEYS.READER_SETTINGS, JSON.stringify(readerSettings));
+            } catch (e) {}
+            applyReaderSettings();
+        }
+
+        function changeFontSize(delta) {
+            const next = Math.min(30, Math.max(14, readerSettings.fontSize + delta));
+            updateReaderSetting('fontSize', next);
+        }
+
+        function applyReaderSettings() {
+            const readerSection = document.getElementById('view-reader');
+            const topbar = document.getElementById('reader-topbar');
+            const settingsPanel = document.getElementById('reader-settings-panel');
+            const bodyEl = document.getElementById('reader-content-body');
+            const sizeDisplay = document.getElementById('reader-font-size-display');
+
+            if (!readerSection || !bodyEl) return;
+
+            readerSection.classList.remove('reader-theme-light', 'reader-theme-sepia', 'reader-theme-dark');
+            readerSection.classList.add(`reader-theme-${readerSettings.theme}`);
+
+            if (topbar && settingsPanel) {
+                topbar.className = 'sticky top-0 z-30 border-b backdrop-blur-md transition-colors';
+                settingsPanel.classList.remove('bg-white', 'bg-[#f6eedc]', 'bg-[#181b20]');
+                if (readerSettings.theme === 'light') {
+                    topbar.classList.add('bg-white/95', 'border-slate-200', 'text-slate-800');
+                    settingsPanel.classList.add('bg-white');
+                } else if (readerSettings.theme === 'sepia') {
+                    topbar.classList.add('bg-[#f6eedc]/95', 'border-[#dfd3bc]', 'text-[#433422]');
+                    settingsPanel.classList.add('bg-[#f6eedc]');
+                } else {
+                    topbar.classList.add('bg-[#121418]/95', 'border-slate-800', 'text-slate-200');
+                    settingsPanel.classList.add('bg-[#181b20]');
+                }
+            }
+
+            bodyEl.classList.remove('font-sarabun', 'font-prompt', 'font-serifthai');
+            bodyEl.classList.add(`font-${readerSettings.fontFamily}`);
+
+            bodyEl.style.fontSize = `${readerSettings.fontSize}px`;
+            bodyEl.style.lineHeight = readerSettings.lineHeight;
+            if (sizeDisplay) sizeDisplay.textContent = `${readerSettings.fontSize} px`;
+
+            document.querySelectorAll('.theme-opt-btn').forEach(btn => {
+                const active = btn.dataset.themeOpt === readerSettings.theme;
+                btn.classList.toggle('ring-2', active);
+                btn.classList.toggle('ring-indigo-500', active);
+            });
+            document.querySelectorAll('.font-opt-btn').forEach(btn => {
+                const active = btn.dataset.fontOpt === readerSettings.fontFamily;
+                btn.classList.toggle('border-indigo-500', active);
+                btn.classList.toggle('bg-indigo-500/10', active);
+            });
+            document.querySelectorAll('.lh-opt-btn').forEach(btn => {
+                const active = btn.dataset.lhOpt === readerSettings.lineHeight;
+                btn.classList.toggle('border-indigo-500', active);
+                btn.classList.toggle('bg-indigo-500/10', active);
+            });
+        }
+
+        function updateReadingProgress() {
+            if (window.currentView !== 'reader') return;
+            const bar = document.getElementById('reading-progress-bar');
+            if (!bar) return;
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const pct = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 100;
+            bar.style.width = `${pct}%`;
+        }
+
+        window.addEventListener('scroll', updateReadingProgress, { passive: true });
+
+        // ---------------------------------------------------------
+        // 10. CREATE / EDIT / DELETE NOVEL (ALWAYS SAVED TO LOCALSTORAGE)
+        // ---------------------------------------------------------
+        function renderCoverThemeSwatches(selectedKey) {
+            const container = document.getElementById('cover-theme-selector');
+            if (!container) return;
+            container.innerHTML = Object.entries(COVER_THEMES).map(([key, theme]) => {
+                const isSelected = key === selectedKey;
+                return `
+                    <button type="button" onclick="selectCoverTheme('${key}')" title="${escapeHtml(theme.name)}"
+                        class="h-10 rounded-xl ${theme.swatch} text-white flex items-center justify-center transition-transform ${isSelected ? 'ring-2 ring-offset-2 ring-indigo-500 dark:ring-offset-slate-900 scale-105' : 'opacity-75 hover:opacity-100'}">
+                        ${isSelected ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectCoverTheme(key) {
+            document.getElementById('novel-form-cover').value = key;
+            renderCoverThemeSwatches(key);
+        }
+
+        function openNovelModal(novelId = null) {
+            if (currentScope === 'gdrive') {
+                switchLibraryScope('private');
+            }
+            const modal = document.getElementById('novel-modal');
+            const heading = document.getElementById('novel-modal-title');
+            const idInput = document.getElementById('novel-form-id');
+            const titleInput = document.getElementById('novel-form-title');
+            const authorInput = document.getElementById('novel-form-author');
+            const categoryInput = document.getElementById('novel-form-category');
+            const synopsisInput = document.getElementById('novel-form-synopsis');
+
+            if (novelId) {
+                const novel = getNovelById(novelId);
+                if (!novel) return;
+                heading.innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-500"></i><span>แก้ไขข้อมูลนิยาย</span>`;
+                idInput.value = novel.id;
+                titleInput.value = novel.title || '';
+                authorInput.value = novel.author || '';
+                categoryInput.value = novel.category || 'โรแมนติก';
+                synopsisInput.value = novel.synopsis || '';
+                selectCoverTheme(novel.coverTheme || 'indigo');
+            } else {
+                heading.innerHTML = `<i class="fa-solid fa-book-medical text-indigo-500"></i><span>สร้างเรื่องนิยายใหม่ (${currentScope === 'private' ? 'คลังส่วนตัว' : 'คลังนิยายกลาง'})</span>`;
+                idInput.value = '';
+                titleInput.value = '';
+                authorInput.value = '';
+                categoryInput.value = 'โรแมนติก';
+                synopsisInput.value = '';
+                selectCoverTheme('indigo');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeNovelModal() {
+            document.getElementById('novel-modal').classList.add('hidden');
+        }
+
+        async function saveNovel(event) {
+            event.preventDefault();
+            const existingId = document.getElementById('novel-form-id').value.trim();
+            const title = document.getElementById('novel-form-title').value.trim();
+            const author = document.getElementById('novel-form-author').value.trim();
+            const category = document.getElementById('novel-form-category').value;
+            const coverTheme = document.getElementById('novel-form-cover').value || 'indigo';
+            const synopsis = document.getElementById('novel-form-synopsis').value.trim();
+
+            if (!title || !author) {
+                showToast('กรุณากรอกชื่อเรื่องและนามปากกา', 'warning');
+                return;
+            }
+
+            const now = Date.now();
+            const novelId = existingId || `novel-${now}-${Math.random().toString(36).substring(2, 7)}`;
+            const targetMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
+            const prev = targetMap.get(novelId) || {};
+
+            const novelObj = {
+                id: novelId,
+                title,
+                author,
+                category,
+                coverTheme,
+                synopsis,
+                createdAt: prev.createdAt || now,
+                updatedAt: now
+            };
+
+            // 1. Always save immediately to localStorage
+            targetMap.set(novelId, novelObj);
+            persistAllToLocalStorage();
+            updateScopeCounts();
+            refreshCurrentView();
+
+            // 2. Also sync to Firestore in background if available
+            const novelsRef = getNovelsCollectionRef();
+            if (novelsRef) {
+                setDoc(doc(novelsRef, novelId), novelObj, { merge: true }).catch(e => console.warn('Cloud sync skipped:', e));
+            }
+
+            showToast(existingId ? 'บันทึกการแก้ไขข้อมูลเรื่องลง LocalStorage แล้ว' : 'สร้างนิยายเรื่องใหม่สำเร็จ!', 'success');
+            closeNovelModal();
+            if (!existingId) navigateTo('detail', novelId);
+        }
+
+        function confirmDeleteNovel(novelId) {
+            const novel = getNovelById(novelId);
+            if (!novel) return;
+
+            openConfirmDialog(
+                'ยืนยันการลบนิยาย',
+                `คุณต้องการลบเรื่อง "${novel.title}" และตอนทั้งหมดในเรื่องนี้ใช่หรือไม่?`,
+                async () => {
+                    const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                    const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+                    for (const ch of (novel.chapters || [])) cMap.delete(ch.id);
+                    nMap.delete(novelId);
+                    persistAllToLocalStorage();
+                    updateScopeCounts();
+
+                    const novelsRef = getNovelsCollectionRef();
+                    const chaptersRef = getChaptersCollectionRef();
+                    if (novelsRef && chaptersRef) {
+                        for (const ch of (novel.chapters || [])) {
+                            deleteDoc(doc(chaptersRef, ch.id)).catch(() => {});
+                        }
+                        deleteDoc(doc(novelsRef, novelId)).catch(() => {});
+                    }
+
+                    showToast('ลบนิยายเรียบร้อยแล้ว', 'success');
+                    navigateTo('library');
+                }
+            );
+        }
+
+        // ---------------------------------------------------------
+        // 11. CHAPTER EDITOR (CREATE / EDIT / AUTOSAVE / DELETE)
+        // ---------------------------------------------------------
+        async function openChapterEditor(chapterId = null) {
+            const novel = getNovelById(window.currentNovelId);
+            if (!novel) return;
+
+            editingChapterId = chapterId;
+            const modal = document.getElementById('chapter-editor-modal');
+            const heading = document.getElementById('chapter-editor-heading');
+            const novelNameEl = document.getElementById('chapter-editor-novel-name');
+            const numInput = document.getElementById('chapter-form-number');
+            const titleInput = document.getElementById('chapter-form-title');
+            const contentInput = document.getElementById('chapter-form-content');
+
+            novelNameEl.textContent = novel.title;
+
+            if (chapterId) {
+                const chapter = (novel.chapters || []).find(c => c.id === chapterId);
+                if (!chapter) return;
+                heading.textContent = `แก้ไขตอนที่ ${chapter.number}`;
+                numInput.value = chapter.number;
+                titleInput.value = chapter.title || '';
+                contentInput.value = chapter.content || '';
+            } else {
+                const maxNum = (novel.chapters || []).reduce((max, c) => Math.max(max, Number(c.number) || 0), 0);
+                heading.textContent = 'เขียนตอนนิยายใหม่';
+                numInput.value = maxNum + 1;
+                titleInput.value = '';
+                contentInput.value = '';
+
+                try {
+                    const localDraft = localStorage.getItem(`readwrite_draft_${novel.id}`);
+                    if (localDraft) {
+                        const d = JSON.parse(localDraft);
+                        if (d.title) titleInput.value = d.title;
+                        if (d.number) numInput.value = d.number;
+                        if (d.content) {
+                            contentInput.value = d.content;
+                            showToast('กู้คืนฉบับร่างล่าสุดจากเครื่องให้แล้ว', 'info');
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            updateEditorStats();
+            modal.classList.remove('hidden');
+        }
+
+        function closeChapterEditor() {
+            if (autosaveTimer) clearTimeout(autosaveTimer);
+            document.getElementById('chapter-editor-modal').classList.add('hidden');
+        }
+
+        function updateEditorStats() {
+            const text = document.getElementById('chapter-form-content')?.value || '';
+            const words = estimateWordCount(text);
+            const chars = text.length;
+            const wEl = document.getElementById('editor-word-count');
+            const cEl = document.getElementById('editor-char-count');
+            if (wEl) wEl.textContent = words.toLocaleString();
+            if (cEl) cEl.textContent = chars.toLocaleString();
+        }
+
+        function handleEditorTyping() {
+            updateEditorStats();
+            const statusEl = document.getElementById('editor-autosave-status');
+            if (statusEl) {
+                statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังเตรียมบันทึกฉบับร่าง...`;
+            }
+
+            if (autosaveTimer) clearTimeout(autosaveTimer);
+            autosaveTimer = setTimeout(() => {
+                if (editingChapterId || !window.currentNovelId) return;
+                const content = document.getElementById('chapter-form-content').value;
+                if (!content.trim()) return;
+
+                try {
+                    localStorage.setItem(`readwrite_draft_${window.currentNovelId}`, JSON.stringify({
+                        number: Number(document.getElementById('chapter-form-number').value) || 1,
+                        title: document.getElementById('chapter-form-title').value.trim(),
+                        content,
+                        updatedAt: Date.now()
+                    }));
+                    if (statusEl) {
+                        statusEl.innerHTML = `<i class="fa-solid fa-check text-emerald-500 mr-1"></i> บันทึกฉบับร่างลง LocalStorage แล้ว (${new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })})`;
+                    }
+                } catch (e) {}
+            }, 1000);
+        }
+
+        async function saveChapter() {
+            const novel = getNovelById(window.currentNovelId);
+            if (!novel) return;
+
+            const number = parseInt(document.getElementById('chapter-form-number').value, 10) || 1;
+            const title = document.getElementById('chapter-form-title').value.trim();
+            const content = document.getElementById('chapter-form-content').value;
+
+            if (!title) {
+                showToast('กรุณากรอกชื่อตอน', 'warning');
+                return;
+            }
+
+            const now = Date.now();
+            const chapterId = editingChapterId || `ch-${novel.id}-${now}-${Math.random().toString(36).substring(2, 6)}`;
+            const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
+            const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+
+            const chapterObj = { id: chapterId, novelId: novel.id, number, title, content, updatedAt: now };
+            cMap.set(chapterId, chapterObj);
+
+            const existingN = nMap.get(novel.id);
+            if (existingN) {
+                nMap.set(novel.id, { ...existingN, updatedAt: now });
+            }
+
+            persistAllToLocalStorage();
+            localStorage.removeItem(`readwrite_draft_${novel.id}`);
+            refreshCurrentView();
+
+            const chaptersRef = getChaptersCollectionRef();
+            const novelsRef = getNovelsCollectionRef();
+            if (chaptersRef && novelsRef) {
+                setDoc(doc(chaptersRef, chapterId), chapterObj).catch(() => {});
+                if (existingN) {
+                    setDoc(doc(novelsRef, novel.id), { ...existingN, updatedAt: now }, { merge: true }).catch(() => {});
+                }
+            }
+
+            showToast(`บันทึกตอนที่ ${number} ลง LocalStorage เรียบร้อย!`, 'success');
+            closeChapterEditor();
+        }
+
+        function confirmDeleteChapter(chapterId) {
+            const novel = getNovelById(window.currentNovelId);
+            if (!novel) return;
+            const chapter = (novel.chapters || []).find(c => c.id === chapterId);
+            if (!chapter) return;
+
+            openConfirmDialog(
+                'ยืนยันการลบตอนนิยาย',
+                `คุณต้องการลบ "ตอนที่ ${chapter.number}: ${chapter.title}" ใช่หรือไม่?`,
+                async () => {
+                    const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+                    cMap.delete(chapterId);
+                    persistAllToLocalStorage();
+                    refreshCurrentView();
+
+                    const chaptersRef = getChaptersCollectionRef();
+                    if (chaptersRef) {
+                        deleteDoc(doc(chaptersRef, chapterId)).catch(() => {});
+                    }
+
+                    showToast('ลบตอนนิยายเรียบร้อยแล้ว', 'success');
+                }
+            );
+        }
+
+        // ---------------------------------------------------------
+        // 12. BULK CHAPTER IMPORTER
+        // ---------------------------------------------------------
+        function openBulkImportModal() {
+            const textarea = document.getElementById('bulk-import-textarea');
+            const preview = document.getElementById('bulk-preview-count');
+            if (textarea) textarea.value = '';
+            if (preview) preview.textContent = 'ตรวจพบ 0 ตอน';
+            document.getElementById('bulk-import-modal').classList.remove('hidden');
+        }
+
+        function closeBulkImportModal() {
+            document.getElementById('bulk-import-modal').classList.add('hidden');
+        }
+
+        function parseBulkChaptersText(rawText) {
+            if (!rawText || !rawText.trim()) return [];
+            const lines = rawText.split(/\r?\n/);
+            const chapters = [];
+            let current = null;
+            const headerRegex = /^(?:ตอนที่|Chapter|บทที่)\s*(\d+)\s*[:：\-–—.]?\s*(.*)$/i;
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                const match = trimmed.match(headerRegex);
+                if (match) {
+                    if (current) {
+                        current.content = current.contentLines.join('\n').trim();
+                        chapters.push(current);
+                    }
+                    current = {
+                        number: parseInt(match[1], 10),
+                        title: (match[2] || `ตอนที่ ${match[1]}`).trim(),
+                        contentLines: []
+                    };
+                } else if (current) {
+                    current.contentLines.push(line);
+                }
+            }
+
+            if (current) {
+                current.content = current.contentLines.join('\n').trim();
+                chapters.push(current);
+            }
+
+            return chapters;
+        }
+
+        function previewBulkChapters() {
+            const raw = document.getElementById('bulk-import-textarea')?.value || '';
+            const parsed = parseBulkChaptersText(raw);
+            const preview = document.getElementById('bulk-preview-count');
+            if (preview) {
+                preview.textContent = `ตรวจพบ ${parsed.length} ตอน`;
+            }
+        }
+
+        async function executeBulkImport() {
+            const novel = getNovelById(window.currentNovelId);
+            if (!novel) return;
+
+            const raw = document.getElementById('bulk-import-textarea')?.value || '';
+            const parsed = parseBulkChaptersText(raw);
+
+            if (parsed.length === 0) {
+                showToast('ไม่พบรูปแบบหัวข้อตอน (เช่น "ตอนที่ 1 ชื่อตอน")', 'warning');
+                return;
+            }
+
+            const now = Date.now();
+            const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
+            const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+            const chaptersRef = getChaptersCollectionRef();
+            const novelsRef = getNovelsCollectionRef();
+
+            parsed.forEach((ch, i) => {
+                const chId = `ch-${novel.id}-${now}-${i}-${Math.random().toString(36).substring(2, 5)}`;
+                const chObj = { id: chId, novelId: novel.id, number: ch.number, title: ch.title, content: ch.content, updatedAt: now + i };
+                cMap.set(chId, chObj);
+                if (chaptersRef) setDoc(doc(chaptersRef, chId), chObj).catch(() => {});
+            });
+
+            const existingN = nMap.get(novel.id);
+            if (existingN) {
+                nMap.set(novel.id, { ...existingN, updatedAt: now });
+                if (novelsRef) setDoc(doc(novelsRef, novel.id), { ...existingN, updatedAt: now }, { merge: true }).catch(() => {});
+            }
+
+            persistAllToLocalStorage();
+            refreshCurrentView();
+            showToast(`นำเข้าสำเร็จทั้งหมด ${parsed.length} ตอน!`, 'success');
+            closeBulkImportModal();
+        }
+
+        // ---------------------------------------------------------
+        // 13. BACKUP / RESTORE (JSON) & STORAGE SCANNER
+        // ---------------------------------------------------------
+        function toggleBackupMenu() {
+            const dropdown = document.getElementById('backup-dropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            const wrapper = document.getElementById('backup-menu-wrapper');
+            const dropdown = document.getElementById('backup-dropdown');
+            if (wrapper && dropdown && !wrapper.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function exportDataJSON() {
+            toggleBackupMenu();
+            const novels = getActiveNovelsList();
+            const payload = {
+                app: 'ReadWrite Thai',
+                scope: currentScope,
+                exportedAt: new Date().toISOString(),
+                novels
+            };
+
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `readwrite-backup-${currentScope}-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            showToast('ส่งออกไฟล์สำรอง (.JSON) เรียบร้อยแล้ว', 'success');
+        }
+
+        function importDataJSON(event) {
+            toggleBackupMenu();
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    const novelsList = Array.isArray(data) ? data : data.novels;
+                    if (!Array.isArray(novelsList)) {
+                        showToast('รูปแบบไฟล์สำรองไม่ถูกต้อง', 'error');
+                        return;
+                    }
+
+                    const now = Date.now();
+                    const targetScope = currentScope === 'gdrive' ? 'private' : currentScope;
+                    const nMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                    const cMap = targetScope === 'private' ? privateChaptersMap : publicChaptersMap;
+
+                    for (const novel of novelsList) {
+                        const nId = novel.id || `novel-${now}-${Math.random().toString(36).substring(2, 6)}`;
+                        nMap.set(nId, {
+                            id: nId,
+                            title: novel.title || 'ไม่มีชื่อเรื่อง',
+                            author: novel.author || 'ไม่ระบุนามปากกา',
+                            category: novel.category || 'โรแมนติก',
+                            coverTheme: novel.coverTheme || 'indigo',
+                            synopsis: novel.synopsis || '',
+                            createdAt: novel.createdAt || now,
+                            updatedAt: now
+                        });
+                        if (Array.isArray(novel.chapters)) {
+                            for (const ch of novel.chapters) {
+                                const cId = ch.id || `ch-${nId}-${now}-${Math.random().toString(36).substring(2, 6)}`;
+                                cMap.set(cId, {
+                                    id: cId,
+                                    novelId: nId,
+                                    number: Number(ch.number) || 1,
+                                    title: ch.title || 'ไม่มีชื่อตอน',
+                                    content: ch.content || '',
+                                    updatedAt: ch.updatedAt || now
+                                });
+                            }
+                        }
+                    }
+
+                    persistAllToLocalStorage();
+                    updateScopeCounts();
+                    if (currentScope === 'gdrive') {
+                        switchLibraryScope('private');
+                    } else {
+                        refreshCurrentView();
+                    }
+                    showToast(`นำเข้าข้อมูลสำเร็จ ${novelsList.length} เรื่อง`, 'success');
+                } catch (err) {
+                    console.error('Import JSON error:', err);
+                    showToast('ไม่สามารถอ่านไฟล์ JSON ได้', 'error');
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function openRecoveryModal() {
+            const dropdown = document.getElementById('backup-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+
+            const modal = document.getElementById('recovery-modal');
+            const resultsEl = document.getElementById('recovery-scan-results');
+            modal.classList.remove('hidden');
+
+            resultsEl.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-800">
+                        <div class="text-xs text-emerald-600 font-semibold mb-1">Google Drive</div>
+                        <div class="text-base font-bold">${gdriveNovelsMap.size} เรื่อง</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800">
+                        <div class="text-xs text-indigo-500 font-semibold mb-1">คลังนิยายกลาง</div>
+                        <div class="text-base font-bold">${publicNovelsMap.size} เรื่อง / ${publicChaptersMap.size} ตอน</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-violet-50 dark:bg-violet-950/50 border border-violet-100 dark:border-violet-800">
+                        <div class="text-xs text-violet-500 font-semibold mb-1">คลังส่วนตัว</div>
+                        <div class="text-base font-bold">${privateNovelsMap.size} เรื่อง / ${privateChaptersMap.size} ตอน</div>
+                    </div>
+                </div>
+                <div class="text-xs text-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl">
+                    <i class="fa-solid fa-shield-check text-emerald-500 mr-1"></i>
+                    ข้อมูลคลังกลาง คลังส่วนตัว และลิงก์ Google Drive ทั้งหมดถูกบันทึกถาวรใน <code>localStorage</code> ของเบราว์เซอร์เรียบร้อยแล้ว
+                </div>
+            `;
+        }
+
+        function closeRecoveryModal() {
+            document.getElementById('recovery-modal').classList.add('hidden');
+        }
+
+        // ---------------------------------------------------------
+        // 14. ACCOUNT & AUTHENTICATION MODAL
+        // ---------------------------------------------------------
+        function openAccountModal() {
+            updateAccountUI();
+            document.getElementById('account-modal').classList.remove('hidden');
+        }
+
+        function closeAccountModal() {
+            document.getElementById('account-modal').classList.add('hidden');
+        }
+
+        function setAuthMode(mode) {
+            authMode = mode;
+        }
+
+        async function handleEmailAuth(event) {
+            event.preventDefault();
+            if (!isFirebaseReady || !auth) {
+                showToast('กำลังใช้งานโหมดบันทึกในเครื่อง (LocalStorage)', 'info');
+                closeAccountModal();
+                return;
+            }
+            const email = document.getElementById('auth-email-input').value.trim();
+            const password = document.getElementById('auth-password-input').value;
+
+            if (!email || !password) return;
+
+            try {
+                if (authMode === 'register') {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    showToast('สมัครบัญชีและเข้าสู่ระบบสำเร็จ!', 'success');
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast('เข้าสู่ระบบสำเร็จ!', 'success');
+                }
+                closeAccountModal();
+            } catch (error) {
+                showToast(`เกิดข้อผิดพลาด: ${error.message}`, 'error');
+            }
+        }
+
+        async function handleSignOut() {
+            if (!auth) return;
+            try {
+                await signOut(auth);
+                await signInAnonymously(auth);
+                showToast('ออกจากระบบบัญชีอีเมลแล้ว', 'info');
+                closeAccountModal();
+            } catch (error) {}
+        }
+
+        function copyUserId() {
+            const uid = currentUser?.uid || 'local-storage';
+            const temp = document.createElement('textarea');
+            temp.value = uid;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+            showToast('คัดลอกรหัสผู้ใช้งานเรียบร้อยแล้ว', 'success');
+        }
+
+        // ---------------------------------------------------------
+        // 15. APP THEME & CUSTOM CONFIRM DIALOG
+        // ---------------------------------------------------------
+        function cycleAppTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            const btn = document.getElementById('global-theme-btn');
+            if (btn) {
+                btn.innerHTML = isDark
+                    ? '<i class="fa-solid fa-sun text-amber-400 text-base"></i>'
+                    : '<i class="fa-solid fa-moon text-base"></i>';
+            }
+        }
+
+        function openConfirmDialog(title, message, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            document.getElementById('confirm-modal-title').textContent = title;
+            document.getElementById('confirm-modal-message').textContent = message;
+
+            const actionBtn = document.getElementById('confirm-modal-action-btn');
+            const newBtn = actionBtn.cloneNode(true);
+            actionBtn.parentNode.replaceChild(newBtn, actionBtn);
+
+            newBtn.addEventListener('click', async () => {
+                closeConfirmModal();
+                await onConfirm();
+            });
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+        }
+
+        // ---------------------------------------------------------
+        // 16. GOOGLE DRIVE / GOOGLE APPS SCRIPT INTEGRATION
+        // ---------------------------------------------------------
+        function openGDriveModal() {
+            const modal = document.getElementById('gdrive-modal');
+            const input = document.getElementById('gdrive-url-input');
+            const codeEl = document.getElementById('gas-code-display');
+            const statusEl = document.getElementById('gdrive-connection-status');
+            const disconnectBtn = document.getElementById('gdrive-disconnect-btn');
+
+            if (input) input.value = gdriveWebAppUrl;
+            if (codeEl) codeEl.textContent = GAS_SOURCE_CODE;
+
+            if (gdriveWebAppUrl) {
+                if (statusEl) {
+                    statusEl.textContent = `เชื่อมต่ออยู่ (${gdriveNovelsMap.size} เรื่อง)`;
+                    statusEl.className = 'text-xs font-semibold text-emerald-600 dark:text-emerald-400';
+                }
+                if (disconnectBtn) disconnectBtn.classList.remove('hidden');
+            } else {
+                if (statusEl) {
+                    statusEl.textContent = 'ยังไม่ได้เชื่อมต่อ URL';
+                    statusEl.className = 'text-xs text-slate-400';
+                }
+                if (disconnectBtn) disconnectBtn.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeGDriveModal() {
+            document.getElementById('gdrive-modal').classList.add('hidden');
+        }
+
+        function copyGasCode() {
+            const temp = document.createElement('textarea');
+            temp.value = GAS_SOURCE_CODE;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+            showToast('คัดลอกโค้ด Google Apps Script ฉบับสมบูรณ์เรียบร้อยแล้ว!', 'success');
+        }
+
+        async function saveAndConnectGDrive() {
+            const input = document.getElementById('gdrive-url-input');
+            const url = (input?.value || '').trim();
+            if (!url || !url.startsWith('http')) {
+                showToast('กรุณาวางลิงก์ Web App URL ที่ขึ้นต้นด้วย https://', 'warning');
+                return;
+            }
+            if (url.includes('drive.google.com')) {
+                showToast('ลิงก์นี้เป็นลิงก์ Google Drive กรุณาวาง Web App URL จาก Apps Script (ลงท้ายด้วย /exec)', 'warning');
+                return;
+            }
+            gdriveWebAppUrl = url;
+            localStorage.setItem(STORAGE_KEYS.GAS_URL, url);
+            updateGDriveIndicatorUI();
+            closeGDriveModal();
+            await syncFromGoogleDrive(false);
+        }
+
+        function disconnectGDrive() {
+            gdriveWebAppUrl = '';
+            localStorage.removeItem(STORAGE_KEYS.GAS_URL);
+            localStorage.removeItem(STORAGE_KEYS.GDRIVE_CACHE);
+            gdriveNovelsMap.clear();
+            gdriveChapterCache.clear();
+            updateGDriveIndicatorUI();
+            updateScopeCounts();
+            closeGDriveModal();
+            showToast('ยกเลิกการเชื่อมต่อ Google Drive แล้ว', 'info');
+            if (currentScope === 'gdrive') {
+                switchLibraryScope('public');
+            }
+        }
+
+        function callGDriveWebApp(paramsObj = {}) {
+            const urlObj = new URL(gdriveWebAppUrl);
+            Object.entries(paramsObj).forEach(([k, v]) => {
+                if (v !== undefined && v !== null) urlObj.searchParams.set(k, v);
+            });
+
+            return fetch(urlObj.toString(), {
+                method: 'GET',
+                redirect: 'follow',
+                credentials: 'omit'
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
+                .catch(() => {
+                    // Fallback JSONP กรณีรันใน Sandbox iframe ที่บล็อก CORS redirect ของ Google
+                    return new Promise((resolve, reject) => {
+                        const cbName = `__gas_cb_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+                        const jsonpUrl = new URL(urlObj.toString());
+                        jsonpUrl.searchParams.set('callback', cbName);
+
+                        const script = document.createElement('script');
+                        const timeoutId = setTimeout(() => {
+                            cleanup();
+                            reject(new Error('หมดเวลาเชื่อมต่อ กรุณาตรวจสอบว่าตั้งค่า "Who has access: Anyone" ใน Apps Script แล้ว'));
+                        }, 15000);
+
+                        function cleanup() {
+                            clearTimeout(timeoutId);
+                            delete window[cbName];
+                            if (script.parentNode) script.parentNode.removeChild(script);
+                        }
+
+                        window[cbName] = (payload) => {
+                            cleanup();
+                            resolve(payload);
+                        };
+
+                        script.onerror = () => {
+                            cleanup();
+                            reject(new Error('โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบ URL และสิทธิ์การเข้าถึงเป็น "Anyone (ทุกคน)"'));
+                        };
+
+                        script.src = jsonpUrl.toString();
+                        document.head.appendChild(script);
+                    });
+                });
+        }
+
+        async function syncFromGoogleDrive(silent = false) {
+            if (!gdriveWebAppUrl) {
+                if (!silent) openGDriveModal();
+                return;
+            }
+
+            if (!silent) showToast('กำลังดึงรายชื่อโฟลเดอร์และไฟล์ Google Docs...', 'info');
+
+            try {
+                const data = await callGDriveWebApp({ action: 'list' });
+
+                if (data.status !== 'success' || !Array.isArray(data.novels)) {
+                    throw new Error(data.message || 'รูปแบบข้อมูลจาก Apps Script ไม่ถูกต้อง');
+                }
+
+                gdriveNovelsMap.clear();
+                gdriveChapterCache.clear();
+                data.novels.forEach(novel => {
+                    gdriveNovelsMap.set(novel.id, novel);
+                });
+
+                try {
+                    localStorage.setItem(STORAGE_KEYS.GDRIVE_CACHE, JSON.stringify({
+                        syncedAt: Date.now(),
+                        novels: data.novels
+                    }));
+                } catch (e) {}
+
+                updateScopeCounts();
+                if (!silent) {
+                    showToast(`ซิงค์นิยายจาก Google Drive สำเร็จ (${data.novels.length} เรื่อง)`, 'success');
+                }
+
+                if (currentScope !== 'gdrive' && !silent) {
+                    switchLibraryScope('gdrive');
+                } else if (currentScope === 'gdrive') {
+                    refreshCurrentView();
+                }
+            } catch (error) {
+                console.error('Google Drive sync error:', error);
+                if (!silent) {
+                    showToast(`เชื่อมต่อ Google Drive ไม่สำเร็จ: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 17. EXPOSE FUNCTIONS GLOBALLY & BOOTSTRAP
+        // ---------------------------------------------------------
+        Object.assign(window, {
+            navigateTo,
+            switchLibraryScope,
+            selectCategoryFilter,
+            clearLibrarySearch,
+            renderLibrary,
+            renderChapterList,
+            toggleChapterSortOrder,
+            startReadingFirstChapter,
+            toggleReaderSettings,
+            updateReaderSetting,
+            changeFontSize,
+            navigateChapter,
+            selectCoverTheme,
+            openNovelModal,
+            closeNovelModal,
+            saveNovel,
+            confirmDeleteNovel,
+            openChapterEditor,
+            closeChapterEditor,
+            handleEditorTyping,
+            saveChapter,
+            confirmDeleteChapter,
+            openBulkImportModal,
+            closeBulkImportModal,
+            previewBulkChapters,
+            executeBulkImport,
+            toggleBackupMenu,
+            exportDataJSON,
+            importDataJSON,
+            openRecoveryModal,
+            closeRecoveryModal,
+            seedDemoDataToCloud,
+            openAccountModal,
+            closeAccountModal,
+            setAuthMode,
+            handleEmailAuth,
+            handleSignOut,
+            copyUserId,
+            cycleAppTheme,
+            closeConfirmModal,
+            openGDriveModal,
+            closeGDriveModal,
+            copyGasCode,
+            saveAndConnectGDrive,
+            disconnectGDrive,
+            syncFromGoogleDrive
+        });
+
+        // Hydrate immediately from localStorage so data is always preserved across updates
+        hydrateFromLocalStorage();
+        initAuth();
+
+        if (gdriveWebAppUrl) {
+            syncFromGoogleDrive(true).then(() => {
+                if (gdriveNovelsMap.size > 0 && currentScope === 'public' && window.currentView === 'library') {
+                    switchLibraryScope('gdrive');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
