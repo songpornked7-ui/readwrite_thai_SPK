@@ -138,14 +138,12 @@
 
                     <!-- Optional Owner Key Field during registration -->
                     <div id="gate-owner-key-field" class="hidden pt-1">
-                        <label class="block text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">
-                            <i class="fa-solid fa-crown mr-1"></i>รหัสเจ้าของเว็บ (ถ้ามี — สำหรับบัญชีเจ้าของเว็บ)
-                        </label>
-                        <input id="gate-owner-key-input" type="password" placeholder="เว้นว่างไว้หากสมัครเป็นสมาชิกทั่วไป"
-                            class="w-full px-4 py-2 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/70 text-sm focus:outline-none focus:border-amber-500">
-                        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                            * บัญชีแรกที่สมัครจะได้รับสิทธิ์ <strong>เจ้าของเว็บ (Owner)</strong> ทันที ส่วนผู้สมัครคนถัดไปจะรอให้คุณกดอนุมัติก่อนเข้าเว็บ
-                        </p>
+                        <div class="p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-800/70">
+                            <p class="text-[11px] text-indigo-700 dark:text-indigo-300 leading-relaxed">
+                                <i class="fa-solid fa-user-shield mr-1"></i>
+                                เมื่อสมัครสมาชิกใหม่ บัญชีของคุณจะอยู่ในสถานะ <strong>รออนุมัติ (Pending)</strong> จนกว่าเจ้าของเว็บจะกดอนุมัติให้เข้าใช้งาน
+                            </p>
+                        </div>
                     </div>
 
                     <button id="gate-submit-btn" type="submit"
@@ -883,18 +881,7 @@
             </div>
 
             <!-- Claim Owner Section (if not yet owner) -->
-            <div id="claim-owner-box" class="mb-4 p-3.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/60">
-                <div class="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1.5">
-                    <i class="fa-solid fa-crown mr-1"></i> ยืนยันสิทธิ์เจ้าของเว็บด้วยรหัสลับ
-                </div>
-                <div class="flex gap-2">
-                    <input id="claim-owner-key-input" type="password" placeholder="กรอกรหัสลับเจ้าของเว็บ"
-                        class="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-800 text-xs focus:outline-none">
-                    <button type="button" onclick="claimOwnershipWithKey()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold">
-                        ยืนยัน
-                    </button>
-                </div>
-            </div>
+            <div id="claim-owner-box" class="hidden"></div>
 
             <button id="account-signout-btn" onclick="handleLogout()" class="w-full py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -1025,10 +1012,6 @@
                     class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 whitespace-nowrap">
                     <i class="fa-solid fa-book-atlas mr-1.5"></i>ดูนิยายทั้งหมดในเว็บ
                 </button>
-                <button id="owner-tab-security" onclick="switchOwnerTab('security')"
-                    class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 whitespace-nowrap">
-                    <i class="fa-solid fa-key mr-1.5"></i>ตั้งค่ารหัสเจ้าของเว็บ
-                </button>
             </div>
 
             <!-- Tab Content Area -->
@@ -1059,27 +1042,6 @@
                 <div id="owner-panel-content" class="hidden space-y-2.5">
                     <div id="owner-all-novels-list" class="space-y-2.5"></div>
                 </div>
-
-                <!-- Tab 3: Owner Security Key -->
-                <div id="owner-panel-security" class="hidden">
-                    <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 space-y-4">
-                        <div>
-                            <h4 class="font-prompt font-bold text-sm text-slate-900 dark:text-white mb-1">
-                                รหัสลับประจำตัวเจ้าของเว็บ (Owner Master Key)
-                            </h4>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">
-                                ใช้สำหรับยืนยันสิทธิ์เจ้าของเว็บหากคุณสมัครบัญชีใหม่ในอนาคต (รหัสเริ่มต้นคือ <code class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold">OWNER2026</code> คุณสามารถเปลี่ยนเป็นรหัสส่วนตัวได้ด้านล่าง)
-                            </p>
-                        </div>
-                        <div class="flex flex-col sm:flex-row gap-2.5">
-                            <input id="owner-master-key-input" type="text" placeholder="ตั้งรหัสลับเจ้าของเว็บใหม่..."
-                                class="flex-1 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-amber-500">
-                            <button onclick="saveOwnerMasterKey()" class="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold">
-                                บันทึกรหัสลับ
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -1091,7 +1053,8 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
         import {
             getAuth,
-            signInAnonymously,
+            setPersistence,
+            browserLocalPersistence,
             signInWithCustomToken,
             onAuthStateChanged,
             signInWithEmailAndPassword,
@@ -1108,6 +1071,11 @@
             deleteDoc,
             onSnapshot
         } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        // =========================================================
+        // ★ อีเมลเจ้าของเว็บ (OWNER) กำหนดตายตัวเพียงอีเมลเดียวเท่านั้น ★
+        // =========================================================
+        const OWNER_EMAIL = 'songpornked7@gmail.com';
 
         // =========================================================
         // ★ วางค่า FIREBASE CONFIG ของคุณตรงนี้ (สำหรับ GitHub Pages) ★
@@ -1275,9 +1243,12 @@ function listNovelsFromDrive() {
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'readwrite-thai-github';
         let currentUser = null;
         let currentUserProfile = null;
-        let ownerMasterKey = 'OWNER2026';
         let gateTabMode = 'login';
         let currentOwnerTab = 'users';
+
+        function isOwnerEmailAddress(email) {
+            return Boolean(email && String(email).trim().toLowerCase() === OWNER_EMAIL.toLowerCase());
+        }
 
         let currentScope = 'public';
         let selectedCategory = 'ทั้งหมด';
@@ -1293,7 +1264,6 @@ function listNovelsFromDrive() {
         let unsubscribeUserProfile = null;
         let unsubscribeAllUsers = null;
 
-        const allUsersMap = new Map();
         const publicNovelsMap = new Map();
         const publicChaptersMap = new Map();
         const privateNovelsMap = new Map();
@@ -1301,6 +1271,7 @@ function listNovelsFromDrive() {
         const gdriveNovelsMap = new Map();
         const gdriveChapterCache = new Map();
         const inMemoryDraftsMap = new Map();
+        const allUsersMap = new Map();
 
         let gdriveWebAppUrl = '';
 
@@ -1481,9 +1452,8 @@ function listNovelsFromDrive() {
             const statusEl = document.getElementById('account-modal-status');
             const roleEl = document.getElementById('account-modal-role');
             const uidEl = document.getElementById('account-uid-display');
-            const claimBox = document.getElementById('claim-owner-box');
 
-            const isOwner = currentUserProfile?.role === 'owner';
+            const isOwner = isOwnerEmailAddress(currentUser?.email) || currentUserProfile?.role === 'owner';
             const displayName = currentUserProfile?.displayName || (currentUser?.email ? currentUser.email.split('@')[0] : 'นักเขียน');
 
             if (labelEl) labelEl.textContent = displayName;
@@ -1505,7 +1475,6 @@ function listNovelsFromDrive() {
                     ? 'font-bold text-amber-600 dark:text-amber-400'
                     : 'font-bold text-emerald-600 dark:text-emerald-400';
             }
-            if (claimBox) claimBox.classList.toggle('hidden', isOwner);
         }
 
         function updateAuthGateVisibility() {
@@ -1523,6 +1492,11 @@ function listNovelsFromDrive() {
                 return;
             }
 
+            if (isOwnerEmailAddress(currentUser.email)) {
+                gateScreen.classList.add('hidden');
+                return;
+            }
+
             if (!currentUserProfile) {
                 gateScreen.classList.remove('hidden');
                 formCard.classList.add('hidden');
@@ -1532,7 +1506,7 @@ function listNovelsFromDrive() {
                 return;
             }
 
-            const isApproved = currentUserProfile.role === 'owner' || currentUserProfile.status === 'approved';
+            const isApproved = currentUserProfile.status === 'approved';
             if (isApproved) {
                 gateScreen.classList.add('hidden');
             } else {
@@ -1567,15 +1541,51 @@ function listNovelsFromDrive() {
             }
         }
 
+        function mapFirebaseAuthErrorToThai(error) {
+            const code = error?.code || '';
+            if (code === 'auth/email-already-in-use') {
+                return 'อีเมลนี้ถูกสมัครสมาชิกไว้แล้ว กรุณากดแท็บ "เข้าสู่ระบบ"';
+            }
+            if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+                return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง';
+            }
+            if (code === 'auth/user-not-found') {
+                return 'ไม่พบบัญชีอีเมลนี้ในระบบ กรุณากดแท็บ "สมัครสมาชิกใหม่" ก่อนครับ';
+            }
+            if (code === 'auth/invalid-email') {
+                return 'รูปแบบอีเมลไม่ถูกต้อง กรุณากรอกอีเมลให้ถูกต้อง';
+            }
+            if (code === 'auth/weak-password') {
+                return 'รหัสผ่านสั้นเกินไป กรุณาตั้งรหัสผ่านอย่างน้อย 6 ตัวอักษร';
+            }
+            if (code === 'auth/too-many-requests') {
+                return 'มีการลองเข้าสู่ระบบผิดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่';
+            }
+            if (code === 'auth/network-request-failed') {
+                return 'ไม่สามารถเชื่อมต่ออินเทอร์เน็ตหรือเซิร์ฟเวอร์ Firebase ได้';
+            }
+            if (code === 'auth/operation-not-allowed') {
+                return 'กรุณาเปิดใช้งาน Email/Password ใน Firebase Console > Authentication > Sign-in method ก่อนครับ';
+            }
+            return `เกิดข้อผิดพลาด: ${error?.message || 'ไม่สามารถดำเนินการได้'}`;
+        }
+
         async function handleGateAuthSubmit(event) {
             event.preventDefault();
 
             const email = document.getElementById('gate-email-input').value.trim();
             const password = document.getElementById('gate-password-input').value;
             const displayNameInput = document.getElementById('gate-name-input').value.trim();
-            const ownerKeyInput = document.getElementById('gate-owner-key-input').value.trim();
 
-            if (!email || !password) return;
+            if (!email || !password) {
+                showToast('กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน', 'warning');
+                return;
+            }
+
+            if (!isFirebaseReady || !auth || !db) {
+                showToast('กรุณาใส่ค่า MY_FIREBASE_CONFIG ของคุณในโค้ดก่อนใช้งานระบบสมาชิก', 'error');
+                return;
+            }
 
             const submitBtn = document.getElementById('gate-submit-btn');
             const originalHtml = submitBtn.innerHTML;
@@ -1583,79 +1593,25 @@ function listNovelsFromDrive() {
             submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>กำลังดำเนินการ...</span>';
 
             try {
-                // โหมดทำงานทันทีหากยังไม่ได้ใส่ค่า MY_FIREBASE_CONFIG
-                if (!isFirebaseReady || !auth || !db) {
-                    const existingUser = Array.from(allUsersMap.values()).find(u => u.email.toLowerCase() === email.toLowerCase());
-                    if (gateTabMode === 'register') {
-                        if (existingUser) {
-                            showToast('อีเมลนี้ถูกสมัครไว้แล้ว กรุณากดแท็บ "เข้าสู่ระบบ"', 'warning');
-                            return;
-                        }
-                        const hasAnyOwner = Array.from(allUsersMap.values()).some(u => u.role === 'owner');
-                        const isOwnerAccount = !hasAnyOwner || (ownerKeyInput && ownerKeyInput === ownerMasterKey);
-                        const localUid = `local-${Date.now()}`;
-                        const profilePayload = {
-                            uid: localUid,
-                            email,
-                            password,
-                            displayName: displayNameInput || email.split('@')[0],
-                            role: isOwnerAccount ? 'owner' : 'member',
-                            status: isOwnerAccount ? 'approved' : 'pending',
-                            createdAt: Date.now()
-                        };
-                        allUsersMap.set(localUid, profilePayload);
-                        currentUser = { uid: localUid, email, isAnonymous: false };
-                        currentUserProfile = profilePayload;
-                        updateAccountUI();
-                        updateAuthGateVisibility();
-                        renderOwnerDashboard();
-                        showToast(isOwnerAccount ? 'สมัครบัญชีเจ้าของเว็บสำเร็จ!' : 'สมัครสมาชิกสำเร็จ! รอเจ้าของเว็บอนุมัติ', 'success');
-                    } else {
-                        if (!existingUser) {
-                            showToast('ยังไม่มีบัญชีนี้ กรุณากดแท็บ "สมัครสมาชิกใหม่" ก่อนครับ', 'warning');
-                            return;
-                        }
-                        if (existingUser.password && existingUser.password !== password) {
-                            showToast('รหัสผ่านไม่ถูกต้อง', 'error');
-                            return;
-                        }
-                        currentUser = { uid: existingUser.uid, email: existingUser.email, isAnonymous: false };
-                        currentUserProfile = existingUser;
-                        updateAccountUI();
-                        updateAuthGateVisibility();
-                        renderOwnerDashboard();
-                        showToast('เข้าสู่ระบบสำเร็จ!', 'success');
-                    }
-                    return;
-                }
+                await setPersistence(auth, browserLocalPersistence);
 
                 if (gateTabMode === 'register') {
                     const cred = await createUserWithEmailAndPassword(auth, email, password);
                     const newUser = cred.user;
+                    const isOwnerAccount = isOwnerEmailAddress(newUser.email);
 
-                    let serverMasterKey = ownerMasterKey;
-                    try {
-                        const secSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'ownerConfig'));
-                        if (secSnap.exists() && secSnap.data()?.masterKey) {
-                            serverMasterKey = secSnap.data().masterKey;
-                        }
-                    } catch (e) {}
-
-                    const usersCol = collection(db, 'artifacts', appId, 'public', 'data', 'users');
-                    const existingSnap = await getDocs(usersCol);
-                    const hasAnyOwner = existingSnap.docs.some(d => d.data()?.role === 'owner');
-
-                    const isOwnerAccount = !hasAnyOwner || (ownerKeyInput && ownerKeyInput === serverMasterKey);
                     const profilePayload = {
                         uid: newUser.uid,
                         email: newUser.email,
-                        displayName: displayNameInput || email.split('@')[0],
+                        displayName: displayNameInput || newUser.email.split('@')[0],
                         role: isOwnerAccount ? 'owner' : 'member',
                         status: isOwnerAccount ? 'approved' : 'pending',
                         createdAt: Date.now()
                     };
 
-                    await setDoc(doc(usersCol, newUser.uid), profilePayload, { merge: true });
+                    const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', newUser.uid);
+                    await setDoc(userDocRef, profilePayload, { merge: true });
+
                     currentUserProfile = profilePayload;
                     updateAccountUI();
                     updateAuthGateVisibility();
@@ -1663,19 +1619,44 @@ function listNovelsFromDrive() {
                     if (isOwnerAccount) {
                         showToast('สมัครบัญชีเจ้าของเว็บ (Owner) สำเร็จ!', 'success');
                     } else {
-                        showToast('สมัครสมาชิกสำเร็จ! กรุณารอเจ้าของเว็บอนุมัติบัญชีของคุณ', 'info');
+                        showToast('สมัครสมาชิกสำเร็จ! บัญชีของคุณอยู่ในสถานะรออนุมัติจากเจ้าของเว็บ', 'info');
                     }
                 } else {
-                    await signInWithEmailAndPassword(auth, email, password);
+                    const cred = await signInWithEmailAndPassword(auth, email, password);
+                    const loggedUser = cred.user;
+                    const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', loggedUser.uid);
+                    const existingSnap = await getDoc(userDocRef);
+                    const isOwnerAccount = isOwnerEmailAddress(loggedUser.email);
+
+                    if (!existingSnap.exists()) {
+                        const profilePayload = {
+                            uid: loggedUser.uid,
+                            email: loggedUser.email,
+                            displayName: loggedUser.email.split('@')[0],
+                            role: isOwnerAccount ? 'owner' : 'member',
+                            status: isOwnerAccount ? 'approved' : 'pending',
+                            createdAt: Date.now()
+                        };
+                        await setDoc(userDocRef, profilePayload, { merge: true });
+                        currentUserProfile = profilePayload;
+                    } else if (isOwnerAccount) {
+                        await setDoc(userDocRef, { role: 'owner', status: 'approved' }, { merge: true });
+                        currentUserProfile = { ...existingSnap.data(), role: 'owner', status: 'approved' };
+                    } else {
+                        const data = existingSnap.data();
+                        if (data.role === 'owner') {
+                            await setDoc(userDocRef, { role: 'member' }, { merge: true });
+                            data.role = 'member';
+                        }
+                        currentUserProfile = data;
+                    }
+
+                    updateAccountUI();
+                    updateAuthGateVisibility();
                     showToast('เข้าสู่ระบบสำเร็จ!', 'success');
                 }
             } catch (error) {
-                let msg = error.message;
-                if (error.code === 'auth/email-already-in-use') msg = 'อีเมลนี้ถูกใช้งานแล้ว กรุณากดแท็บ "เข้าสู่ระบบ"';
-                else if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
-                else if (error.code === 'auth/weak-password') msg = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
-                else if (error.code === 'auth/operation-not-allowed') msg = 'กรุณาเปิดใช้งาน Email/Password Sign-in ใน Firebase Console > Authentication ก่อนครับ';
-                showToast(msg, 'error');
+                showToast(mapFirebaseAuthErrorToThai(error), 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalHtml;
@@ -1686,12 +1667,17 @@ function listNovelsFromDrive() {
             try {
                 closeAccountModal();
                 closeOwnerDashboard();
+                if (unsubscribeUserProfile) unsubscribeUserProfile();
+                if (unsubscribeAllUsers) unsubscribeAllUsers();
+                if (unsubscribePrivateNovels) unsubscribePrivateNovels();
+                if (unsubscribePrivateChapters) unsubscribePrivateChapters();
+
                 if (isFirebaseReady && auth) {
                     await signOut(auth);
-                    privateNovelsMap.clear();
-                    privateChaptersMap.clear();
-                    allUsersMap.clear();
                 }
+                privateNovelsMap.clear();
+                privateChaptersMap.clear();
+                allUsersMap.clear();
                 currentUser = null;
                 currentUserProfile = null;
                 updateAccountUI();
@@ -1702,48 +1688,9 @@ function listNovelsFromDrive() {
             }
         }
 
-        async function claimOwnershipWithKey() {
-            if (!currentUser) return;
-            const keyInput = document.getElementById('claim-owner-key-input')?.value.trim();
-            if (!keyInput) {
-                showToast('กรุณากรอกรหัสลับเจ้าของเว็บ', 'warning');
-                return;
-            }
-
-            let serverMasterKey = ownerMasterKey;
-            if (isFirebaseReady && db) {
-                try {
-                    const secSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'ownerConfig'));
-                    if (secSnap.exists() && secSnap.data()?.masterKey) {
-                        serverMasterKey = secSnap.data().masterKey;
-                    }
-                } catch (e) {}
-            }
-
-            if (keyInput !== serverMasterKey) {
-                showToast('รหัสลับเจ้าของเว็บไม่ถูกต้อง', 'error');
-                return;
-            }
-
-            if (isFirebaseReady && db) {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), {
-                    role: 'owner',
-                    status: 'approved'
-                }, { merge: true });
-            } else if (currentUserProfile) {
-                currentUserProfile.role = 'owner';
-                currentUserProfile.status = 'approved';
-                allUsersMap.set(currentUser.uid, currentUserProfile);
-                updateAccountUI();
-                renderOwnerDashboard();
-            }
-
-            showToast('ยืนยันสิทธิ์เจ้าของเว็บ (Owner) เรียบร้อยแล้ว!', 'success');
-            closeAccountModal();
-        }
-
         function openOwnerDashboard() {
-            if (currentUserProfile?.role !== 'owner') {
+            const isOwner = isOwnerEmailAddress(currentUser?.email) || currentUserProfile?.role === 'owner';
+            if (!isOwner) {
                 showToast('เฉพาะเจ้าของเว็บเท่านั้นที่เข้าถึงหน้านี้ได้', 'error');
                 return;
             }
@@ -1757,7 +1704,7 @@ function listNovelsFromDrive() {
 
         function switchOwnerTab(tab) {
             currentOwnerTab = tab;
-            ['users', 'content', 'security'].forEach(t => {
+            ['users', 'content'].forEach(t => {
                 const btn = document.getElementById(`owner-tab-${t}`);
                 const panel = document.getElementById(`owner-panel-${t}`);
                 if (btn) {
@@ -1767,17 +1714,13 @@ function listNovelsFromDrive() {
                 }
                 if (panel) panel.classList.toggle('hidden', t !== tab);
             });
-            if (tab === 'security') {
-                const keyInput = document.getElementById('owner-master-key-input');
-                if (keyInput) keyInput.value = ownerMasterKey;
-            }
             renderOwnerDashboard();
         }
 
         function renderOwnerDashboard() {
             const usersList = Array.from(allUsersMap.values()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            const pendingUsers = usersList.filter(u => u.status === 'pending' && u.role !== 'owner');
-            const approvedUsers = usersList.filter(u => u.status === 'approved' || u.role === 'owner');
+            const pendingUsers = usersList.filter(u => u.status === 'pending' && !isOwnerEmailAddress(u.email));
+            const approvedUsers = usersList.filter(u => u.status === 'approved' || isOwnerEmailAddress(u.email));
 
             const navBadge = document.getElementById('nav-pending-badge');
             if (navBadge) {
@@ -1829,7 +1772,7 @@ function listNovelsFromDrive() {
                     allListEl.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">ยังไม่มีข้อมูลสมาชิกในระบบ</div>`;
                 } else {
                     allListEl.innerHTML = usersList.map(u => {
-                        const isOwnerRow = u.role === 'owner';
+                        const isOwnerRow = isOwnerEmailAddress(u.email);
                         const statusBadge = isOwnerRow
                             ? '<span class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-[10px] font-bold"><i class="fa-solid fa-crown mr-1"></i>เจ้าของเว็บ</span>'
                             : u.status === 'approved'
@@ -1894,19 +1837,11 @@ function listNovelsFromDrive() {
         }
 
         async function updateUserApprovalStatus(targetUid, newStatus) {
-            if (currentUserProfile?.role !== 'owner') return;
-            if (!isFirebaseReady || !db) {
-                const target = allUsersMap.get(targetUid);
-                if (target) {
-                    target.status = newStatus;
-                    allUsersMap.set(targetUid, target);
-                    renderOwnerDashboard();
-                    showToast(newStatus === 'approved' ? 'อนุมัติสมาชิกเรียบร้อยแล้ว!' : 'ระงับสิทธิ์สมาชิกเรียบร้อยแล้ว', 'success');
-                }
-                return;
-            }
+            if (!isOwnerEmailAddress(currentUser?.email) && currentUserProfile?.role !== 'owner') return;
+            if (!isFirebaseReady || !db) return;
             try {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', targetUid), {
+                    role: 'member',
                     status: newStatus,
                     reviewedAt: Date.now()
                 }, { merge: true });
@@ -1917,22 +1852,14 @@ function listNovelsFromDrive() {
         }
 
         async function approveAllPendingUsers() {
-            if (currentUserProfile?.role !== 'owner') return;
-            const pendingUsers = Array.from(allUsersMap.values()).filter(u => u.status === 'pending' && u.role !== 'owner');
+            if (!isOwnerEmailAddress(currentUser?.email) && currentUserProfile?.role !== 'owner') return;
+            if (!isFirebaseReady || !db) return;
+            const pendingUsers = Array.from(allUsersMap.values()).filter(u => u.status === 'pending' && !isOwnerEmailAddress(u.email));
             if (pendingUsers.length === 0) return;
-
-            if (!isFirebaseReady || !db) {
-                pendingUsers.forEach(u => {
-                    u.status = 'approved';
-                    allUsersMap.set(u.uid, u);
-                });
-                renderOwnerDashboard();
-                showToast(`อนุมัติสมาชิกทั้งหมด ${pendingUsers.length} คนเรียบร้อยแล้ว!`, 'success');
-                return;
-            }
 
             for (const u of pendingUsers) {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u.uid), {
+                    role: 'member',
                     status: 'approved',
                     reviewedAt: Date.now()
                 }, { merge: true });
@@ -2126,19 +2053,27 @@ function listNovelsFromDrive() {
             if (unsubscribeAllUsers) unsubscribeAllUsers();
 
             const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid);
+            const isOwnerAccount = isOwnerEmailAddress(currentUser.email);
+
             unsubscribeUserProfile = onSnapshot(userDocRef, async (docSnap) => {
                 if (docSnap.exists()) {
-                    currentUserProfile = docSnap.data();
+                    const data = docSnap.data();
+                    if (isOwnerAccount && (data.role !== 'owner' || data.status !== 'approved')) {
+                        await setDoc(userDocRef, { role: 'owner', status: 'approved' }, { merge: true });
+                        currentUserProfile = { ...data, role: 'owner', status: 'approved' };
+                    } else if (!isOwnerAccount && data.role === 'owner') {
+                        await setDoc(userDocRef, { role: 'member' }, { merge: true });
+                        currentUserProfile = { ...data, role: 'member' };
+                    } else {
+                        currentUserProfile = data;
+                    }
                 } else if (!currentUser.isAnonymous && currentUser.email) {
-                    const usersCol = collection(db, 'artifacts', appId, 'public', 'data', 'users');
-                    const existingSnap = await getDocs(usersCol);
-                    const hasAnyOwner = existingSnap.docs.some(d => d.data()?.role === 'owner');
                     const newProfile = {
                         uid: currentUser.uid,
                         email: currentUser.email,
                         displayName: currentUser.email.split('@')[0],
-                        role: hasAnyOwner ? 'member' : 'owner',
-                        status: hasAnyOwner ? 'pending' : 'approved',
+                        role: isOwnerAccount ? 'owner' : 'member',
+                        status: isOwnerAccount ? 'approved' : 'pending',
                         createdAt: Date.now()
                     };
                     await setDoc(userDocRef, newProfile, { merge: true });
@@ -2148,7 +2083,7 @@ function listNovelsFromDrive() {
                 updateAccountUI();
                 updateAuthGateVisibility();
 
-                if (currentUserProfile?.role === 'owner') {
+                if (isOwnerAccount || currentUserProfile?.role === 'owner') {
                     attachOwnerUsersListener();
                 }
             }, (err) => console.warn('User profile listener error:', err));
@@ -2234,13 +2169,6 @@ function listNovelsFromDrive() {
             if (!isFirebaseReady || !db || !currentUser) return;
             if (unsubscribeAllUsers) unsubscribeAllUsers();
 
-            const securityDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'ownerConfig');
-            getDoc(securityDocRef).then(snap => {
-                if (snap.exists() && snap.data()?.masterKey) {
-                    ownerMasterKey = snap.data().masterKey;
-                }
-            }).catch(() => {});
-
             const usersCol = collection(db, 'artifacts', appId, 'public', 'data', 'users');
             unsubscribeAllUsers = onSnapshot(usersCol, (snap) => {
                 allUsersMap.clear();
@@ -2268,11 +2196,9 @@ function listNovelsFromDrive() {
                 isFirebaseReady = false;
                 isInitialLoadDone = true;
                 if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-amber-400';
-                if (statusText) statusText.textContent = 'โหมดพร้อมใช้งาน';
-                loadFallbackDemoDataInMemory();
+                if (statusText) statusText.textContent = 'รอใส่ค่า firebaseConfig';
                 updateAccountUI();
                 updateAuthGateVisibility();
-                renderLibrary();
                 return;
             }
 
@@ -2282,6 +2208,8 @@ function listNovelsFromDrive() {
                 auth = getAuth(app);
                 db = getFirestore(app);
                 isFirebaseReady = true;
+
+                await setPersistence(auth, browserLocalPersistence);
 
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
@@ -2293,6 +2221,7 @@ function listNovelsFromDrive() {
                         currentUserProfile = null;
                         if (unsubscribeUserProfile) unsubscribeUserProfile();
                         if (unsubscribeAllUsers) unsubscribeAllUsers();
+                        if (loadingEl) loadingEl.classList.add('hidden');
                         updateAccountUI();
                         updateAuthGateVisibility();
                         if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-amber-400';
@@ -2312,11 +2241,10 @@ function listNovelsFromDrive() {
                 isInitialLoadDone = true;
                 if (loadingEl) loadingEl.classList.add('hidden');
                 if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-                if (statusText) statusText.textContent = 'โหมดสำรองในหน่วยความจำ';
-                loadFallbackDemoDataInMemory();
+                if (statusText) statusText.textContent = 'เชื่อมต่อ Cloud ไม่สำเร็จ';
                 updateAccountUI();
                 updateAuthGateVisibility();
-                renderLibrary();
+                showToast(`เชื่อมต่อ Firebase ไม่สำเร็จ: ${err.message}`, 'error');
             }
         }
 
@@ -3780,13 +3708,11 @@ function listNovelsFromDrive() {
             switchGateTab,
             handleGateAuthSubmit,
             handleLogout,
-            claimOwnershipWithKey,
             openOwnerDashboard,
             closeOwnerDashboard,
             switchOwnerTab,
             updateUserApprovalStatus,
             approveAllPendingUsers,
-            saveOwnerMasterKey,
             openAccountModal,
             closeAccountModal,
             copyUserId,
