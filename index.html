@@ -122,8 +122,8 @@
 
                 <!-- Storage / Cloud Status Pill -->
                 <div class="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs text-slate-500 dark:text-slate-400">
-                    <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span id="cloud-status-text">บันทึกในเครื่องพร้อมใช้</span>
+                    <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span id="cloud-status-text">กำลังเชื่อมต่อ Cloud...</span>
                 </div>
 
                 <!-- Create New Novel CTA -->
@@ -267,7 +267,7 @@
             </div>
             <h3 id="empty-state-title" class="font-prompt font-bold text-lg text-slate-800 dark:text-white mb-1">ยังไม่มีนิยายในหมวดนี้</h3>
             <p id="empty-state-desc" class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-5">
-                เริ่มต้นแต่งนิยายเรื่องแรกของคุณ หรือเชื่อมต่อ Google Drive เพื่อดึงนิยายจากโฟลเดอร์ของคุณได้เลย
+                เริ่มต้นแต่งนิยายเรื่องแรกของคุณ ข้อมูลจะถูกซิงค์ออนไลน์ผ่าน Cloud อัตโนมัติ อ่านได้ทั้งในคอมและมือถือ
             </p>
             <div class="flex flex-wrap items-center justify-center gap-3">
                 <button id="empty-gdrive-btn" onclick="openGDriveModal()" class="hidden px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-sm transition-all">
@@ -619,14 +619,14 @@
 
             <!-- Main Writing Area -->
             <div class="flex-1 p-5 overflow-hidden flex flex-col">
-                <textarea id="chapter-form-content" oninput="handleEditorTyping()" placeholder="เริ่มพิมพ์หรือวางเนื้อหานิยายของคุณที่นี่... (ระบบจะบันทึกฉบับร่างอัตโนมัติ)"
+                <textarea id="chapter-form-content" oninput="handleEditorTyping()" placeholder="เริ่มพิมพ์หรือวางเนื้อหานิยายของคุณที่นี่... (กดปุ่ม 'เผยแพร่ / บันทึกตอน' ด้านบนเพื่อซิงค์เข้า Cloud ข้ามอุปกรณ์)"
                     class="flex-1 w-full resize-none bg-transparent text-slate-800 dark:text-slate-100 text-base leading-relaxed focus:outline-none font-sarabun"></textarea>
             </div>
 
             <!-- Footer Word Count & Autosave Status -->
             <div class="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
                 <div id="editor-autosave-status">
-                    <i class="fa-solid fa-cloud mr-1"></i> พร้อมบันทึกฉบับร่างอัตโนมัติ
+                    <i class="fa-solid fa-cloud mr-1 text-indigo-500"></i> พร้อมซิงค์ข้อมูลขึ้น Cloud ข้ามอุปกรณ์
                 </div>
                 <div class="flex items-center gap-4">
                     <span>ประมาณ <strong id="editor-word-count" class="text-slate-600 dark:text-slate-200">0</strong> คำ</span>
@@ -681,7 +681,7 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
                 <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-magnifying-glass-chart text-amber-500"></i>
-                    <span>ตรวจสอบสถานะฐานข้อมูลและ LocalStorage</span>
+                    <span>ตรวจสอบสถานะฐานข้อมูล Cloud</span>
                 </h3>
                 <button onclick="closeRecoveryModal()" class="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
@@ -700,7 +700,7 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
                 <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-user-astronaut text-indigo-500"></i>
-                    <span>บัญชีนักเขียน & การจัดเก็บข้อมูล</span>
+                    <span>บัญชีนักเขียน & การซิงค์ข้ามอุปกรณ์</span>
                 </h3>
                 <button onclick="closeAccountModal()" class="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
@@ -709,16 +709,19 @@
 
             <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 mb-4 text-xs space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <span class="text-slate-400">สถานะ:</span>
-                    <span id="account-modal-status" class="font-bold text-emerald-600 dark:text-emerald-400">บันทึกในเครื่อง (LocalStorage)</span>
+                    <span class="text-slate-400">สถานะการเชื่อมต่อ:</span>
+                    <span id="account-modal-status" class="font-bold text-emerald-600 dark:text-emerald-400">กำลังตรวจสอบ...</span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="text-slate-400">รหัสผู้ใช้งาน:</span>
+                    <span class="text-slate-400">รหัสผู้ใช้งาน (UID):</span>
                     <div class="flex items-center gap-1.5">
                         <code id="account-uid-display" class="text-[11px] bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">-</code>
                         <button onclick="copyUserId()" title="คัดลอก UID" class="text-indigo-500 hover:text-indigo-600"><i class="fa-regular fa-copy"></i></button>
                     </div>
                 </div>
+                <p class="text-[11px] text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+                    * <strong>คลังนิยายกลาง</strong> ซิงค์ทุกเครื่องอัตโนมัติทันที ส่วน <strong>คลังส่วนตัว</strong> แนะนำให้สมัคร/เข้าสู่ระบบด้วยอีเมลเดียวกันทั้งในคอมและมือถือ
+                </p>
             </div>
 
             <form id="account-email-form" onsubmit="handleEmailAuth(event)" class="space-y-3">
@@ -819,7 +822,7 @@
     </div>
 
     <!-- ========================================================= -->
-    <!-- JAVASCRIPT LOGIC, LOCALSTORAGE PERSISTENCE & GOOGLE DRIVE -->
+    <!-- JAVASCRIPT LOGIC, CLOUD FIRESTORE & GOOGLE DRIVE          -->
     <!-- ========================================================= -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
@@ -842,6 +845,18 @@
             deleteDoc,
             onSnapshot
         } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+        // =========================================================
+        // ★ วางค่า FIREBASE CONFIG ของคุณตรงนี้ (สำหรับ GitHub Pages) ★
+        // =========================================================
+        const MY_FIREBASE_CONFIG = {
+            apiKey: "ใส่_API_KEY_ของคุณที่นี่",
+            authDomain: "ใส่_AUTH_DOMAIN_ของคุณที่นี่",
+            projectId: "ใส่_PROJECT_ID_ของคุณที่นี่",
+            storageBucket: "ใส่_STORAGE_BUCKET_ของคุณที่นี่",
+            messagingSenderId: "ใส่_MESSAGING_SENDER_ID_ของคุณที่นี่",
+            appId: "ใส่_APP_ID_ของคุณที่นี่"
+        };
 
         // ---------------------------------------------------------
         // 1. COVER THEMES & INITIAL SEED NOVELS
@@ -915,204 +930,22 @@
         ];
 
         // ---------------------------------------------------------
-        // 2. GOOGLE APPS SCRIPT SOURCE CODE (doGet + doPost + CORS)
+        // 3. STATE MANAGEMENT & CLOUD FIRESTORE REALTIME SYNC
         // ---------------------------------------------------------
-        const GAS_SOURCE_CODE = `// 1. ใส่รหัส Folder ID ของ Google Drive หลักที่เก็บนิยายของคุณตรงนี้
-const FOLDER_ID = 'ใส่_FOLDER_ID_ของคุณที่นี่';
-
-// รองรับการเรียกแบบ GET (ดึงรายชื่อนิยาย / ดึงเนื้อหาตอน / JSONP)
-function doGet(e) {
-  const params = (e && e.parameter) ? e.parameter : {};
-  return handleApiRequest(params);
-}
-
-// รองรับการเรียกแบบ POST (CORS-friendly JSON API)
-function doPost(e) {
-  let params = (e && e.parameter) ? Object.assign({}, e.parameter) : {};
-  try {
-    if (e && e.postData && e.postData.contents) {
-      const body = JSON.parse(e.postData.contents);
-      params = Object.assign(params, body);
-    }
-  } catch (err) {
-    // กรณีส่งมาแบบ Form URL-encoded
-  }
-  return handleApiRequest(params);
-}
-
-// ศูนย์รวมจัดการคำสั่ง API ทั้งหมด
-function handleApiRequest(params) {
-  const action = params.action || 'list';
-  const callback = params.callback || '';
-  let result = {};
-
-  try {
-    if (action === 'chapter') {
-      const fileId = params.fileId;
-      if (!fileId) throw new Error('กรุณาระบุ fileId ของเอกสาร Google Docs');
-      result = {
-        status: 'success',
-        content: extractDocContent(fileId)
-      };
-    } else if (action === 'list') {
-      result = {
-        status: 'success',
-        novels: getNovelsFromDrive(FOLDER_ID)
-      };
-    } else {
-      throw new Error('ไม่รู้จักคำสั่ง action: ' + action);
-    }
-  } catch (err) {
-    result = {
-      status: 'error',
-      message: err.toString()
-    };
-  }
-
-  const jsonText = JSON.stringify(result);
-
-  // รองรับ JSONP สำหรับเว็บแอปที่รันใน Sandbox / iframe เพื่อเลี่ยงข้อจำกัด CORS
-  if (callback) {
-    const safeCallback = callback.replace(/[^a-zA-Z0-9_$.]/g, '');
-    return ContentService
-      .createTextOutput(safeCallback + '(' + jsonText + ');')
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  }
-
-  return ContentService
-    .createTextOutput(jsonText)
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-// ดึงโฟลเดอร์ย่อยมาเป็น "เรื่องนิยาย" และไฟล์ Google Docs ข้างในมาเป็น "ตอนนิยาย"
-function getNovelsFromDrive(rootFolderId) {
-  const rootFolder = DriveApp.getFolderById(rootFolderId);
-  const novels = [];
-  const subFolders = rootFolder.getFolders();
-  let hasSubFolders = false;
-
-  while (subFolders.hasNext()) {
-    hasSubFolders = true;
-    const folder = subFolders.next();
-    novels.push(buildNovelFromFolder(folder));
-  }
-
-  // กรณีวางไฟล์ Google Docs ไว้ในโฟลเดอร์หลักโดยตรง (ไม่ได้สร้างโฟลเดอร์ย่อย)
-  const rootNovel = buildNovelFromFolder(rootFolder);
-  if (rootNovel.chapters.length > 0 || !hasSubFolders) {
-    novels.unshift(rootNovel);
-  }
-
-  return novels;
-}
-
-// สร้างข้อมูลนิยาย 1 เรื่องจาก 1 โฟลเดอร์
-function buildNovelFromFolder(folder) {
-  const files = folder.getFilesByType(MimeType.GOOGLE_DOCS);
-  const chapters = [];
-  let synopsis = 'ซิงค์เนื้อหาอัตโนมัติจากโฟลเดอร์ Google Drive: ' + folder.getName();
-  let author = 'นักเขียน Google Docs';
-  let category = 'Google Drive';
-
-  while (files.hasNext()) {
-    const file = files.next();
-    const fileName = file.getName().trim();
-
-    // หากมีไฟล์ชื่อ "เรื่องย่อ" หรือ "info" จะดึงมาเป็นคำโปรย นามปากกา และหมวดหมู่
-    if (/^(เรื่องย่อ|คำโปรย|info|synopsis)/i.test(fileName)) {
-      const infoText = extractDocContent(file.getId());
-      const authorMatch = infoText.match(/(?:นามปากกา|ผู้แต่ง|Author)\\s*[:：]\\s*(.+)/i);
-      const catMatch = infoText.match(/(?:หมวดหมู่|ประเภท|Category)\\s*[:：]\\s*(.+)/i);
-      if (authorMatch) author = authorMatch[1].trim();
-      if (catMatch) category = catMatch[1].trim();
-      synopsis = infoText;
-      continue;
-    }
-
-    const parsed = parseChapterFileName(fileName, chapters.length + 1);
-    chapters.push({
-      id: 'gdrive-ch-' + file.getId(),
-      fileId: file.getId(),
-      novelId: 'gdrive-' + folder.getId(),
-      number: parsed.number,
-      title: parsed.title,
-      updatedAt: file.getLastUpdated().getTime()
-    });
-  }
-
-  chapters.sort((a, b) => a.number - b.number);
-
-  return {
-    id: 'gdrive-' + folder.getId(),
-    title: folder.getName(),
-    author: author,
-    category: category,
-    coverTheme: 'emerald',
-    synopsis: synopsis,
-    updatedAt: folder.getLastUpdated().getTime(),
-    chapters: chapters
-  };
-}
-
-// แยกเลขตอนและชื่อตอนจากชื่อไฟล์ เช่น "ตอนที่ 1 จุดเริ่มต้น" หรือ "01 บทนำ"
-function parseChapterFileName(fileName, fallbackNum) {
-  const match = fileName.match(/^(?:ตอนที่|บทที่|Chapter|Ep\\.?|#)?\\s*(\\d+)\\s*[:：\\-–—.]?\\s*(.*)$/i);
-  if (match) {
-    const num = parseInt(match[1], 10);
-    const title = (match[2] || '').trim() || ('ตอนที่ ' + num);
-    return { number: num, title: title };
-  }
-  return { number: fallbackNum, title: fileName };
-}
-
-// อ่านเนื้อหาจาก Google Docs โดยรักษาย่อหน้า การเว้นวรรค และการขึ้นบรรทัดใหม่ครบถ้วน
-function extractDocContent(fileId) {
-  const doc = DocumentApp.openById(fileId);
-  const body = doc.getBody();
-  const numChildren = body.getNumChildren();
-  const blocks = [];
-
-  for (let i = 0; i < numChildren; i++) {
-    const child = body.getChild(i);
-    const type = child.getType();
-
-    if (type === DocumentApp.ElementType.PARAGRAPH) {
-      // แปลง Soft Line Break (Shift+Enter / \\u000b) เป็น \\n และรักษาการเว้นวรรคด้านหน้า/กลางบรรทัด
-      const text = child.asParagraph().getText().replace(/\\u000b/g, '\\n').replace(/\\s+$/g, '');
-      blocks.push(text);
-    } else if (type === DocumentApp.ElementType.LIST_ITEM) {
-      const text = child.asListItem().getText().replace(/\\u000b/g, '\\n').replace(/\\s+$/g, '');
-      blocks.push(text);
-    }
-  }
-
-  return blocks.join('\\n');
-}`;
-
-        // ---------------------------------------------------------
-        // 3. STATE MANAGEMENT & LOCALSTORAGE PERSISTENCE
-        // ---------------------------------------------------------
-        const STORAGE_KEYS = {
-            LOCAL_DB: 'readwrite_thai_local_db_v1',
-            GAS_URL: 'readwrite_thai_gas_url',
-            GDRIVE_CACHE: 'readwrite_thai_gdrive_cache_v1',
-            READER_SETTINGS: 'readwrite_thai_reader_settings_v1'
-        };
-
         let app = null;
         let auth = null;
         let db = null;
         let isFirebaseReady = false;
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'readwrite-thai-default';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'readwrite-thai-github';
         let currentUser = null;
         let currentScope = 'public';
         let selectedCategory = 'ทั้งหมด';
         let chapterSortAsc = true;
         let editingChapterId = null;
-        let autosaveTimer = null;
         let authMode = 'login';
         let isInitialLoadDone = false;
+        let hasCheckedInitialSeed = false;
 
         let unsubscribePublicNovels = null;
         let unsubscribePublicChapters = null;
@@ -1125,8 +958,9 @@ function extractDocContent(fileId) {
         const privateChaptersMap = new Map();
         const gdriveNovelsMap = new Map();
         const gdriveChapterCache = new Map();
+        const inMemoryDraftsMap = new Map();
 
-        let gdriveWebAppUrl = localStorage.getItem(STORAGE_KEYS.GAS_URL) || '';
+        let gdriveWebAppUrl = '';
 
         window.currentView = 'library';
         window.currentNovelId = null;
@@ -1139,111 +973,51 @@ function extractDocContent(fileId) {
             lineHeight: '1.95'
         };
 
-        // Load saved reader settings
-        try {
-            const savedReader = localStorage.getItem(STORAGE_KEYS.READER_SETTINGS);
-            if (savedReader) Object.assign(readerSettings, JSON.parse(savedReader));
-        } catch (e) {}
-
-        // Save ALL Public & Private Novels/Chapters to localStorage unconditionally
-        function persistAllToLocalStorage() {
-            try {
-                const payload = {
-                    savedAt: Date.now(),
-                    publicNovels: Array.from(publicNovelsMap.values()),
-                    publicChapters: Array.from(publicChaptersMap.values()),
-                    privateNovels: Array.from(privateNovelsMap.values()),
-                    privateChapters: Array.from(privateChaptersMap.values())
-                };
-                localStorage.setItem(STORAGE_KEYS.LOCAL_DB, JSON.stringify(payload));
-            } catch (e) {
-                console.warn('LocalStorage persistence warning:', e);
+        // ตรวจสอบว่าผู้ใช้ใส่ค่า firebaseConfig จริงแล้วหรือยัง
+        function resolveFirebaseConfig() {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                try {
+                    return JSON.parse(__firebase_config);
+                } catch (e) {}
             }
+            if (
+                MY_FIREBASE_CONFIG &&
+                MY_FIREBASE_CONFIG.apiKey &&
+                !MY_FIREBASE_CONFIG.apiKey.includes('ใส่_') &&
+                MY_FIREBASE_CONFIG.projectId &&
+                !MY_FIREBASE_CONFIG.projectId.includes('ใส่_')
+            ) {
+                return MY_FIREBASE_CONFIG;
+            }
+            return null;
         }
 
-        // Load ALL Public & Private Novels/Chapters from localStorage immediately on startup
-        function hydrateFromLocalStorage() {
-            let loadedAny = false;
-            try {
-                // Support both current key and legacy key for seamless migration
-                const raw = localStorage.getItem(STORAGE_KEYS.LOCAL_DB) || localStorage.getItem('readwrite_thai_local_db');
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    (parsed.publicNovels || []).forEach(n => {
-                        if (n && n.id) {
-                            publicNovelsMap.set(n.id, n);
-                            loadedAny = true;
-                        }
-                    });
-                    (parsed.publicChapters || []).forEach(c => {
-                        if (c && c.id) publicChaptersMap.set(c.id, c);
-                    });
-                    (parsed.privateNovels || []).forEach(n => {
-                        if (n && n.id) {
-                            privateNovelsMap.set(n.id, n);
-                            loadedAny = true;
-                        }
-                    });
-                    (parsed.privateChapters || []).forEach(c => {
-                        if (c && c.id) privateChaptersMap.set(c.id, c);
-                    });
-                }
-            } catch (e) {
-                console.warn('Error hydrating localStorage:', e);
-            }
-
-            // Seed default sample novels only if public library is completely empty
-            if (publicNovelsMap.size === 0 && !loadedAny) {
-                const now = Date.now();
-                DEFAULT_NOVELS.forEach((item, idx) => {
-                    publicNovelsMap.set(item.id, {
-                        id: item.id,
-                        title: item.title,
-                        author: item.author,
-                        category: item.category,
-                        coverTheme: item.coverTheme,
-                        synopsis: item.synopsis,
-                        createdAt: now - idx * 1000,
-                        updatedAt: now - idx * 1000
-                    });
-                    (item.chapters || []).forEach((ch, cIdx) => {
-                        publicChaptersMap.set(ch.id, {
-                            id: ch.id,
-                            novelId: item.id,
-                            number: ch.number,
-                            title: ch.title,
-                            content: ch.content,
-                            updatedAt: now + cIdx
-                        });
+        // โหลดนิยายตั้งต้นเข้าหน่วยความจำชั่วคราว กรณียังไม่ได้ใส่ค่า Firebase Config
+        function loadFallbackDemoDataInMemory() {
+            const now = Date.now();
+            DEFAULT_NOVELS.forEach((item, idx) => {
+                publicNovelsMap.set(item.id, {
+                    id: item.id,
+                    title: item.title,
+                    author: item.author,
+                    category: item.category,
+                    coverTheme: item.coverTheme,
+                    synopsis: item.synopsis,
+                    createdAt: now - idx * 1000,
+                    updatedAt: now - idx * 1000
+                });
+                (item.chapters || []).forEach((ch, cIdx) => {
+                    publicChaptersMap.set(ch.id, {
+                        id: ch.id,
+                        novelId: item.id,
+                        number: ch.number,
+                        title: ch.title,
+                        content: ch.content,
+                        updatedAt: now + cIdx
                     });
                 });
-                persistAllToLocalStorage();
-            } else {
-                const requiredIds = ['novel-game-of-hidden-flames', 'novel-off-the-record'];
-                let addedRequired = false;
-                requiredIds.forEach((reqId, idx) => {
-                    if (!publicNovelsMap.has(reqId)) {
-                        const targetNovel = DEFAULT_NOVELS.find(n => n.id === reqId);
-                        if (targetNovel) {
-                            const now = Date.now() + idx;
-                            publicNovelsMap.set(targetNovel.id, {
-                                id: targetNovel.id,
-                                title: targetNovel.title,
-                                author: targetNovel.author,
-                                category: targetNovel.category,
-                                coverTheme: targetNovel.coverTheme,
-                                synopsis: targetNovel.synopsis,
-                                createdAt: now,
-                                updatedAt: now
-                            });
-                            addedRequired = true;
-                        }
-                    }
-                });
-                if (addedRequired) {
-                    persistAllToLocalStorage();
-                }
-            }
+            });
+            updateScopeCounts();
         }
 
         // ---------------------------------------------------------
@@ -1342,12 +1116,19 @@ function extractDocContent(fileId) {
                 labelEl.textContent = isEmailUser ? currentUser.email.split('@')[0] : 'นักเขียน';
             }
             if (uidEl) {
-                uidEl.textContent = currentUser?.uid ? `${currentUser.uid.slice(0, 12)}...` : 'local-storage';
+                uidEl.textContent = currentUser?.uid ? currentUser.uid : 'ยังไม่ได้เชื่อมต่อ Cloud';
             }
             if (statusEl) {
-                statusEl.textContent = isEmailUser
-                    ? `เข้าสู่ระบบแล้ว (${currentUser.email})`
-                    : (isFirebaseReady ? 'เชื่อมต่อ Cloud + บันทึกในเครื่อง' : 'บันทึกในเครื่อง (LocalStorage)');
+                if (!isFirebaseReady) {
+                    statusEl.textContent = 'ยังไม่ได้ใส่ค่า firebaseConfig (โหมดทดลอง)';
+                    statusEl.className = 'font-bold text-amber-500';
+                } else if (isEmailUser) {
+                    statusEl.textContent = `ซิงค์ Cloud แล้ว (${currentUser.email})`;
+                    statusEl.className = 'font-bold text-emerald-600 dark:text-emerald-400';
+                } else {
+                    statusEl.textContent = 'เชื่อมต่อ Cloud อัตโนมัติ (Guest)';
+                    statusEl.className = 'font-bold text-emerald-600 dark:text-emerald-400';
+                }
             }
             if (signOutBtn) {
                 signOutBtn.classList.toggle('hidden', !isEmailUser);
@@ -1411,7 +1192,7 @@ function extractDocContent(fileId) {
         }
 
         function attachFirestoreListeners() {
-            if (!isFirebaseReady || !db) return;
+            if (!isFirebaseReady || !db || !currentUser) return;
 
             if (unsubscribePublicNovels) unsubscribePublicNovels();
             if (unsubscribePublicChapters) unsubscribePublicChapters();
@@ -1421,149 +1202,193 @@ function extractDocContent(fileId) {
             const pubNovelsCol = collection(db, 'artifacts', appId, 'public', 'data', 'novels');
             const pubChaptersCol = collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
 
-            unsubscribePublicNovels = onSnapshot(pubNovelsCol, (snap) => {
-                snap.forEach(d => {
-                    const data = d.data();
-                    if (data && data.id) publicNovelsMap.set(data.id, data);
+            unsubscribePublicNovels = onSnapshot(pubNovelsCol, async (snap) => {
+                snap.docChanges().forEach(change => {
+                    const data = change.doc.data();
+                    const docId = data?.id || change.doc.id;
+                    if (change.type === 'removed') {
+                        publicNovelsMap.delete(docId);
+                    } else if (data) {
+                        publicNovelsMap.set(docId, { ...data, id: docId });
+                    }
                 });
-                persistAllToLocalStorage();
+
+                // ถ้านี่เป็นครั้งแรกที่เปิดฐานข้อมูลบน Cloud และยังไม่มีเรื่องเลย ให้เพิ่มนิยายตัวอย่างให้อัตโนมัติ
+                if (!hasCheckedInitialSeed) {
+                    hasCheckedInitialSeed = true;
+                    if (snap.empty) {
+                        await seedDemoDataToCloud(true);
+                    }
+                }
+
+                isInitialLoadDone = true;
+                const loadingEl = document.getElementById('library-loading-state');
+                if (loadingEl) loadingEl.classList.add('hidden');
                 updateScopeCounts();
                 refreshCurrentView();
-            }, (err) => console.warn('Public novels sync error:', err));
+            }, (err) => {
+                console.error('Public novels sync error:', err);
+                showToast('ไม่สามารถดึงข้อมูลจาก Cloud ได้ กรุณาตรวจสอบ Firestore Rules', 'error');
+            });
 
             unsubscribePublicChapters = onSnapshot(pubChaptersCol, (snap) => {
-                snap.forEach(d => {
-                    const data = d.data();
-                    if (data && data.id) publicChaptersMap.set(data.id, data);
+                snap.docChanges().forEach(change => {
+                    const data = change.doc.data();
+                    const docId = data?.id || change.doc.id;
+                    if (change.type === 'removed') {
+                        publicChaptersMap.delete(docId);
+                    } else if (data) {
+                        publicChaptersMap.set(docId, { ...data, id: docId });
+                    }
                 });
-                persistAllToLocalStorage();
                 refreshCurrentView();
             }, (err) => console.warn('Public chapters sync error:', err));
 
             if (currentUser?.uid) {
+                privateNovelsMap.clear();
+                privateChaptersMap.clear();
+
                 const privNovelsCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels');
                 const privChaptersCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters');
 
                 unsubscribePrivateNovels = onSnapshot(privNovelsCol, (snap) => {
-                    snap.forEach(d => {
-                        const data = d.data();
-                        if (data && data.id) privateNovelsMap.set(data.id, data);
+                    snap.docChanges().forEach(change => {
+                        const data = change.doc.data();
+                        const docId = data?.id || change.doc.id;
+                        if (change.type === 'removed') {
+                            privateNovelsMap.delete(docId);
+                        } else if (data) {
+                            privateNovelsMap.set(docId, { ...data, id: docId });
+                        }
                     });
-                    persistAllToLocalStorage();
                     updateScopeCounts();
                     refreshCurrentView();
                 }, (err) => console.warn('Private novels sync error:', err));
 
                 unsubscribePrivateChapters = onSnapshot(privChaptersCol, (snap) => {
-                    snap.forEach(d => {
-                        const data = d.data();
-                        if (data && data.id) privateChaptersMap.set(data.id, data);
+                    snap.docChanges().forEach(change => {
+                        const data = change.doc.data();
+                        const docId = data?.id || change.doc.id;
+                        if (change.type === 'removed') {
+                            privateChaptersMap.delete(docId);
+                        } else if (data) {
+                            privateChaptersMap.set(docId, { ...data, id: docId });
+                        }
                     });
-                    persistAllToLocalStorage();
                     refreshCurrentView();
                 }, (err) => console.warn('Private chapters sync error:', err));
             }
         }
 
         async function initAuth() {
-            // Restore cached Google Drive novels if available
-            try {
-                const rawGDrive = localStorage.getItem(STORAGE_KEYS.GDRIVE_CACHE);
-                if (rawGDrive) {
-                    const parsed = JSON.parse(rawGDrive);
-                    (parsed.novels || []).forEach(n => {
-                        if (n && n.id) gdriveNovelsMap.set(n.id, n);
-                    });
-                }
-            } catch (e) {}
-
             updateGDriveIndicatorUI();
             updateScopeCounts();
-            isInitialLoadDone = true;
-            renderLibrary();
 
             const statusDot = document.getElementById('cloud-status-dot');
             const statusText = document.getElementById('cloud-status-text');
+            const loadingEl = document.getElementById('library-loading-state');
+
+            const firebaseConfig = resolveFirebaseConfig();
+
+            if (!firebaseConfig) {
+                isFirebaseReady = false;
+                isInitialLoadDone = true;
+                if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                if (statusText) statusText.textContent = 'รอใส่ค่า firebaseConfig';
+                loadFallbackDemoDataInMemory();
+                updateAccountUI();
+                renderLibrary();
+                return;
+            }
 
             try {
-                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                    const firebaseConfig = JSON.parse(__firebase_config);
-                    app = initializeApp(firebaseConfig);
-                    auth = getAuth(app);
-                    db = getFirestore(app);
-                    isFirebaseReady = true;
+                if (loadingEl) loadingEl.classList.remove('hidden');
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                isFirebaseReady = true;
 
-                    if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-                    if (statusText) statusText.textContent = 'ซิงค์ Cloud + ในเครื่อง';
-
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    onAuthStateChanged(auth, (user) => {
-                        currentUser = user;
-                        updateAccountUI();
-                        if (user) {
-                            attachFirestoreListeners();
-                        }
-                    });
-                } else {
-                    updateAccountUI();
+                // RULE 3: Authenticate FIRST before attaching any Firestore queries
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else if (!auth.currentUser) {
+                    await signInAnonymously(auth);
                 }
+
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    updateAccountUI();
+                    if (user) {
+                        if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                        if (statusText) statusText.textContent = 'ซิงค์ Cloud ข้ามอุปกรณ์';
+                        attachFirestoreListeners();
+                    }
+                });
             } catch (err) {
-                console.warn('Running in standalone LocalStorage mode:', err);
+                console.error('Firebase initialization error:', err);
                 isFirebaseReady = false;
+                isInitialLoadDone = true;
+                if (loadingEl) loadingEl.classList.add('hidden');
+                if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-rose-500';
+                if (statusText) statusText.textContent = 'เชื่อมต่อ Cloud ไม่สำเร็จ';
+                loadFallbackDemoDataInMemory();
                 updateAccountUI();
+                renderLibrary();
+                showToast(`เชื่อมต่อ Cloud ไม่สำเร็จ: ${err.message}`, 'error');
             }
         }
 
         // ---------------------------------------------------------
-        // 6. SEEDING DEMO NOVELS TO STORAGE
+        // 6. SEEDING DEMO NOVELS TO CLOUD FIRESTORE
         // ---------------------------------------------------------
         async function seedDemoDataToCloud(silent = false) {
             const now = Date.now();
             let addedCount = 0;
 
-            for (let idx = 0; idx < DEFAULT_NOVELS.length; idx++) {
-                const item = DEFAULT_NOVELS[idx];
-                if (!publicNovelsMap.has(item.id)) {
-                    publicNovelsMap.set(item.id, {
-                        id: item.id,
-                        title: item.title,
-                        author: item.author,
-                        category: item.category,
-                        coverTheme: item.coverTheme || 'indigo',
-                        synopsis: item.synopsis || '',
-                        createdAt: now - idx * 1000,
-                        updatedAt: now - idx * 1000
-                    });
-                    addedCount++;
-                }
-                if (Array.isArray(item.chapters)) {
-                    for (let cIdx = 0; cIdx < item.chapters.length; cIdx++) {
-                        const ch = item.chapters[cIdx];
-                        if (!publicChaptersMap.has(ch.id)) {
-                            publicChaptersMap.set(ch.id, {
-                                id: ch.id,
-                                novelId: item.id,
-                                number: Number(ch.number) || 1,
-                                title: ch.title,
-                                content: ch.content,
-                                updatedAt: now + cIdx
-                            });
+            if (isFirebaseReady && db && currentUser) {
+                const pubNovelsCol = collection(db, 'artifacts', appId, 'public', 'data', 'novels');
+                const pubChaptersCol = collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
+
+                for (let idx = 0; idx < DEFAULT_NOVELS.length; idx++) {
+                    const item = DEFAULT_NOVELS[idx];
+                    if (!publicNovelsMap.has(item.id)) {
+                        const novelPayload = {
+                            id: item.id,
+                            title: item.title,
+                            author: item.author,
+                            category: item.category,
+                            coverTheme: item.coverTheme || 'indigo',
+                            synopsis: item.synopsis || '',
+                            createdAt: now - idx * 1000,
+                            updatedAt: now - idx * 1000
+                        };
+                        await setDoc(doc(pubNovelsCol, item.id), novelPayload, { merge: true });
+                        addedCount++;
+                    }
+                    if (Array.isArray(item.chapters)) {
+                        for (let cIdx = 0; cIdx < item.chapters.length; cIdx++) {
+                            const ch = item.chapters[cIdx];
+                            if (!publicChaptersMap.has(ch.id)) {
+                                await setDoc(doc(pubChaptersCol, ch.id), {
+                                    id: ch.id,
+                                    novelId: item.id,
+                                    number: Number(ch.number) || 1,
+                                    title: ch.title,
+                                    content: ch.content,
+                                    updatedAt: now + cIdx
+                                }, { merge: true });
+                            }
                         }
                     }
                 }
+            } else {
+                loadFallbackDemoDataInMemory();
+                addedCount = DEFAULT_NOVELS.length;
+                refreshCurrentView();
             }
 
-            persistAllToLocalStorage();
-            updateScopeCounts();
-            refreshCurrentView();
-
             if (!silent) {
-                showToast(addedCount > 0 ? `เพิ่มนิยายตัวอย่างสำเร็จ ${addedCount} เรื่อง` : 'มีนิยายตัวอย่างอยู่ในคลังแล้ว', 'success');
+                showToast(addedCount > 0 ? `เพิ่มนิยายตัวอย่างขึ้น Cloud สำเร็จ ${addedCount} เรื่อง` : 'มีนิยายตัวอย่างอยู่ในคลังแล้ว', 'success');
             }
         }
 
@@ -1774,7 +1599,7 @@ function extractDocContent(fileId) {
                         emptyGdriveBtn.classList.remove('hidden');
                     } else {
                         emptyTitle.textContent = 'ยังไม่มีนิยายในหมวดนี้';
-                        emptyDesc.textContent = 'เริ่มต้นแต่งนิยายเรื่องแรกของคุณ ข้อมูลจะถูกบันทึกไว้ใน LocalStorage อย่างปลอดภัย';
+                        emptyDesc.textContent = 'เริ่มต้นแต่งนิยายเรื่องแรกของคุณ ข้อมูลจะถูกซิงค์ออนไลน์ผ่าน Cloud อัตโนมัติ';
                         emptyGdriveBtn.classList.add('hidden');
                     }
                 }
@@ -2097,9 +1922,6 @@ function extractDocContent(fileId) {
 
         function updateReaderSetting(key, value) {
             readerSettings[key] = value;
-            try {
-                localStorage.setItem(STORAGE_KEYS.READER_SETTINGS, JSON.stringify(readerSettings));
-            } catch (e) {}
             applyReaderSettings();
         }
 
@@ -2262,19 +2084,23 @@ function extractDocContent(fileId) {
                 updatedAt: now
             };
 
-            // 1. Always save immediately to localStorage
-            targetMap.set(novelId, novelObj);
-            persistAllToLocalStorage();
-            updateScopeCounts();
-            refreshCurrentView();
-
-            // 2. Also sync to Firestore in background if available
-            const novelsRef = getNovelsCollectionRef();
-            if (novelsRef) {
-                setDoc(doc(novelsRef, novelId), novelObj, { merge: true }).catch(e => console.warn('Cloud sync skipped:', e));
+            if (isFirebaseReady && db && currentUser) {
+                const novelsRef = getNovelsCollectionRef();
+                try {
+                    await setDoc(doc(novelsRef, novelId), novelObj, { merge: true });
+                    showToast(existingId ? 'ซิงค์การแก้ไขข้อมูลเรื่องขึ้น Cloud แล้ว' : 'สร้างนิยายเรื่องใหม่บน Cloud สำเร็จ!', 'success');
+                } catch (e) {
+                    console.error('Save novel error:', e);
+                    showToast(`บันทึกขึ้น Cloud ไม่สำเร็จ: ${e.message}`, 'error');
+                    return;
+                }
+            } else {
+                targetMap.set(novelId, novelObj);
+                updateScopeCounts();
+                refreshCurrentView();
+                showToast('บันทึกข้อมูลชั่วคราวแล้ว (กรุณาใส่ค่า firebaseConfig เพื่อซิงค์ข้ามอุปกรณ์)', 'warning');
             }
 
-            showToast(existingId ? 'บันทึกการแก้ไขข้อมูลเรื่องลง LocalStorage แล้ว' : 'สร้างนิยายเรื่องใหม่สำเร็จ!', 'success');
             closeNovelModal();
             if (!existingId) navigateTo('detail', novelId);
         }
@@ -2285,25 +2111,30 @@ function extractDocContent(fileId) {
 
             openConfirmDialog(
                 'ยืนยันการลบนิยาย',
-                `คุณต้องการลบเรื่อง "${novel.title}" และตอนทั้งหมดในเรื่องนี้ใช่หรือไม่?`,
+                `คุณต้องการลบเรื่อง "${novel.title}" และตอนทั้งหมดในเรื่องนี้ใช่หรือไม่? (จะถูกลบออกจากทุกอุปกรณ์)`,
                 async () => {
-                    const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
-                    const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
-                    for (const ch of (novel.chapters || [])) cMap.delete(ch.id);
-                    nMap.delete(novelId);
-                    persistAllToLocalStorage();
-                    updateScopeCounts();
-
-                    const novelsRef = getNovelsCollectionRef();
-                    const chaptersRef = getChaptersCollectionRef();
-                    if (novelsRef && chaptersRef) {
-                        for (const ch of (novel.chapters || [])) {
-                            deleteDoc(doc(chaptersRef, ch.id)).catch(() => {});
+                    if (isFirebaseReady && db && currentUser) {
+                        const novelsRef = getNovelsCollectionRef();
+                        const chaptersRef = getChaptersCollectionRef();
+                        try {
+                            for (const ch of (novel.chapters || [])) {
+                                await deleteDoc(doc(chaptersRef, ch.id));
+                            }
+                            await deleteDoc(doc(novelsRef, novelId));
+                            showToast('ลบนิยายออกจาก Cloud เรียบร้อยแล้ว', 'success');
+                        } catch (e) {
+                            showToast(`ลบไม่สำเร็จ: ${e.message}`, 'error');
+                            return;
                         }
-                        deleteDoc(doc(novelsRef, novelId)).catch(() => {});
+                    } else {
+                        const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                        const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+                        for (const ch of (novel.chapters || [])) cMap.delete(ch.id);
+                        nMap.delete(novelId);
+                        updateScopeCounts();
+                        showToast('ลบนิยายเรียบร้อยแล้ว', 'success');
                     }
 
-                    showToast('ลบนิยายเรียบร้อยแล้ว', 'success');
                     navigateTo('library');
                 }
             );
@@ -2340,18 +2171,12 @@ function extractDocContent(fileId) {
                 titleInput.value = '';
                 contentInput.value = '';
 
-                try {
-                    const localDraft = localStorage.getItem(`readwrite_draft_${novel.id}`);
-                    if (localDraft) {
-                        const d = JSON.parse(localDraft);
-                        if (d.title) titleInput.value = d.title;
-                        if (d.number) numInput.value = d.number;
-                        if (d.content) {
-                            contentInput.value = d.content;
-                            showToast('กู้คืนฉบับร่างล่าสุดจากเครื่องให้แล้ว', 'info');
-                        }
-                    }
-                } catch (e) {}
+                const draft = inMemoryDraftsMap.get(novel.id);
+                if (draft) {
+                    if (draft.title) titleInput.value = draft.title;
+                    if (draft.number) numInput.value = draft.number;
+                    if (draft.content) contentInput.value = draft.content;
+                }
             }
 
             updateEditorStats();
@@ -2359,7 +2184,6 @@ function extractDocContent(fileId) {
         }
 
         function closeChapterEditor() {
-            if (autosaveTimer) clearTimeout(autosaveTimer);
             document.getElementById('chapter-editor-modal').classList.add('hidden');
         }
 
@@ -2375,29 +2199,17 @@ function extractDocContent(fileId) {
 
         function handleEditorTyping() {
             updateEditorStats();
+            if (!editingChapterId && window.currentNovelId) {
+                inMemoryDraftsMap.set(window.currentNovelId, {
+                    number: Number(document.getElementById('chapter-form-number').value) || 1,
+                    title: document.getElementById('chapter-form-title').value.trim(),
+                    content: document.getElementById('chapter-form-content').value
+                });
+            }
             const statusEl = document.getElementById('editor-autosave-status');
             if (statusEl) {
-                statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังเตรียมบันทึกฉบับร่าง...`;
+                statusEl.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-indigo-500 mr-1"></i> กดปุ่ม "เผยแพร่ / บันทึกตอน" เพื่อซิงค์ขึ้น Cloud`;
             }
-
-            if (autosaveTimer) clearTimeout(autosaveTimer);
-            autosaveTimer = setTimeout(() => {
-                if (editingChapterId || !window.currentNovelId) return;
-                const content = document.getElementById('chapter-form-content').value;
-                if (!content.trim()) return;
-
-                try {
-                    localStorage.setItem(`readwrite_draft_${window.currentNovelId}`, JSON.stringify({
-                        number: Number(document.getElementById('chapter-form-number').value) || 1,
-                        title: document.getElementById('chapter-form-title').value.trim(),
-                        content,
-                        updatedAt: Date.now()
-                    }));
-                    if (statusEl) {
-                        statusEl.innerHTML = `<i class="fa-solid fa-check text-emerald-500 mr-1"></i> บันทึกฉบับร่างลง LocalStorage แล้ว (${new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })})`;
-                    }
-                } catch (e) {}
-            }, 1000);
         }
 
         async function saveChapter() {
@@ -2417,29 +2229,29 @@ function extractDocContent(fileId) {
             const chapterId = editingChapterId || `ch-${novel.id}-${now}-${Math.random().toString(36).substring(2, 6)}`;
             const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
             const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
-
             const chapterObj = { id: chapterId, novelId: novel.id, number, title, content, updatedAt: now };
-            cMap.set(chapterId, chapterObj);
 
-            const existingN = nMap.get(novel.id);
-            if (existingN) {
-                nMap.set(novel.id, { ...existingN, updatedAt: now });
-            }
-
-            persistAllToLocalStorage();
-            localStorage.removeItem(`readwrite_draft_${novel.id}`);
-            refreshCurrentView();
-
-            const chaptersRef = getChaptersCollectionRef();
-            const novelsRef = getNovelsCollectionRef();
-            if (chaptersRef && novelsRef) {
-                setDoc(doc(chaptersRef, chapterId), chapterObj).catch(() => {});
-                if (existingN) {
-                    setDoc(doc(novelsRef, novel.id), { ...existingN, updatedAt: now }, { merge: true }).catch(() => {});
+            if (isFirebaseReady && db && currentUser) {
+                const chaptersRef = getChaptersCollectionRef();
+                const novelsRef = getNovelsCollectionRef();
+                try {
+                    await setDoc(doc(chaptersRef, chapterId), chapterObj);
+                    await setDoc(doc(novelsRef, novel.id), { updatedAt: now }, { merge: true });
+                    showToast(`ซิงค์ตอนที่ ${number} ขึ้น Cloud เรียบร้อย! เปิดอ่านในมือถือได้ทันที`, 'success');
+                } catch (e) {
+                    console.error('Save chapter error:', e);
+                    showToast(`บันทึกขึ้น Cloud ไม่สำเร็จ: ${e.message}`, 'error');
+                    return;
                 }
+            } else {
+                cMap.set(chapterId, chapterObj);
+                const existingN = nMap.get(novel.id);
+                if (existingN) nMap.set(novel.id, { ...existingN, updatedAt: now });
+                refreshCurrentView();
+                showToast('บันทึกชั่วคราวแล้ว (กรุณาใส่ค่า firebaseConfig เพื่อซิงค์ข้ามอุปกรณ์)', 'warning');
             }
 
-            showToast(`บันทึกตอนที่ ${number} ลง LocalStorage เรียบร้อย!`, 'success');
+            inMemoryDraftsMap.delete(novel.id);
             closeChapterEditor();
         }
 
@@ -2453,17 +2265,20 @@ function extractDocContent(fileId) {
                 'ยืนยันการลบตอนนิยาย',
                 `คุณต้องการลบ "ตอนที่ ${chapter.number}: ${chapter.title}" ใช่หรือไม่?`,
                 async () => {
-                    const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
-                    cMap.delete(chapterId);
-                    persistAllToLocalStorage();
-                    refreshCurrentView();
-
-                    const chaptersRef = getChaptersCollectionRef();
-                    if (chaptersRef) {
-                        deleteDoc(doc(chaptersRef, chapterId)).catch(() => {});
+                    if (isFirebaseReady && db && currentUser) {
+                        const chaptersRef = getChaptersCollectionRef();
+                        try {
+                            await deleteDoc(doc(chaptersRef, chapterId));
+                            showToast('ลบตอนนิยายออกจาก Cloud เรียบร้อยแล้ว', 'success');
+                        } catch (e) {
+                            showToast(`ลบไม่สำเร็จ: ${e.message}`, 'error');
+                        }
+                    } else {
+                        const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+                        cMap.delete(chapterId);
+                        refreshCurrentView();
+                        showToast('ลบตอนนิยายเรียบร้อยแล้ว', 'success');
                     }
-
-                    showToast('ลบตอนนิยายเรียบร้อยแล้ว', 'success');
                 }
             );
         }
@@ -2540,28 +2355,40 @@ function extractDocContent(fileId) {
             const now = Date.now();
             const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
             const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
-            const chaptersRef = getChaptersCollectionRef();
-            const novelsRef = getNovelsCollectionRef();
 
-            parsed.forEach((ch, i) => {
-                const chId = `ch-${novel.id}-${now}-${i}-${Math.random().toString(36).substring(2, 5)}`;
-                const chObj = { id: chId, novelId: novel.id, number: ch.number, title: ch.title, content: ch.content, updatedAt: now + i };
-                cMap.set(chId, chObj);
-                if (chaptersRef) setDoc(doc(chaptersRef, chId), chObj).catch(() => {});
-            });
-
-            const existingN = nMap.get(novel.id);
-            if (existingN) {
-                nMap.set(novel.id, { ...existingN, updatedAt: now });
-                if (novelsRef) setDoc(doc(novelsRef, novel.id), { ...existingN, updatedAt: now }, { merge: true }).catch(() => {});
+            if (isFirebaseReady && db && currentUser) {
+                const chaptersRef = getChaptersCollectionRef();
+                const novelsRef = getNovelsCollectionRef();
+                showToast(`กำลังอัปโหลด ${parsed.length} ตอนขึ้น Cloud...`, 'info');
+                try {
+                    for (let i = 0; i < parsed.length; i++) {
+                        const ch = parsed[i];
+                        const chId = `ch-${novel.id}-${now}-${i}-${Math.random().toString(36).substring(2, 5)}`;
+                        const chObj = { id: chId, novelId: novel.id, number: ch.number, title: ch.title, content: ch.content, updatedAt: now + i };
+                        await setDoc(doc(chaptersRef, chId), chObj);
+                    }
+                    await setDoc(doc(novelsRef, novel.id), { updatedAt: now }, { merge: true });
+                    showToast(`นำเข้าและซิงค์ขึ้น Cloud สำเร็จทั้งหมด ${parsed.length} ตอน!`, 'success');
+                } catch (e) {
+                    showToast(`เกิดข้อผิดพลาดในการอัปโหลด: ${e.message}`, 'error');
+                    return;
+                }
+            } else {
+                parsed.forEach((ch, i) => {
+                    const chId = `ch-${novel.id}-${now}-${i}-${Math.random().toString(36).substring(2, 5)}`;
+                    cMap.set(chId, { id: chId, novelId: novel.id, number: ch.number, title: ch.title, content: ch.content, updatedAt: now + i });
+                });
+                const existingN = nMap.get(novel.id);
+                if (existingN) nMap.set(novel.id, { ...existingN, updatedAt: now });
+                refreshCurrentView();
+                showToast(`นำเข้าสำเร็จทั้งหมด ${parsed.length} ตอน`, 'success');
             }
 
-            persistAllToLocalStorage();
-            refreshCurrentView();
-            showToast(`นำเข้าสำเร็จทั้งหมด ${parsed.length} ตอน!`, 'success');
             closeBulkImportModal();
         }
 
+        // ---------------------------------------------------------
+        // 13. BACKUP / RESTORE (JSON) & CLOUD SCANNER
         // ---------------------------------------------------------
         // 13. BACKUP / RESTORE (JSON) & STORAGE SCANNER
         // ---------------------------------------------------------
@@ -2617,44 +2444,81 @@ function extractDocContent(fileId) {
 
                     const now = Date.now();
                     const targetScope = currentScope === 'gdrive' ? 'private' : currentScope;
-                    const nMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
-                    const cMap = targetScope === 'private' ? privateChaptersMap : publicChaptersMap;
 
-                    for (const novel of novelsList) {
-                        const nId = novel.id || `novel-${now}-${Math.random().toString(36).substring(2, 6)}`;
-                        nMap.set(nId, {
-                            id: nId,
-                            title: novel.title || 'ไม่มีชื่อเรื่อง',
-                            author: novel.author || 'ไม่ระบุนามปากกา',
-                            category: novel.category || 'โรแมนติก',
-                            coverTheme: novel.coverTheme || 'indigo',
-                            synopsis: novel.synopsis || '',
-                            createdAt: novel.createdAt || now,
-                            updatedAt: now
-                        });
-                        if (Array.isArray(novel.chapters)) {
-                            for (const ch of novel.chapters) {
-                                const cId = ch.id || `ch-${nId}-${now}-${Math.random().toString(36).substring(2, 6)}`;
-                                cMap.set(cId, {
-                                    id: cId,
-                                    novelId: nId,
-                                    number: Number(ch.number) || 1,
-                                    title: ch.title || 'ไม่มีชื่อตอน',
-                                    content: ch.content || '',
-                                    updatedAt: ch.updatedAt || now
-                                });
+                    if (isFirebaseReady && db && currentUser) {
+                        const novelsRef = targetScope === 'private'
+                            ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
+                            : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
+                        const chaptersRef = targetScope === 'private'
+                            ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters')
+                            : collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
+
+                        showToast(`กำลังอัปโหลด ${novelsList.length} เรื่องขึ้น Cloud...`, 'info');
+                        for (const novel of novelsList) {
+                            const nId = novel.id || `novel-${now}-${Math.random().toString(36).substring(2, 6)}`;
+                            await setDoc(doc(novelsRef, nId), {
+                                id: nId,
+                                title: novel.title || 'ไม่มีชื่อเรื่อง',
+                                author: novel.author || 'ไม่ระบุนามปากกา',
+                                category: novel.category || 'โรแมนติก',
+                                coverTheme: novel.coverTheme || 'indigo',
+                                synopsis: novel.synopsis || '',
+                                createdAt: novel.createdAt || now,
+                                updatedAt: now
+                            }, { merge: true });
+
+                            if (Array.isArray(novel.chapters)) {
+                                for (const ch of novel.chapters) {
+                                    const cId = ch.id || `ch-${nId}-${now}-${Math.random().toString(36).substring(2, 6)}`;
+                                    await setDoc(doc(chaptersRef, cId), {
+                                        id: cId,
+                                        novelId: nId,
+                                        number: Number(ch.number) || 1,
+                                        title: ch.title || 'ไม่มีชื่อตอน',
+                                        content: ch.content || '',
+                                        updatedAt: ch.updatedAt || now
+                                    }, { merge: true });
+                                }
+                            }
+                        }
+                    } else {
+                        const nMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                        const cMap = targetScope === 'private' ? privateChaptersMap : publicChaptersMap;
+                        for (const novel of novelsList) {
+                            const nId = novel.id || `novel-${now}-${Math.random().toString(36).substring(2, 6)}`;
+                            nMap.set(nId, {
+                                id: nId,
+                                title: novel.title || 'ไม่มีชื่อเรื่อง',
+                                author: novel.author || 'ไม่ระบุนามปากกา',
+                                category: novel.category || 'โรแมนติก',
+                                coverTheme: novel.coverTheme || 'indigo',
+                                synopsis: novel.synopsis || '',
+                                createdAt: novel.createdAt || now,
+                                updatedAt: now
+                            });
+                            if (Array.isArray(novel.chapters)) {
+                                for (const ch of novel.chapters) {
+                                    const cId = ch.id || `ch-${nId}-${now}-${Math.random().toString(36).substring(2, 6)}`;
+                                    cMap.set(cId, {
+                                        id: cId,
+                                        novelId: nId,
+                                        number: Number(ch.number) || 1,
+                                        title: ch.title || 'ไม่มีชื่อตอน',
+                                        content: ch.content || '',
+                                        updatedAt: ch.updatedAt || now
+                                    });
+                                }
                             }
                         }
                     }
 
-                    persistAllToLocalStorage();
                     updateScopeCounts();
                     if (currentScope === 'gdrive') {
                         switchLibraryScope('private');
                     } else {
                         refreshCurrentView();
                     }
-                    showToast(`นำเข้าข้อมูลสำเร็จ ${novelsList.length} เรื่อง`, 'success');
+                    showToast(`นำเข้าและซิงค์ข้อมูลสำเร็จ ${novelsList.length} เรื่อง`, 'success');
                 } catch (err) {
                     console.error('Import JSON error:', err);
                     showToast('ไม่สามารถอ่านไฟล์ JSON ได้', 'error');
@@ -2689,8 +2553,9 @@ function extractDocContent(fileId) {
                     </div>
                 </div>
                 <div class="text-xs text-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl">
-                    <i class="fa-solid fa-shield-check text-emerald-500 mr-1"></i>
-                    ข้อมูลคลังกลาง คลังส่วนตัว และลิงก์ Google Drive ทั้งหมดถูกบันทึกถาวรใน <code>localStorage</code> ของเบราว์เซอร์เรียบร้อยแล้ว
+                    ${isFirebaseReady
+                        ? '<i class="fa-solid fa-cloud-check text-emerald-500 mr-1"></i> เชื่อมต่อ <strong>Cloud Firestore</strong> เรียบร้อยแล้ว ข้อมูลทั้งหมดซิงค์ข้ามอุปกรณ์แบบเรียลไทม์'
+                        : '<i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> ยังไม่ได้ใส่ค่า <code>MY_FIREBASE_CONFIG</code> ในโค้ด HTML'}
                 </div>
             `;
         }
@@ -2718,7 +2583,7 @@ function extractDocContent(fileId) {
         async function handleEmailAuth(event) {
             event.preventDefault();
             if (!isFirebaseReady || !auth) {
-                showToast('กำลังใช้งานโหมดบันทึกในเครื่อง (LocalStorage)', 'info');
+                showToast('กรุณาใส่ค่า MY_FIREBASE_CONFIG ในไฟล์ HTML ก่อนใช้งานบัญชีออนไลน์', 'warning');
                 closeAccountModal();
                 return;
             }
@@ -2752,7 +2617,7 @@ function extractDocContent(fileId) {
         }
 
         function copyUserId() {
-            const uid = currentUser?.uid || 'local-storage';
+            const uid = currentUser?.uid || 'not-connected';
             const temp = document.createElement('textarea');
             temp.value = uid;
             document.body.appendChild(temp);
@@ -2853,7 +2718,6 @@ function extractDocContent(fileId) {
                 return;
             }
             gdriveWebAppUrl = url;
-            localStorage.setItem(STORAGE_KEYS.GAS_URL, url);
             updateGDriveIndicatorUI();
             closeGDriveModal();
             await syncFromGoogleDrive(false);
@@ -2861,8 +2725,6 @@ function extractDocContent(fileId) {
 
         function disconnectGDrive() {
             gdriveWebAppUrl = '';
-            localStorage.removeItem(STORAGE_KEYS.GAS_URL);
-            localStorage.removeItem(STORAGE_KEYS.GDRIVE_CACHE);
             gdriveNovelsMap.clear();
             gdriveChapterCache.clear();
             updateGDriveIndicatorUI();
@@ -2945,13 +2807,6 @@ function extractDocContent(fileId) {
                     gdriveNovelsMap.set(novel.id, novel);
                 });
 
-                try {
-                    localStorage.setItem(STORAGE_KEYS.GDRIVE_CACHE, JSON.stringify({
-                        syncedAt: Date.now(),
-                        novels: data.novels
-                    }));
-                } catch (e) {}
-
                 updateScopeCounts();
                 if (!silent) {
                     showToast(`ซิงค์นิยายจาก Google Drive สำเร็จ (${data.novels.length} เรื่อง)`, 'success');
@@ -3022,17 +2877,8 @@ function extractDocContent(fileId) {
             syncFromGoogleDrive
         });
 
-        // Hydrate immediately from localStorage so data is always preserved across updates
-        hydrateFromLocalStorage();
+        // เริ่มต้นเชื่อมต่อ Cloud Firestore ทันทีที่เปิดหน้าเว็บ
         initAuth();
-
-        if (gdriveWebAppUrl) {
-            syncFromGoogleDrive(true).then(() => {
-                if (gdriveNovelsMap.size > 0 && currentScope === 'public' && window.currentView === 'library') {
-                    switchLibraryScope('gdrive');
-                }
-            });
-        }
     </script>
 </body>
 </html>
