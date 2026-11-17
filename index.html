@@ -76,6 +76,129 @@
     <!-- Toast Notifications Container -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
+    <!-- ========================================================= -->
+    <!-- AUTH GATE OVERLAY (หน้าต่างเข้าสู่ระบบ / สมัครสมาชิก / รออนุมัติ) -->
+    <!-- ========================================================= -->
+    <div id="auth-gate-screen" class="fixed inset-0 z-[70] bg-slate-950/65 backdrop-blur-md overflow-y-auto flex items-center justify-center p-4">
+        <div class="max-w-md w-full my-auto">
+            <!-- Card 1: Login & Register Form -->
+            <div id="auth-gate-form-card" class="bg-white/95 dark:bg-slate-900/95 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl">
+                <!-- Brand Header inside Modal -->
+                <div class="text-center mb-5">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-lg mx-auto mb-3">
+                        <i class="fa-solid fa-feather-pointed text-xl"></i>
+                    </div>
+                    <h1 class="font-prompt font-bold text-xl sm:text-2xl text-slate-900 dark:text-white">
+                        ReadWrite <span class="text-indigo-600 dark:text-indigo-400">Thai</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        กรุณาเข้าสู่ระบบหรือสมัครสมาชิกเพื่อเข้าใช้งานคลังนิยาย
+                    </p>
+                </div>
+
+                <!-- Tabs: Login vs Register -->
+                <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 mb-5">
+                    <button type="button" id="gate-tab-login" onclick="switchGateTab('login')"
+                        class="py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-indigo-600 text-white shadow-xs">
+                        <i class="fa-solid fa-right-to-bracket mr-1.5"></i>เข้าสู่ระบบ
+                    </button>
+                    <button type="button" id="gate-tab-register" onclick="switchGateTab('register')"
+                        class="py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 dark:text-slate-300">
+                        <i class="fa-solid fa-user-plus mr-1.5"></i>สมัครสมาชิกใหม่
+                    </button>
+                </div>
+
+                <form onsubmit="handleGateAuthSubmit(event)" class="space-y-3.5">
+                    <div id="gate-name-field" class="hidden">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">ชื่อผู้ใช้ / นามปากกา *</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-pen-nib text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-xs"></i>
+                            <input id="gate-name-input" type="text" placeholder="เช่น นักเขียนสายรุ้ง"
+                                class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">อีเมล *</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-envelope text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-xs"></i>
+                            <input id="gate-email-input" type="email" required placeholder="name@example.com"
+                                class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">รหัสผ่าน *</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 text-xs"></i>
+                            <input id="gate-password-input" type="password" required minlength="6" placeholder="อย่างน้อย 6 ตัวอักษร"
+                                class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- Optional Owner Key Field during registration -->
+                    <div id="gate-owner-key-field" class="hidden pt-1">
+                        <label class="block text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">
+                            <i class="fa-solid fa-crown mr-1"></i>รหัสเจ้าของเว็บ (ถ้ามี — สำหรับบัญชีเจ้าของเว็บ)
+                        </label>
+                        <input id="gate-owner-key-input" type="password" placeholder="เว้นว่างไว้หากสมัครเป็นสมาชิกทั่วไป"
+                            class="w-full px-4 py-2 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/70 text-sm focus:outline-none focus:border-amber-500">
+                        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                            * บัญชีแรกที่สมัครจะได้รับสิทธิ์ <strong>เจ้าของเว็บ (Owner)</strong> ทันที ส่วนผู้สมัครคนถัดไปจะรอให้คุณกดอนุมัติก่อนเข้าเว็บ
+                        </p>
+                    </div>
+
+                    <button id="gate-submit-btn" type="submit"
+                        class="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>เข้าสู่ระบบ</span>
+                    </button>
+                </form>
+
+                <div class="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                    <span><i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i>ระบบอนุมัติโดยเจ้าของเว็บ</span>
+                    <button type="button" onclick="cycleAppTheme()" class="hover:text-indigo-500 transition-colors">
+                        <i class="fa-solid fa-circle-half-stroke mr-1"></i>สลับธีม
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 2: Pending / Rejected Approval Screen -->
+            <div id="auth-gate-pending-card" class="hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl text-center">
+                <div id="pending-status-icon" class="w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fa-solid fa-hourglass-half fa-spin" style="--fa-animation-duration: 3s;"></i>
+                </div>
+                <h2 id="pending-status-title" class="font-prompt font-bold text-xl text-slate-900 dark:text-white mb-2">
+                    กำลังรอเจ้าของเว็บอนุมัติบัญชี
+                </h2>
+                <p id="pending-status-desc" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-5">
+                    ขอบคุณที่สมัครสมาชิก! บัญชีของคุณถูกส่งไปยังเจ้าของเว็บเรียบร้อยแล้ว เมื่อเจ้าของเว็บกดอนุมัติ หน้านี้จะเปิดเข้าสู่คลังนิยายให้อัตโนมัติทันที
+                </p>
+
+                <div class="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-4 text-left text-xs space-y-2 mb-6 border border-slate-200/70 dark:border-slate-700/70">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">ชื่อผู้ใช้:</span>
+                        <span id="pending-user-name" class="font-bold text-slate-800 dark:text-slate-100">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">อีเมล:</span>
+                        <span id="pending-user-email" class="font-semibold text-slate-700 dark:text-slate-200">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">สถานะปัจจุบัน:</span>
+                        <span id="pending-user-badge" class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold">รออนุมัติ (Pending)</span>
+                    </div>
+                </div>
+
+                <button type="button" onclick="handleLogout()"
+                    class="w-full py-2.5 px-4 rounded-2xl bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-rose-600 dark:text-rose-400 text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>ออกจากระบบ (Logout)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Top Navigation Bar -->
     <header id="main-navbar" class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
@@ -123,7 +246,7 @@
                 <!-- Storage / Cloud Status Pill -->
                 <div class="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs text-slate-500 dark:text-slate-400">
                     <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-                    <span id="cloud-status-text">กำลังเชื่อมต่อ Cloud...</span>
+                    <span id="cloud-status-text">กำลังเชื่อมต่อ...</span>
                 </div>
 
                 <!-- Create New Novel CTA -->
@@ -165,10 +288,24 @@
                     <i class="fa-solid fa-moon text-base"></i>
                 </button>
 
+                <!-- Owner Control Center Button (Visible ONLY to Site Owner) -->
+                <button id="nav-owner-dashboard-btn" onclick="openOwnerDashboard()" title="ศูนย์ควบคุมเจ้าของเว็บ & อนุมัติสมาชิก"
+                    class="hidden relative h-10 px-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center gap-2 text-xs font-bold shadow-sm transition-all">
+                    <i class="fa-solid fa-crown"></i>
+                    <span class="hidden md:inline">จัดการเว็บ</span>
+                    <span id="nav-pending-badge" class="hidden px-1.5 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-extrabold leading-none animate-bounce">0</span>
+                </button>
+
                 <!-- Account Button -->
-                <button onclick="openAccountModal()" title="บัญชีนักเขียน" class="h-10 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs font-semibold transition-colors">
-                    <i class="fa-solid fa-user-astronaut text-indigo-500"></i>
+                <button onclick="openAccountModal()" title="ข้อมูลบัญชี" class="h-10 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs font-semibold transition-colors">
+                    <i id="nav-account-icon" class="fa-solid fa-user-astronaut text-indigo-500"></i>
                     <span id="nav-account-label" class="hidden sm:inline max-w-[90px] truncate">นักเขียน</span>
+                </button>
+
+                <!-- Direct Logout Button -->
+                <button onclick="handleLogout()" title="ออกจากระบบ (Logout)" class="h-10 px-3 rounded-2xl bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/70 text-rose-600 dark:text-rose-400 flex items-center gap-1.5 text-xs font-bold transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span class="hidden lg:inline">ออก</span>
                 </button>
             </div>
         </div>
@@ -202,7 +339,7 @@
                     ค้นพบเรื่องราวใหม่ หรือซิงค์นิยายจาก Google Drive
                 </h1>
                 <p class="text-indigo-100 text-xs sm:text-sm mb-5">
-                    อ่านสบายตา ปรับฟอนต์และธีมได้ตามใจ พร้อมระบบดึงตอนนิยายอัตโนมัติจากโฟลเดอร์ Google Docs และบันทึกข้อมูลบน Cloud ข้ามอุปกรณ์
+                    อ่านสบายตา ปรับฟอนต์และธีมได้ตามใจ พร้อมระบบดึงตอนนิยายอัตโนมัติจากโฟลเดอร์ Google Docs และย้ายระหว่างคลังกลางกับคลังส่วนตัวได้ทันที
                 </p>
 
                 <!-- Search Input -->
@@ -308,6 +445,9 @@
                             <span id="detail-category" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300">
                                 หมวดหมู่
                             </span>
+                            <span id="detail-scope-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                                <i class="fa-solid fa-globe mr-1"></i>คลังนิยายกลาง
+                            </span>
                             <span id="detail-updated" class="text-xs text-slate-400 flex items-center gap-1">
                                 <i class="fa-regular fa-clock"></i> อัปเดตเมื่อสักครู่
                             </span>
@@ -329,14 +469,14 @@
                     </div>
 
                     <!-- Primary Action Buttons -->
-                    <div id="detail-action-buttons" class="flex flex-wrap items-center gap-3 pt-2">
-                        <button id="detail-start-read-btn" onclick="startReadingFirstChapter()" class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                    <div id="detail-action-buttons" class="flex flex-wrap items-center gap-2.5 pt-2">
+                        <button id="detail-start-read-btn" onclick="startReadingFirstChapter()" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                             <i class="fa-solid fa-book-open"></i>
                             <span>เริ่มอ่านตอนแรก</span>
                         </button>
-                        <button id="detail-move-scope-btn" onclick="promptMoveNovelScope(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/60 text-sm font-medium transition-colors flex items-center gap-2">
+                        <button id="detail-move-scope-btn" onclick="toggleMoveNovelScope(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 text-sm font-semibold transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-right-left"></i>
-                            <span id="detail-move-scope-label">ย้ายคลังนิยาย</span>
+                            <span id="detail-move-scope-label">ย้ายไปคลังส่วนตัว</span>
                         </button>
                         <button id="detail-edit-novel-btn" onclick="openNovelModal(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-pen"></i>
@@ -514,7 +654,7 @@
     </section>
 
     <!-- ========================================================= -->
-    <!-- MODALS (สร้าง/แก้ไขนิยาย, เขียนตอน, วางหลายตอน, บัญชี, กู้คืน) -->
+    <!-- MODALS                                                    -->
     <!-- ========================================================= -->
 
     <!-- 1. Create / Edit Novel Modal -->
@@ -562,21 +702,13 @@
                     </div>
                 </div>
 
+                <!-- Target Library Scope Selector -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">ตำแหน่งคลังที่จัดเก็บ</label>
-                    <input type="hidden" id="novel-form-scope" value="public">
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <button type="button" id="form-scope-opt-public" onclick="selectNovelFormScope('public')"
-                            class="py-2.5 px-3 rounded-2xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white border-indigo-600 shadow-xs">
-                            <i class="fa-solid fa-globe"></i>
-                            <span>คลังนิยายกลาง</span>
-                        </button>
-                        <button type="button" id="form-scope-opt-private" onclick="selectNovelFormScope('private')"
-                            class="py-2.5 px-3 rounded-2xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700">
-                            <i class="fa-solid fa-lock"></i>
-                            <span>คลังส่วนตัว</span>
-                        </button>
-                    </div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">ตำแหน่งคลังที่จัดเก็บ (เลือกหรือย้ายคลังได้)</label>
+                    <select id="novel-form-scope" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none focus:border-indigo-500">
+                        <option value="public">🌐 คลังนิยายกลาง (ทุกคนที่ได้รับอนุมัติมองเห็น)</option>
+                        <option value="private">🔒 คลังส่วนตัว (เห็นเฉพาะบัญชีของคุณ)</option>
+                    </select>
                 </div>
 
                 <div>
@@ -721,17 +853,25 @@
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
                 <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-user-astronaut text-indigo-500"></i>
-                    <span>บัญชีนักเขียน & การซิงค์ข้ามอุปกรณ์</span>
+                    <span>ข้อมูลบัญชีผู้ใช้งาน</span>
                 </h3>
                 <button onclick="closeAccountModal()" class="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 mb-4 text-xs space-y-1.5">
+            <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 mb-4 text-xs space-y-2">
                 <div class="flex items-center justify-between">
-                    <span class="text-slate-400">สถานะการเชื่อมต่อ:</span>
-                    <span id="account-modal-status" class="font-bold text-emerald-600 dark:text-emerald-400">กำลังตรวจสอบ...</span>
+                    <span class="text-slate-400">ชื่อผู้ใช้:</span>
+                    <span id="account-modal-name" class="font-bold text-slate-800 dark:text-white">-</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400">อีเมล:</span>
+                    <span id="account-modal-status" class="font-bold text-emerald-600 dark:text-emerald-400">-</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400">ระดับสิทธิ์:</span>
+                    <span id="account-modal-role" class="font-bold text-indigo-600 dark:text-indigo-400">สมาชิก</span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
                     <span class="text-slate-400">รหัสผู้ใช้งาน (UID):</span>
@@ -740,28 +880,25 @@
                         <button onclick="copyUserId()" title="คัดลอก UID" class="text-indigo-500 hover:text-indigo-600"><i class="fa-regular fa-copy"></i></button>
                     </div>
                 </div>
-                <p class="text-[11px] text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
-                    * <strong>คลังนิยายกลาง</strong> ซิงค์ทุกเครื่องอัตโนมัติทันที ส่วน <strong>คลังส่วนตัว</strong> แนะนำให้สมัคร/เข้าสู่ระบบด้วยอีเมลเดียวกันทั้งในคอมและมือถือ
-                </p>
             </div>
 
-            <form id="account-email-form" onsubmit="handleEmailAuth(event)" class="space-y-3">
-                <input id="auth-email-input" type="email" required placeholder="อีเมลนักเขียน (example@email.com)"
-                    class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
-                <input id="auth-password-input" type="password" required placeholder="รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)"
-                    class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
-                <div class="grid grid-cols-2 gap-2.5 pt-1">
-                    <button type="submit" onclick="setAuthMode('login')" class="py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold">
-                        เข้าสู่ระบบ
-                    </button>
-                    <button type="submit" onclick="setAuthMode('register')" class="py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold">
-                        สมัครบัญชีใหม่
+            <!-- Claim Owner Section (if not yet owner) -->
+            <div id="claim-owner-box" class="mb-4 p-3.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/60">
+                <div class="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1.5">
+                    <i class="fa-solid fa-crown mr-1"></i> ยืนยันสิทธิ์เจ้าของเว็บด้วยรหัสลับ
+                </div>
+                <div class="flex gap-2">
+                    <input id="claim-owner-key-input" type="password" placeholder="กรอกรหัสลับเจ้าของเว็บ"
+                        class="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-800 text-xs focus:outline-none">
+                    <button type="button" onclick="claimOwnershipWithKey()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold">
+                        ยืนยัน
                     </button>
                 </div>
-            </form>
+            </div>
 
-            <button id="account-signout-btn" onclick="handleSignOut()" class="hidden w-full mt-3 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-xs font-semibold">
-                ออกจากระบบบัญชีอีเมล
+            <button id="account-signout-btn" onclick="handleLogout()" class="w-full py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>ออกจากระบบ (Logout)</span>
             </button>
         </div>
     </div>
@@ -818,11 +955,11 @@
                 </div>
 
                 <!-- Copyable Google Apps Script Code -->
-                <div id="gas-code-section" class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80">
+                <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                             <i class="fa-solid fa-code text-indigo-500"></i>
-                            โค้ด Google Apps Script ฉบับสมบูรณ์ (doGet + doPost + CORS/JSONP)
+                            โค้ด Google Apps Script ฉบับสมบูรณ์ (doGet + JSONP)
                         </span>
                         <button onclick="copyGasCode()" class="px-3 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors">
                             <i class="fa-regular fa-copy"></i>
@@ -831,19 +968,124 @@
                     </div>
                     <pre id="gas-code-display" class="text-[11px] leading-relaxed font-mono bg-slate-900 text-emerald-300 p-3.5 rounded-xl overflow-x-auto max-h-56 select-all"></pre>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="text-xs text-slate-500 dark:text-slate-400 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/50 rounded-2xl p-3.5 space-y-1.5">
-                    <div class="font-bold text-amber-800 dark:text-amber-300"><i class="fa-solid fa-lightbulb mr-1"></i> สรุปวิธีตั้งค่าและโครงสร้างโฟลเดอร์:</div>
-                    <p>• <strong>Deploy Web App:</strong> ตั้งค่า <strong>Execute as: Me</strong> และ <strong>Who has access: Anyone (ทุกคน)</strong></p>
-                    <p>• <strong>โฟลเดอร์หลายเรื่อง:</strong> สร้างโฟลเดอร์ย่อยตามชื่อเรื่อง (เช่น <em>"นอกเฟรม...เกินเพื่อน"</em>) และนำไฟล์ Google Docs แต่ละตอนใส่ไว้ด้านใน (สร้างไฟล์ชื่อ <code>เรื่องย่อ</code> เพื่อใส่คำโปรย นามปากกา และหมวดหมู่ได้)</p>
-                    <p>• <strong>โฟลเดอร์เรื่องเดียว:</strong> ใส่ไฟล์ Google Docs ทุกตอนลงในโฟลเดอร์หลักโดยตรง ระบบจะใช้ชื่อโฟลเดอร์หลักเป็นชื่อเรื่องให้อัตโนมัติ</p>
+    <!-- 8. OWNER SUPER-ADMIN DASHBOARD MODAL (ศูนย์ควบคุมเจ้าของเว็บ) -->
+    <div id="owner-dashboard-modal" class="hidden fixed inset-0 z-[55] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90vh] flex flex-col">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-lg shadow-md">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-prompt font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
+                            ศูนย์ควบคุมเจ้าของเว็บ (Owner Control Center)
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            อนุมัติผู้สมัครใหม่ ตรวจสอบสมาชิกทั้งหมด และดูแลภาพรวมคลังนิยายทั้งระบบ
+                        </p>
+                    </div>
+                </div>
+                <button onclick="closeOwnerDashboard()" class="w-9 h-9 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Stats Overview Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 flex-shrink-0">
+                <div class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60">
+                    <div class="text-[11px] font-semibold text-amber-700 dark:text-amber-300">รออนุมัติเข้าเว็บ</div>
+                    <div id="owner-stat-pending" class="text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">0</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60">
+                    <div class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">สมาชิกที่อนุมัติแล้ว</div>
+                    <div id="owner-stat-approved" class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">0</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/70 dark:border-indigo-800/60">
+                    <div class="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">นิยายในคลังกลาง</div>
+                    <div id="owner-stat-novels" class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">0</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200/70 dark:border-violet-800/60">
+                    <div class="text-[11px] font-semibold text-violet-700 dark:text-violet-300">จำนวนตอนทั้งหมด</div>
+                    <div id="owner-stat-chapters" class="text-2xl font-extrabold text-violet-600 dark:text-violet-400 mt-0.5">0</div>
+                </div>
+            </div>
+
+            <!-- Owner Tabs -->
+            <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar flex-shrink-0">
+                <button id="owner-tab-users" onclick="switchOwnerTab('users')"
+                    class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white whitespace-nowrap">
+                    <i class="fa-solid fa-users-gear mr-1.5"></i>อนุมัติ & จัดการสมาชิก
+                </button>
+                <button id="owner-tab-content" onclick="switchOwnerTab('content')"
+                    class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                    <i class="fa-solid fa-book-atlas mr-1.5"></i>ดูนิยายทั้งหมดในเว็บ
+                </button>
+                <button id="owner-tab-security" onclick="switchOwnerTab('security')"
+                    class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                    <i class="fa-solid fa-key mr-1.5"></i>ตั้งค่ารหัสเจ้าของเว็บ
+                </button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div class="flex-1 overflow-y-auto pr-1 space-y-4">
+                <!-- Tab 1: Users & Approvals -->
+                <div id="owner-panel-users" class="space-y-4">
+                    <div id="owner-pending-section" class="hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                                <i class="fa-solid fa-bell mr-1"></i> ผู้สมัครใหม่ที่รออนุมัติ
+                            </h4>
+                            <button onclick="approveAllPendingUsers()" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+                                <i class="fa-solid fa-check-double mr-1"></i>อนุมัติทั้งหมด
+                            </button>
+                        </div>
+                        <div id="owner-pending-list" class="space-y-2.5"></div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                            รายชื่อบัญชีทั้งหมดในระบบ (<span id="owner-all-users-count">0</span>)
+                        </h4>
+                        <div id="owner-all-users-list" class="space-y-2.5"></div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: All Novels Overview -->
+                <div id="owner-panel-content" class="hidden space-y-2.5">
+                    <div id="owner-all-novels-list" class="space-y-2.5"></div>
+                </div>
+
+                <!-- Tab 3: Owner Security Key -->
+                <div id="owner-panel-security" class="hidden">
+                    <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 space-y-4">
+                        <div>
+                            <h4 class="font-prompt font-bold text-sm text-slate-900 dark:text-white mb-1">
+                                รหัสลับประจำตัวเจ้าของเว็บ (Owner Master Key)
+                            </h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                ใช้สำหรับยืนยันสิทธิ์เจ้าของเว็บหากคุณสมัครบัญชีใหม่ในอนาคต (รหัสเริ่มต้นคือ <code class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold">OWNER2026</code> คุณสามารถเปลี่ยนเป็นรหัสส่วนตัวได้ด้านล่าง)
+                            </p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-2.5">
+                            <input id="owner-master-key-input" type="text" placeholder="ตั้งรหัสลับเจ้าของเว็บใหม่..."
+                                class="flex-1 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-amber-500">
+                            <button onclick="saveOwnerMasterKey()" class="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold">
+                                บันทึกรหัสลับ
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ========================================================= -->
-    <!-- JAVASCRIPT LOGIC, CLOUD FIRESTORE & GOOGLE DRIVE          -->
+    <!-- JAVASCRIPT LOGIC, CLOUD FIRESTORE, AUTH & GOOGLE DRIVE    -->
     <!-- ========================================================= -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
@@ -868,20 +1110,88 @@
         } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
         // =========================================================
-        // ★ ค่า FIREBASE CONFIG ของคุณ (สำหรับ GitHub Pages / Cloud) ★
+        // ★ วางค่า FIREBASE CONFIG ของคุณตรงนี้ (สำหรับ GitHub Pages) ★
         // =========================================================
         const MY_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyAsw9aIyoxBM8ZF2sw0ZIzJ-L3zrpVfA9c",
-            authDomain: "readwrite-thai.firebaseapp.com",
-            projectId: "readwrite-thai",
-            storageBucket: "readwrite-thai.firebasestorage.app",
-            messagingSenderId: "633260979367",
-            appId: "1:633260979367:web:35055eeb7bbc89657c5782",
-            measurementId: "G-8VCH0QLLTK"
+            apiKey: "ใส่_API_KEY_ของคุณที่นี่",
+            authDomain: "ใส่_AUTH_DOMAIN_ของคุณที่นี่",
+            projectId: "ใส่_PROJECT_ID_ของคุณที่นี่",
+            storageBucket: "ใส่_STORAGE_BUCKET_ของคุณที่นี่",
+            messagingSenderId: "ใส่_MESSAGING_SENDER_ID_ของคุณที่นี่",
+            appId: "ใส่_APP_ID_ของคุณที่นี่"
         };
 
-        // ประกาศตัวแปรโค้ด Google Apps Script เป็นค่าว่างเพื่อป้องกัน ReferenceError
-        const GAS_SOURCE_CODE = '';
+        const GAS_SOURCE_CODE = `// วางโค้ดนี้ใน Google Apps Script (Extensions > Apps Script) แล้วกด Deploy > Web app (Who has access: Anyone)
+const ROOT_FOLDER_ID = 'ใส่_FOLDER_ID_ใน_GOOGLE_DRIVE_ของคุณที่นี่';
+
+function doGet(e) {
+  const action = (e && e.parameter && e.parameter.action) || 'list';
+  const callback = e && e.parameter && e.parameter.callback;
+  let result = { status: 'error', message: 'Invalid action' };
+
+  try {
+    if (action === 'list') {
+      result = listNovelsFromDrive();
+    } else if (action === 'chapter') {
+      const fileId = e.parameter.fileId;
+      const docFile = DocumentApp.openById(fileId);
+      result = { status: 'success', content: docFile.getBody().getText() };
+    }
+  } catch (err) {
+    result = { status: 'error', message: err.toString() };
+  }
+
+  const jsonOutput = JSON.stringify(result);
+  if (callback) {
+    return ContentService.createTextOutput(callback + '(' + jsonOutput + ')').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(jsonOutput).setMimeType(ContentService.MimeType.JSON);
+}
+
+function listNovelsFromDrive() {
+  const root = DriveApp.getFolderById(ROOT_FOLDER_ID);
+  const novels = [];
+  const subFolders = root.getFolders();
+
+  while (subFolders.hasNext()) {
+    const folder = subFolders.next();
+    const files = folder.getFilesByType(MimeType.GOOGLE_DOCS);
+    const chapters = [];
+    let synopsis = '';
+    let idx = 1;
+
+    while (files.hasNext()) {
+      const file = files.next();
+      const name = file.getName();
+      if (name.includes('เรื่องย่อ')) {
+        synopsis = DocumentApp.openById(file.getId()).getBody().getText();
+      } else {
+        const match = name.match(/(\\d+)/);
+        const num = match ? parseInt(match[1], 10) : idx;
+        chapters.push({
+          id: 'gdoc-' + file.getId(),
+          fileId: file.getId(),
+          number: num,
+          title: name.replace(/^ตอนที่\\s*\\d+\\s*[:：\\-]?\\s*/i, '') || name,
+          updatedAt: file.getLastUpdated().getTime()
+        });
+        idx++;
+      }
+    }
+    chapters.sort((a, b) => a.number - b.number);
+    novels.push({
+      id: 'gdrive-' + folder.getId(),
+      title: folder.getName(),
+      author: 'Google Docs',
+      category: 'โรแมนติก',
+      coverTheme: 'emerald',
+      synopsis: synopsis,
+      updatedAt: folder.getLastUpdated().getTime(),
+      chapters: chapters
+    });
+  }
+  return { status: 'success', novels: novels };
+}`;
 
         // ---------------------------------------------------------
         // 1. COVER THEMES & INITIAL SEED NOVELS
@@ -940,7 +1250,7 @@
                 author: 'nsvws',
                 category: 'โรแมนติก',
                 coverTheme: 'rose',
-                synopsis: 'ท่ามกลางแสงแฟลชของวงการบันเทิงระดับโลกในปี 2027 ชื่อของ แคนดิซ สวาเนโพล (Candice Swanepoel) นางแบบระดับตำนาน อดีตนางฟ้าวิกตอเรียส์ซีเคร็ต และเจ้าของแบรนด์ชุดว่ายน้ำสุดหรูอย่าง Tropic of C กำลังตกเป็นเป้าสายตาของปาปารัสซี่ทั่วโลก เมื่อมีข่าวลือหนาหูว่าเธอกำลังซุ่มคบหากับซูเปอร์สตาร์อเมริกันฟุตบอลอย่าง ทอม เบรดี้ (Tom Brady) ความสัมพันธ์ลับๆ ที่ต้องหลบซ่อนตามคฤหาสน์ส่วนตัวในไมอามี่และเกาะส่วนตัวในบาฮามาส ทำให้เธอต้องแลกมาด้วยการตัดขาดมิตรภาพ 15 ปีกับเพื่อนสนิทอย่าง โจน สมอลส์ (Joan Smalls) เพื่อผู้ชายคนแรกที่ทำให้เธอรู้สึกว่าตัวเองไม่ต้องเป็นฝ่ายแบกรับหรือเลี้ยงดูใครอีกต่อไป\nเบื้องหลังภาพลักษณ์นางแบบสาวขี้อายและโลกส่วนตัวสูง แท้จริงแล้วแคนดิซคือผู้หญิงที่ร้ายลึก เต็มไปด้วยความปรารถนา และไม่เคยยอมให้ใครอยู่เหนือกว่า เหมือนที่เธอเคยจบความสัมพันธ์ 13 ปีกับอดีตคู่หมั้นชาวบราซิลอย่าง เฮอร์มันน์ นิโคลี พ่อของลูกชายทั้งสองของเธอ ท่ามกลางรอยร้าวและการนอกใจของทั้งสองฝ่าย\nแต่เมื่อความสัมพันธ์ระหว่างเธอกับทอมเริ่มเกิดช่องว่าง และต่างฝ่ายต่างหันไปหาความสุขชั่วคราวจากคนอื่น โชคชะตาก็เหวี่ยงให้เธอได้โคจรมาพบกับ ริกกี้ จอง (Ricky Jung) ซูเปอร์สตาร์ป๊อปสตาร์ชาวอเมริกันเชื้อสายเกาหลีวัย 40 ปี อดีตเด็กอัจฉริยะจากโรงเรียนนานาชาติชื่อดังในนิวยอร์ก และอดีตเมนร้อง-เมนเต้นของบอยแบนด์เกาหลีระดับตำนาน (SJ) ที่ผันตัวจากอาการบาดเจ็บเรื้อรังจนกลายเป็นศิลปินเดี่ยวยอดสตรีมพันล้าน และมหาเศรษฐีนักลงทุนอสังหาริมทรัพย์ผู้ทรงอิทธิพล\nริกกี้คือเพลย์บอยตัวร้ายที่เปลี่ยนคู่ควงระดับนางแบบไม่ซ้ำหน้า การเจอกันของทั้งคู่เริ่มต้นจากเกม "หมาหยอกไก่" ที่ต่างฝ่ายต่างรู้ทันกันดี ไม่มีใครคิดจริงจัง ไม่มีข้อผูกมัด เพราะต่างก็มีตัวจริงและคนอื่นอยู่ในวงโคจร แต่ทุกครั้งที่อยู่ด้วยกัน ไฟปรารถนาที่ซ่อนอยู่ภายใต้หน้ากากเพื่อนกลับลุกโชนจนเกินห้ามใจ\nเมื่อความลับไม่มีในโลก เกมรักที่เริ่มต้นจากความฉาบฉวยและการประชดประชัน กลับค่อยๆ แผดเผาหัวใจของคนทั้งคู่ให้ถลำลึกเกินกว่าจะถอนตัว ท่ามกลางสายตาของสื่อมวลชนที่พร้อมจะขยี้ทุกความเคลื่อนไหว ใครจะเป็นผู้คุมเกม และใครจะเป็นฝ่ายพ่ายแพ้ให้กับเปลวไฟที่ซ่อนอยู่ในเงามืดนี้',
+                synopsis: 'ท่ามกลางแสงแฟลชของวงการบันเทิงระดับโลกในปี 2027 ชื่อของ แคนดิซ สวาเนโพล (Candice Swanepoel) นางแบบระดับตำนาน อดีตนางฟ้าวิกตอเรียส์ซีเคร็ต และเจ้าของแบรนด์ชุดว่ายน้ำสุดหรูอย่าง Tropic of C กำลังตกเป็นเป้าสายตาของปาปารัสซี่ทั่วโลก เมื่อมีข่าวลือหนาหูว่าเธอกำลังซุ่มคบหากับซูเปอร์สตาร์อเมริกันฟุตบอลอย่าง ทอม เบรดี้ (Tom Brady)',
                 chapters: []
             },
             {
@@ -949,7 +1259,7 @@
                 author: 'nsvws',
                 category: 'โรมานซ์',
                 coverTheme: 'slate',
-                synopsis: 'ปี 2027 ณ ไมอามี่ เบื้องหน้าแสงแฟลช แคนดิซ สวาเนโพล คือซูเปอร์โมเดลระดับโลก คุณแม่เลี้ยงเดี่ยวสุดสตรอง และเจ้าของแบรนด์ชุดว่ายน้ำสุดฮอต ผู้กุมความลับความสัมพันธ์ลับๆ นานนับปีกับ ทอม เบรดี้ ตำนานควอเตอร์แบ็กผู้รักความเป็นส่วนตัว ทอมคือผู้ชายคนแรกที่ทำให้เธอไม่ต้องเป็นฝ่ายแบกรับหรือหาเลี้ยงเหมือนในอดีต จนเธอยอมแลกแม้กระทั่งมิตรภาพ 15 ปีกับเพื่อนรักอย่าง โจน สมอลส์ เพื่อรักษาเขาไว้\nทว่าภายใต้ภาพลักษณ์อันแสนเพอร์เฟกต์และขี้อายที่สื่อรู้จัก แคนดิซกลับมีความร้ายลึกและแรงปรารถนาที่ไม่ต่างจากปุถุชนทั่วไป ในวันที่ความสัมพันธ์ระหว่างเธอกับทอมเริ่มเกิดช่องว่าง เมื่อต่างฝ่ายต่างแอบกลับไปใช้ชีวิตอิสระและมีความสัมพันธ์ชั่วคราวกับคนอื่น การปรากฏตัวของ ริกกี้ จอง ป๊อปสตาร์เอเชียระดับพันล้าน อดีตไอดอลเกาหลีผู้ผันตัวมาเป็นเจ้าพ่ออสังหาริมทรัพย์ในอเมริกา ก็เข้ามาสั่นคลอนพื้นที่ปลอดภัยของเธอ\nเริ่มต้นจากบทสนทนาแบบ "หมาหยอกไก่" ของคนสองคนที่รู้ทันเกมกันทุกอย่าง ริกกี้คือผู้ชายที่อ่านเกมของแคนดิซออกทะลุปรุโปร่ง เขามีทั้งความมั่งคั่งและอิทธิพลไม่แพ้ทอม แต่กลับมีเสน่ห์ ความเร่าร้อน และอิสระในแบบที่ทอมให้เธอไม่ได้\nท่ามกลางเกมการปั่นกระแสของ อาลี คาวูสซี ผู้จัดการส่วนตัวจอมวางแผนที่คอยส่งปาปารัสซี่ตามติดชีวิตเธอเพื่อขายข่าวและแฝงโฆษณาสินค้า แคนดิซต้องประคองเส้นแบ่งระหว่าง "หน้าที่แม่" ที่กันลูกชายทั้งสองออกจากโลกของผู้ใหญ่ "ความมั่นคง" ที่เธอมีร่วมกับทอม และ "ความสัมพันธ์แบบ Situationship" กับริกกี้ ที่ยิ่งห้ามใจ...กลับยิ่งถลำลึกเกินคำว่าเพื่อนเข้าไปทุกที',
+                synopsis: 'ปี 2027 ณ ไมอามี่ เบื้องหน้าแสงแฟลช แคนดิซ สวาเนโพล คือซูเปอร์โมเดลระดับโลก คุณแม่เลี้ยงเดี่ยวสุดสตรอง และเจ้าของแบรนด์ชุดว่ายน้ำสุดฮอต ผู้กุมความลับความสัมพันธ์ลับๆ นานนับปีกับ ทอม เบรดี้ ตำนานควอเตอร์แบ็กผู้รักความเป็นส่วนตัว',
                 chapters: []
             }
         ];
@@ -964,11 +1274,15 @@
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'readwrite-thai-github';
         let currentUser = null;
+        let currentUserProfile = null;
+        let ownerMasterKey = 'OWNER2026';
+        let gateTabMode = 'login';
+        let currentOwnerTab = 'users';
+
         let currentScope = 'public';
         let selectedCategory = 'ทั้งหมด';
         let chapterSortAsc = true;
         let editingChapterId = null;
-        let authMode = 'login';
         let isInitialLoadDone = false;
         let hasCheckedInitialSeed = false;
 
@@ -976,7 +1290,10 @@
         let unsubscribePublicChapters = null;
         let unsubscribePrivateNovels = null;
         let unsubscribePrivateChapters = null;
+        let unsubscribeUserProfile = null;
+        let unsubscribeAllUsers = null;
 
+        const allUsersMap = new Map();
         const publicNovelsMap = new Map();
         const publicChaptersMap = new Map();
         const privateNovelsMap = new Map();
@@ -998,7 +1315,6 @@
             lineHeight: '1.95'
         };
 
-        // ตรวจสอบและดึงค่า Firebase Config
         function resolveFirebaseConfig() {
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                 try {
@@ -1017,29 +1333,32 @@
             return null;
         }
 
-        // โหลดนิยายตั้งต้นเข้าหน่วยความจำชั่วคราว กรณีเชื่อมต่อ Firebase ไม่ได้
         function loadFallbackDemoDataInMemory() {
             const now = Date.now();
             DEFAULT_NOVELS.forEach((item, idx) => {
-                publicNovelsMap.set(item.id, {
-                    id: item.id,
-                    title: item.title,
-                    author: item.author,
-                    category: item.category,
-                    coverTheme: item.coverTheme,
-                    synopsis: item.synopsis,
-                    createdAt: now - idx * 1000,
-                    updatedAt: now - idx * 1000
-                });
-                (item.chapters || []).forEach((ch, cIdx) => {
-                    publicChaptersMap.set(ch.id, {
-                        id: ch.id,
-                        novelId: item.id,
-                        number: ch.number,
-                        title: ch.title,
-                        content: ch.content,
-                        updatedAt: now + cIdx
+                if (!publicNovelsMap.has(item.id)) {
+                    publicNovelsMap.set(item.id, {
+                        id: item.id,
+                        title: item.title,
+                        author: item.author,
+                        category: item.category,
+                        coverTheme: item.coverTheme,
+                        synopsis: item.synopsis,
+                        createdAt: now - idx * 1000,
+                        updatedAt: now - idx * 1000
                     });
+                }
+                (item.chapters || []).forEach((ch, cIdx) => {
+                    if (!publicChaptersMap.has(ch.id)) {
+                        publicChaptersMap.set(ch.id, {
+                            id: ch.id,
+                            novelId: item.id,
+                            number: ch.number,
+                            title: ch.title,
+                            content: ch.content,
+                            updatedAt: now + cIdx
+                        });
+                    }
                 });
             });
             updateScopeCounts();
@@ -1128,42 +1447,545 @@
             }
         }
 
-        function updateAccountUI() {
-            const labelEl = document.getElementById('nav-account-label');
-            const statusEl = document.getElementById('account-modal-status');
-            const uidEl = document.getElementById('account-uid-display');
-            const signOutBtn = document.getElementById('account-signout-btn');
-            const emailForm = document.getElementById('account-email-form');
+        // ---------------------------------------------------------
+        // 5. AUTH GATE, LOGIN/LOGOUT & OWNER APPROVAL SYSTEM
+        // ---------------------------------------------------------
+        function switchGateTab(mode) {
+            gateTabMode = mode;
+            const loginTab = document.getElementById('gate-tab-login');
+            const regTab = document.getElementById('gate-tab-register');
+            const nameField = document.getElementById('gate-name-field');
+            const ownerKeyField = document.getElementById('gate-owner-key-field');
+            const submitBtn = document.getElementById('gate-submit-btn');
 
-            const isEmailUser = currentUser && !currentUser.isAnonymous && currentUser.email;
-            if (labelEl) {
-                labelEl.textContent = isEmailUser ? currentUser.email.split('@')[0] : 'นักเขียน';
-            }
-            if (uidEl) {
-                uidEl.textContent = currentUser?.uid ? currentUser.uid : 'ยังไม่ได้เชื่อมต่อ Cloud';
-            }
-            if (statusEl) {
-                if (!isFirebaseReady) {
-                    statusEl.textContent = 'ยังไม่ได้เชื่อมต่อ Cloud (โหมดทดลอง)';
-                    statusEl.className = 'font-bold text-amber-500';
-                } else if (isEmailUser) {
-                    statusEl.textContent = `ซิงค์ Cloud แล้ว (${currentUser.email})`;
-                    statusEl.className = 'font-bold text-emerald-600 dark:text-emerald-400';
-                } else {
-                    statusEl.textContent = 'เชื่อมต่อ Cloud อัตโนมัติ (Guest)';
-                    statusEl.className = 'font-bold text-emerald-600 dark:text-emerald-400';
-                }
-            }
-            if (signOutBtn) {
-                signOutBtn.classList.toggle('hidden', !isEmailUser);
-            }
-            if (emailForm) {
-                emailForm.classList.toggle('hidden', Boolean(isEmailUser));
+            if (mode === 'register') {
+                loginTab.className = 'py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 dark:text-slate-300';
+                regTab.className = 'py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-indigo-600 text-white shadow-xs';
+                nameField.classList.remove('hidden');
+                ownerKeyField.classList.remove('hidden');
+                submitBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i><span>สมัครสมาชิก</span>';
+            } else {
+                loginTab.className = 'py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-indigo-600 text-white shadow-xs';
+                regTab.className = 'py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 dark:text-slate-300';
+                nameField.classList.add('hidden');
+                ownerKeyField.classList.add('hidden');
+                submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>เข้าสู่ระบบ</span>';
             }
         }
 
+        function updateAccountUI() {
+            const labelEl = document.getElementById('nav-account-label');
+            const iconEl = document.getElementById('nav-account-icon');
+            const ownerBtn = document.getElementById('nav-owner-dashboard-btn');
+            const nameModalEl = document.getElementById('account-modal-name');
+            const statusEl = document.getElementById('account-modal-status');
+            const roleEl = document.getElementById('account-modal-role');
+            const uidEl = document.getElementById('account-uid-display');
+            const claimBox = document.getElementById('claim-owner-box');
+
+            const isOwner = currentUserProfile?.role === 'owner';
+            const displayName = currentUserProfile?.displayName || (currentUser?.email ? currentUser.email.split('@')[0] : 'นักเขียน');
+
+            if (labelEl) labelEl.textContent = displayName;
+            if (iconEl) {
+                iconEl.className = isOwner
+                    ? 'fa-solid fa-crown text-amber-500'
+                    : 'fa-solid fa-user-astronaut text-indigo-500';
+            }
+            if (ownerBtn) {
+                ownerBtn.classList.toggle('hidden', !isOwner);
+                ownerBtn.classList.toggle('flex', isOwner);
+            }
+            if (nameModalEl) nameModalEl.textContent = displayName;
+            if (uidEl) uidEl.textContent = currentUser?.uid ? currentUser.uid : '-';
+            if (statusEl) statusEl.textContent = currentUser?.email || 'ยังไม่ได้เข้าสู่ระบบ';
+            if (roleEl) {
+                roleEl.textContent = isOwner ? 'เจ้าของเว็บ (Owner)' : 'สมาชิกที่ได้รับอนุมัติ';
+                roleEl.className = isOwner
+                    ? 'font-bold text-amber-600 dark:text-amber-400'
+                    : 'font-bold text-emerald-600 dark:text-emerald-400';
+            }
+            if (claimBox) claimBox.classList.toggle('hidden', isOwner);
+        }
+
+        function updateAuthGateVisibility() {
+            const gateScreen = document.getElementById('auth-gate-screen');
+            const formCard = document.getElementById('auth-gate-form-card');
+            const pendingCard = document.getElementById('auth-gate-pending-card');
+            if (!gateScreen || !formCard || !pendingCard) return;
+
+            const isLoggedInEmail = Boolean(currentUser && !currentUser.isAnonymous && currentUser.email);
+
+            if (!isLoggedInEmail) {
+                gateScreen.classList.remove('hidden');
+                formCard.classList.remove('hidden');
+                pendingCard.classList.add('hidden');
+                return;
+            }
+
+            if (!currentUserProfile) {
+                gateScreen.classList.remove('hidden');
+                formCard.classList.add('hidden');
+                pendingCard.classList.remove('hidden');
+                document.getElementById('pending-status-title').textContent = 'กำลังตรวจสอบสิทธิ์บัญชี...';
+                document.getElementById('pending-user-email').textContent = currentUser.email;
+                return;
+            }
+
+            const isApproved = currentUserProfile.role === 'owner' || currentUserProfile.status === 'approved';
+            if (isApproved) {
+                gateScreen.classList.add('hidden');
+            } else {
+                gateScreen.classList.remove('hidden');
+                formCard.classList.add('hidden');
+                pendingCard.classList.remove('hidden');
+
+                const isRejected = currentUserProfile.status === 'rejected';
+                document.getElementById('pending-user-name').textContent = currentUserProfile.displayName || '-';
+                document.getElementById('pending-user-email').textContent = currentUserProfile.email || currentUser.email;
+
+                const iconEl = document.getElementById('pending-status-icon');
+                const titleEl = document.getElementById('pending-status-title');
+                const descEl = document.getElementById('pending-status-desc');
+                const badgeEl = document.getElementById('pending-user-badge');
+
+                if (isRejected) {
+                    iconEl.className = 'w-16 h-16 rounded-3xl bg-rose-50 dark:bg-rose-950/60 text-rose-500 flex items-center justify-center mx-auto mb-4 text-3xl';
+                    iconEl.innerHTML = '<i class="fa-solid fa-ban"></i>';
+                    titleEl.textContent = 'บัญชีนี้ไม่ได้รับการอนุมัติเข้าใช้งาน';
+                    descEl.textContent = 'เจ้าของเว็บได้ระงับหรือปฏิเสธคำขอเข้าใช้งานของบัญชีนี้ กรุณาติดต่อเจ้าของเว็บหรือออกจากระบบ';
+                    badgeEl.className = 'px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-bold';
+                    badgeEl.textContent = 'ไม่อนุมัติ (Rejected)';
+                } else {
+                    iconEl.className = 'w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mx-auto mb-4 text-3xl';
+                    iconEl.innerHTML = '<i class="fa-solid fa-hourglass-half fa-spin" style="--fa-animation-duration: 3s;"></i>';
+                    titleEl.textContent = 'กำลังรอเจ้าของเว็บอนุมัติบัญชี';
+                    descEl.textContent = 'ขอบคุณที่สมัครสมาชิก! บัญชีของคุณถูกส่งไปยังเจ้าของเว็บเรียบร้อยแล้ว เมื่อเจ้าของเว็บกดอนุมัติ หน้านี้จะเปิดเข้าสู่คลังนิยายให้อัตโนมัติทันที';
+                    badgeEl.className = 'px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold';
+                    badgeEl.textContent = 'รออนุมัติ (Pending)';
+                }
+            }
+        }
+
+        async function handleGateAuthSubmit(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('gate-email-input').value.trim();
+            const password = document.getElementById('gate-password-input').value;
+            const displayNameInput = document.getElementById('gate-name-input').value.trim();
+            const ownerKeyInput = document.getElementById('gate-owner-key-input').value.trim();
+
+            if (!email || !password) return;
+
+            const submitBtn = document.getElementById('gate-submit-btn');
+            const originalHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>กำลังดำเนินการ...</span>';
+
+            try {
+                // โหมดทำงานทันทีหากยังไม่ได้ใส่ค่า MY_FIREBASE_CONFIG
+                if (!isFirebaseReady || !auth || !db) {
+                    const existingUser = Array.from(allUsersMap.values()).find(u => u.email.toLowerCase() === email.toLowerCase());
+                    if (gateTabMode === 'register') {
+                        if (existingUser) {
+                            showToast('อีเมลนี้ถูกสมัครไว้แล้ว กรุณากดแท็บ "เข้าสู่ระบบ"', 'warning');
+                            return;
+                        }
+                        const hasAnyOwner = Array.from(allUsersMap.values()).some(u => u.role === 'owner');
+                        const isOwnerAccount = !hasAnyOwner || (ownerKeyInput && ownerKeyInput === ownerMasterKey);
+                        const localUid = `local-${Date.now()}`;
+                        const profilePayload = {
+                            uid: localUid,
+                            email,
+                            password,
+                            displayName: displayNameInput || email.split('@')[0],
+                            role: isOwnerAccount ? 'owner' : 'member',
+                            status: isOwnerAccount ? 'approved' : 'pending',
+                            createdAt: Date.now()
+                        };
+                        allUsersMap.set(localUid, profilePayload);
+                        currentUser = { uid: localUid, email, isAnonymous: false };
+                        currentUserProfile = profilePayload;
+                        updateAccountUI();
+                        updateAuthGateVisibility();
+                        renderOwnerDashboard();
+                        showToast(isOwnerAccount ? 'สมัครบัญชีเจ้าของเว็บสำเร็จ!' : 'สมัครสมาชิกสำเร็จ! รอเจ้าของเว็บอนุมัติ', 'success');
+                    } else {
+                        if (!existingUser) {
+                            showToast('ยังไม่มีบัญชีนี้ กรุณากดแท็บ "สมัครสมาชิกใหม่" ก่อนครับ', 'warning');
+                            return;
+                        }
+                        if (existingUser.password && existingUser.password !== password) {
+                            showToast('รหัสผ่านไม่ถูกต้อง', 'error');
+                            return;
+                        }
+                        currentUser = { uid: existingUser.uid, email: existingUser.email, isAnonymous: false };
+                        currentUserProfile = existingUser;
+                        updateAccountUI();
+                        updateAuthGateVisibility();
+                        renderOwnerDashboard();
+                        showToast('เข้าสู่ระบบสำเร็จ!', 'success');
+                    }
+                    return;
+                }
+
+                if (gateTabMode === 'register') {
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+                    const newUser = cred.user;
+
+                    let serverMasterKey = ownerMasterKey;
+                    try {
+                        const secSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'ownerConfig'));
+                        if (secSnap.exists() && secSnap.data()?.masterKey) {
+                            serverMasterKey = secSnap.data().masterKey;
+                        }
+                    } catch (e) {}
+
+                    const usersCol = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+                    const existingSnap = await getDocs(usersCol);
+                    const hasAnyOwner = existingSnap.docs.some(d => d.data()?.role === 'owner');
+
+                    const isOwnerAccount = !hasAnyOwner || (ownerKeyInput && ownerKeyInput === serverMasterKey);
+                    const profilePayload = {
+                        uid: newUser.uid,
+                        email: newUser.email,
+                        displayName: displayNameInput || email.split('@')[0],
+                        role: isOwnerAccount ? 'owner' : 'member',
+                        status: isOwnerAccount ? 'approved' : 'pending',
+                        createdAt: Date.now()
+                    };
+
+                    await setDoc(doc(usersCol, newUser.uid), profilePayload, { merge: true });
+                    currentUserProfile = profilePayload;
+                    updateAccountUI();
+                    updateAuthGateVisibility();
+
+                    if (isOwnerAccount) {
+                        showToast('สมัครบัญชีเจ้าของเว็บ (Owner) สำเร็จ!', 'success');
+                    } else {
+                        showToast('สมัครสมาชิกสำเร็จ! กรุณารอเจ้าของเว็บอนุมัติบัญชีของคุณ', 'info');
+                    }
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast('เข้าสู่ระบบสำเร็จ!', 'success');
+                }
+            } catch (error) {
+                let msg = error.message;
+                if (error.code === 'auth/email-already-in-use') msg = 'อีเมลนี้ถูกใช้งานแล้ว กรุณากดแท็บ "เข้าสู่ระบบ"';
+                else if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+                else if (error.code === 'auth/weak-password') msg = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+                else if (error.code === 'auth/operation-not-allowed') msg = 'กรุณาเปิดใช้งาน Email/Password Sign-in ใน Firebase Console > Authentication ก่อนครับ';
+                showToast(msg, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                closeAccountModal();
+                closeOwnerDashboard();
+                if (isFirebaseReady && auth) {
+                    await signOut(auth);
+                    privateNovelsMap.clear();
+                    privateChaptersMap.clear();
+                    allUsersMap.clear();
+                }
+                currentUser = null;
+                currentUserProfile = null;
+                updateAccountUI();
+                updateAuthGateVisibility();
+                showToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
+            } catch (error) {
+                showToast(`ออกจากระบบไม่สำเร็จ: ${error.message}`, 'error');
+            }
+        }
+
+        async function claimOwnershipWithKey() {
+            if (!currentUser) return;
+            const keyInput = document.getElementById('claim-owner-key-input')?.value.trim();
+            if (!keyInput) {
+                showToast('กรุณากรอกรหัสลับเจ้าของเว็บ', 'warning');
+                return;
+            }
+
+            let serverMasterKey = ownerMasterKey;
+            if (isFirebaseReady && db) {
+                try {
+                    const secSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'ownerConfig'));
+                    if (secSnap.exists() && secSnap.data()?.masterKey) {
+                        serverMasterKey = secSnap.data().masterKey;
+                    }
+                } catch (e) {}
+            }
+
+            if (keyInput !== serverMasterKey) {
+                showToast('รหัสลับเจ้าของเว็บไม่ถูกต้อง', 'error');
+                return;
+            }
+
+            if (isFirebaseReady && db) {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), {
+                    role: 'owner',
+                    status: 'approved'
+                }, { merge: true });
+            } else if (currentUserProfile) {
+                currentUserProfile.role = 'owner';
+                currentUserProfile.status = 'approved';
+                allUsersMap.set(currentUser.uid, currentUserProfile);
+                updateAccountUI();
+                renderOwnerDashboard();
+            }
+
+            showToast('ยืนยันสิทธิ์เจ้าของเว็บ (Owner) เรียบร้อยแล้ว!', 'success');
+            closeAccountModal();
+        }
+
+        function openOwnerDashboard() {
+            if (currentUserProfile?.role !== 'owner') {
+                showToast('เฉพาะเจ้าของเว็บเท่านั้นที่เข้าถึงหน้านี้ได้', 'error');
+                return;
+            }
+            renderOwnerDashboard();
+            document.getElementById('owner-dashboard-modal').classList.remove('hidden');
+        }
+
+        function closeOwnerDashboard() {
+            document.getElementById('owner-dashboard-modal').classList.add('hidden');
+        }
+
+        function switchOwnerTab(tab) {
+            currentOwnerTab = tab;
+            ['users', 'content', 'security'].forEach(t => {
+                const btn = document.getElementById(`owner-tab-${t}`);
+                const panel = document.getElementById(`owner-panel-${t}`);
+                if (btn) {
+                    btn.className = t === tab
+                        ? 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white whitespace-nowrap'
+                        : 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 whitespace-nowrap';
+                }
+                if (panel) panel.classList.toggle('hidden', t !== tab);
+            });
+            if (tab === 'security') {
+                const keyInput = document.getElementById('owner-master-key-input');
+                if (keyInput) keyInput.value = ownerMasterKey;
+            }
+            renderOwnerDashboard();
+        }
+
+        function renderOwnerDashboard() {
+            const usersList = Array.from(allUsersMap.values()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            const pendingUsers = usersList.filter(u => u.status === 'pending' && u.role !== 'owner');
+            const approvedUsers = usersList.filter(u => u.status === 'approved' || u.role === 'owner');
+
+            const navBadge = document.getElementById('nav-pending-badge');
+            if (navBadge) {
+                navBadge.textContent = pendingUsers.length;
+                navBadge.classList.toggle('hidden', pendingUsers.length === 0);
+            }
+
+            const statPending = document.getElementById('owner-stat-pending');
+            const statApproved = document.getElementById('owner-stat-approved');
+            const statNovels = document.getElementById('owner-stat-novels');
+            const statChapters = document.getElementById('owner-stat-chapters');
+            if (statPending) statPending.textContent = pendingUsers.length;
+            if (statApproved) statApproved.textContent = approvedUsers.length;
+            if (statNovels) statNovels.textContent = publicNovelsMap.size;
+            if (statChapters) statChapters.textContent = publicChaptersMap.size;
+
+            const pendingSec = document.getElementById('owner-pending-section');
+            const pendingListEl = document.getElementById('owner-pending-list');
+            if (pendingSec && pendingListEl) {
+                pendingSec.classList.toggle('hidden', pendingUsers.length === 0);
+                pendingListEl.innerHTML = pendingUsers.map(u => `
+                    <div class="p-3.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="font-bold text-sm text-slate-900 dark:text-white truncate">
+                                ${escapeHtml(u.displayName || 'ไม่ระบุชื่อ')}
+                                <span class="ml-1.5 px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-900 text-amber-800 dark:text-amber-200 text-[10px]">รออนุมัติ</span>
+                            </div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 truncate">${escapeHtml(u.email)} • สมัคร ${formatRelativeTime(u.createdAt)}</div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <button onclick="updateUserApprovalStatus('${escapeHtml(u.uid)}', 'approved')"
+                                class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs flex items-center gap-1.5">
+                                <i class="fa-solid fa-check"></i><span>อนุมัติทันที</span>
+                            </button>
+                            <button onclick="updateUserApprovalStatus('${escapeHtml(u.uid)}', 'rejected')"
+                                class="px-3 py-2 rounded-xl bg-rose-100 dark:bg-rose-950/70 hover:bg-rose-200 text-rose-600 dark:text-rose-400 text-xs font-bold">
+                                ปฏิเสธ
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const allCountEl = document.getElementById('owner-all-users-count');
+            const allListEl = document.getElementById('owner-all-users-list');
+            if (allCountEl) allCountEl.textContent = usersList.length;
+            if (allListEl) {
+                if (usersList.length === 0) {
+                    allListEl.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">ยังไม่มีข้อมูลสมาชิกในระบบ</div>`;
+                } else {
+                    allListEl.innerHTML = usersList.map(u => {
+                        const isOwnerRow = u.role === 'owner';
+                        const statusBadge = isOwnerRow
+                            ? '<span class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-[10px] font-bold"><i class="fa-solid fa-crown mr-1"></i>เจ้าของเว็บ</span>'
+                            : u.status === 'approved'
+                                ? '<span class="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">อนุมัติแล้ว</span>'
+                                : u.status === 'rejected'
+                                    ? '<span class="px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 text-[10px] font-bold">ระงับสิทธิ์</span>'
+                                    : '<span class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-[10px] font-bold">รออนุมัติ</span>';
+
+                        return `
+                            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="font-bold text-sm text-slate-900 dark:text-white">${escapeHtml(u.displayName || 'ไม่ระบุชื่อ')}</span>
+                                        ${statusBadge}
+                                    </div>
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">${escapeHtml(u.email)}</div>
+                                </div>
+                                ${isOwnerRow ? '' : `
+                                <div class="flex items-center gap-1.5 flex-shrink-0">
+                                    ${u.status !== 'approved' ? `
+                                        <button onclick="updateUserApprovalStatus('${escapeHtml(u.uid)}', 'approved')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+                                            อนุมัติ
+                                        </button>
+                                    ` : `
+                                        <button onclick="updateUserApprovalStatus('${escapeHtml(u.uid)}', 'rejected')" class="px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 text-xs font-semibold">
+                                            ระงับสิทธิ์
+                                        </button>
+                                    `}
+                                </div>`}
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+
+            const allNovelsEl = document.getElementById('owner-all-novels-list');
+            if (allNovelsEl) {
+                const pubNovels = Array.from(publicNovelsMap.values());
+                const pubChapters = Array.from(publicChaptersMap.values());
+                if (pubNovels.length === 0) {
+                    allNovelsEl.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">ยังไม่มีนิยายในคลังกลาง</div>`;
+                } else {
+                    allNovelsEl.innerHTML = pubNovels.map(n => {
+                        const chCount = pubChapters.filter(c => c.novelId === n.id).length;
+                        return `
+                            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="font-bold text-sm text-slate-900 dark:text-white truncate">${escapeHtml(n.title)}</div>
+                                    <div class="text-xs text-slate-500 dark:text-slate-400">โดย ${escapeHtml(n.author)} • ${escapeHtml(n.category)} • ${chCount} ตอน</div>
+                                </div>
+                                <div class="flex items-center gap-2 flex-shrink-0">
+                                    <button onclick="closeOwnerDashboard(); switchLibraryScope('public'); navigateTo('detail', '${escapeHtml(n.id)}')"
+                                        class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold">
+                                        เปิดดู
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+
+        async function updateUserApprovalStatus(targetUid, newStatus) {
+            if (currentUserProfile?.role !== 'owner') return;
+            if (!isFirebaseReady || !db) {
+                const target = allUsersMap.get(targetUid);
+                if (target) {
+                    target.status = newStatus;
+                    allUsersMap.set(targetUid, target);
+                    renderOwnerDashboard();
+                    showToast(newStatus === 'approved' ? 'อนุมัติสมาชิกเรียบร้อยแล้ว!' : 'ระงับสิทธิ์สมาชิกเรียบร้อยแล้ว', 'success');
+                }
+                return;
+            }
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', targetUid), {
+                    status: newStatus,
+                    reviewedAt: Date.now()
+                }, { merge: true });
+                showToast(newStatus === 'approved' ? 'อนุมัติสมาชิกเรียบร้อยแล้ว!' : 'ระงับสิทธิ์สมาชิกเรียบร้อยแล้ว', 'success');
+            } catch (err) {
+                showToast(`อัปเดตสถานะไม่สำเร็จ: ${err.message}`, 'error');
+            }
+        }
+
+        async function approveAllPendingUsers() {
+            if (currentUserProfile?.role !== 'owner') return;
+            const pendingUsers = Array.from(allUsersMap.values()).filter(u => u.status === 'pending' && u.role !== 'owner');
+            if (pendingUsers.length === 0) return;
+
+            if (!isFirebaseReady || !db) {
+                pendingUsers.forEach(u => {
+                    u.status = 'approved';
+                    allUsersMap.set(u.uid, u);
+                });
+                renderOwnerDashboard();
+                showToast(`อนุมัติสมาชิกทั้งหมด ${pendingUsers.length} คนเรียบร้อยแล้ว!`, 'success');
+                return;
+            }
+
+            for (const u of pendingUsers) {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', u.uid), {
+                    status: 'approved',
+                    reviewedAt: Date.now()
+                }, { merge: true });
+            }
+            showToast(`อนุมัติสมาชิกทั้งหมด ${pendingUsers.length} คนเรียบร้อยแล้ว!`, 'success');
+        }
+
+        async function saveOwnerMasterKey() {
+            if (currentUserProfile?.role !== 'owner') return;
+            const newKey = document.getElementById('owner-master-key-input')?.value.trim();
+            if (!newKey || newKey.length < 4) {
+                showToast('กรุณากรอกรหัสลับอย่างน้อย 4 ตัวอักษร', 'warning');
+                return;
+            }
+            if (!isFirebaseReady || !db) {
+                ownerMasterKey = newKey;
+                showToast('บันทึกรหัสลับเจ้าของเว็บเรียบร้อยแล้ว!', 'success');
+                return;
+            }
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'ownerConfig'), {
+                    masterKey: newKey,
+                    updatedAt: Date.now()
+                }, { merge: true });
+                ownerMasterKey = newKey;
+                showToast('บันทึกรหัสลับเจ้าของเว็บเรียบร้อยแล้ว!', 'success');
+            } catch (err) {
+                showToast(`บันทึกไม่สำเร็จ: ${err.message}`, 'error');
+            }
+        }
+
+        function openAccountModal() {
+            updateAccountUI();
+            document.getElementById('account-modal').classList.remove('hidden');
+        }
+
+        function closeAccountModal() {
+            document.getElementById('account-modal').classList.add('hidden');
+        }
+
+        function copyUserId() {
+            const uid = currentUser?.uid || 'not-connected';
+            const temp = document.createElement('textarea');
+            temp.value = uid;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+            showToast('คัดลอกรหัสผู้ใช้งานเรียบร้อยแล้ว', 'success');
+        }
+
         // ---------------------------------------------------------
-        // 5. DATA ACCESSORS & AUTH / CLOUD INITIALIZATION
+        // 6. DATA ACCESSORS, MOVE SCOPE & CLOUD INITIALIZATION
         // ---------------------------------------------------------
         function getActiveNovelsList() {
             if (currentScope === 'gdrive') {
@@ -1181,14 +2003,22 @@
             });
         }
 
+        function getNovelScope(novelId) {
+            if (String(novelId).startsWith('gdrive-') || gdriveNovelsMap.has(novelId)) return 'gdrive';
+            if (currentScope === 'private' && privateNovelsMap.has(novelId)) return 'private';
+            if (publicNovelsMap.has(novelId)) return 'public';
+            if (privateNovelsMap.has(novelId)) return 'private';
+            return currentScope === 'private' ? 'private' : 'public';
+        }
+
         function getNovelById(novelId) {
             if (!novelId) return null;
-            if (currentScope === 'gdrive' || String(novelId).startsWith('gdrive-')) {
+            const scope = getNovelScope(novelId);
+            if (scope === 'gdrive') {
                 return gdriveNovelsMap.get(novelId) || null;
             }
-            const isPrivate = currentScope === 'private' && privateNovelsMap.has(novelId);
-            const nMap = isPrivate ? privateNovelsMap : (publicNovelsMap.has(novelId) ? publicNovelsMap : privateNovelsMap);
-            const cMap = isPrivate ? privateChaptersMap : (publicNovelsMap.has(novelId) ? publicChaptersMap : privateChaptersMap);
+            const nMap = scope === 'private' ? privateNovelsMap : publicNovelsMap;
+            const cMap = scope === 'private' ? privateChaptersMap : publicChaptersMap;
 
             const novel = nMap.get(novelId);
             if (!novel) return null;
@@ -1199,17 +2029,87 @@
             return { ...novel, chapters };
         }
 
-        function getNovelsCollectionRef() {
+        async function moveNovelToScope(novelId, targetScope) {
+            const sourceScope = getNovelScope(novelId);
+            if (sourceScope === 'gdrive' || sourceScope === targetScope) return;
+
+            const novel = getNovelById(novelId);
+            if (!novel) return;
+
+            const now = Date.now();
+            const novelPayload = {
+                id: novel.id,
+                title: novel.title,
+                author: novel.author,
+                category: novel.category,
+                coverTheme: novel.coverTheme || 'indigo',
+                synopsis: novel.synopsis || '',
+                createdAt: novel.createdAt || now,
+                updatedAt: now
+            };
+
+            if (isFirebaseReady && db && currentUser) {
+                const srcNovelsCol = sourceScope === 'private'
+                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
+                    : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
+                const srcChaptersCol = sourceScope === 'private'
+                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters')
+                    : collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
+
+                const dstNovelsCol = targetScope === 'private'
+                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
+                    : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
+                const dstChaptersCol = targetScope === 'private'
+                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters')
+                    : collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
+
+                await setDoc(doc(dstNovelsCol, novel.id), novelPayload, { merge: true });
+                for (const ch of (novel.chapters || [])) {
+                    await setDoc(doc(dstChaptersCol, ch.id), { ...ch, novelId: novel.id }, { merge: true });
+                    await deleteDoc(doc(srcChaptersCol, ch.id));
+                }
+                await deleteDoc(doc(srcNovelsCol, novel.id));
+            } else {
+                const srcNMap = sourceScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                const srcCMap = sourceScope === 'private' ? privateChaptersMap : publicChaptersMap;
+                const dstNMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                const dstCMap = targetScope === 'private' ? privateChaptersMap : publicChaptersMap;
+
+                dstNMap.set(novel.id, novelPayload);
+                for (const ch of (novel.chapters || [])) {
+                    dstCMap.set(ch.id, { ...ch, novelId: novel.id });
+                    srcCMap.delete(ch.id);
+                }
+                srcNMap.delete(novel.id);
+            }
+
+            updateScopeCounts();
+            currentScope = targetScope;
+            switchLibraryScope(targetScope);
+            navigateTo('detail', novel.id);
+            showToast(targetScope === 'private' ? 'ย้ายนิยายไป "คลังส่วนตัว" เรียบร้อยแล้ว' : 'ย้ายนิยายไป "คลังนิยายกลาง" เรียบร้อยแล้ว', 'success');
+        }
+
+        function toggleMoveNovelScope(novelId) {
+            const currentNovelScope = getNovelScope(novelId);
+            if (currentNovelScope === 'gdrive') return;
+            const targetScope = currentNovelScope === 'public' ? 'private' : 'public';
+            moveNovelToScope(novelId, targetScope);
+        }
+
+        function getNovelsCollectionRef(scopeOverride = null) {
+            const scope = scopeOverride || currentScope;
             if (!isFirebaseReady || !db) return null;
-            if (currentScope === 'private' && currentUser?.uid) {
+            if (scope === 'private' && currentUser?.uid) {
                 return collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels');
             }
             return collection(db, 'artifacts', appId, 'public', 'data', 'novels');
         }
 
-        function getChaptersCollectionRef() {
+        function getChaptersCollectionRef(scopeOverride = null) {
+            const scope = scopeOverride || currentScope;
             if (!isFirebaseReady || !db) return null;
-            if (currentScope === 'private' && currentUser?.uid) {
+            if (scope === 'private' && currentUser?.uid) {
                 return collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters');
             }
             return collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
@@ -1222,6 +2122,36 @@
             if (unsubscribePublicChapters) unsubscribePublicChapters();
             if (unsubscribePrivateNovels) unsubscribePrivateNovels();
             if (unsubscribePrivateChapters) unsubscribePrivateChapters();
+            if (unsubscribeUserProfile) unsubscribeUserProfile();
+            if (unsubscribeAllUsers) unsubscribeAllUsers();
+
+            const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid);
+            unsubscribeUserProfile = onSnapshot(userDocRef, async (docSnap) => {
+                if (docSnap.exists()) {
+                    currentUserProfile = docSnap.data();
+                } else if (!currentUser.isAnonymous && currentUser.email) {
+                    const usersCol = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+                    const existingSnap = await getDocs(usersCol);
+                    const hasAnyOwner = existingSnap.docs.some(d => d.data()?.role === 'owner');
+                    const newProfile = {
+                        uid: currentUser.uid,
+                        email: currentUser.email,
+                        displayName: currentUser.email.split('@')[0],
+                        role: hasAnyOwner ? 'member' : 'owner',
+                        status: hasAnyOwner ? 'pending' : 'approved',
+                        createdAt: Date.now()
+                    };
+                    await setDoc(userDocRef, newProfile, { merge: true });
+                    currentUserProfile = newProfile;
+                }
+
+                updateAccountUI();
+                updateAuthGateVisibility();
+
+                if (currentUserProfile?.role === 'owner') {
+                    attachOwnerUsersListener();
+                }
+            }, (err) => console.warn('User profile listener error:', err));
 
             const pubNovelsCol = collection(db, 'artifacts', appId, 'public', 'data', 'novels');
             const pubChaptersCol = collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
@@ -1249,12 +2179,7 @@
                 if (loadingEl) loadingEl.classList.add('hidden');
                 updateScopeCounts();
                 refreshCurrentView();
-            }, (err) => {
-                console.error('Public novels sync error:', err);
-                const loadingEl = document.getElementById('library-loading-state');
-                if (loadingEl) loadingEl.classList.add('hidden');
-                showToast('ไม่สามารถดึงข้อมูลจาก Cloud ได้ กรุณาตรวจสอบ Firestore Rules', 'error');
-            });
+            }, (err) => console.error('Public novels sync error:', err));
 
             unsubscribePublicChapters = onSnapshot(pubChaptersCol, (snap) => {
                 snap.docChanges().forEach(change => {
@@ -1305,6 +2230,30 @@
             }
         }
 
+        function attachOwnerUsersListener() {
+            if (!isFirebaseReady || !db || !currentUser) return;
+            if (unsubscribeAllUsers) unsubscribeAllUsers();
+
+            const securityDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'ownerConfig');
+            getDoc(securityDocRef).then(snap => {
+                if (snap.exists() && snap.data()?.masterKey) {
+                    ownerMasterKey = snap.data().masterKey;
+                }
+            }).catch(() => {});
+
+            const usersCol = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+            unsubscribeAllUsers = onSnapshot(usersCol, (snap) => {
+                allUsersMap.clear();
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data) {
+                        allUsersMap.set(docSnap.id, { ...data, uid: docSnap.id });
+                    }
+                });
+                renderOwnerDashboard();
+            }, (err) => console.warn('Owner users listener error:', err));
+        }
+
         async function initAuth() {
             updateGDriveIndicatorUI();
             updateScopeCounts();
@@ -1319,9 +2268,10 @@
                 isFirebaseReady = false;
                 isInitialLoadDone = true;
                 if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-amber-400';
-                if (statusText) statusText.textContent = 'รอใส่ค่า firebaseConfig';
+                if (statusText) statusText.textContent = 'โหมดพร้อมใช้งาน';
                 loadFallbackDemoDataInMemory();
                 updateAccountUI();
+                updateAuthGateVisibility();
                 renderLibrary();
                 return;
             }
@@ -1333,21 +2283,28 @@
                 db = getFirestore(app);
                 isFirebaseReady = true;
 
-                // RULE 3: Authenticate FIRST before attaching any Firestore queries
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
-                } else if (!auth.currentUser) {
-                    await signInAnonymously(auth);
                 }
 
                 onAuthStateChanged(auth, (user) => {
                     currentUser = user;
-                    updateAccountUI();
-                    if (user) {
-                        if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-                        if (statusText) statusText.textContent = 'ซิงค์ Cloud ข้ามอุปกรณ์';
-                        attachFirestoreListeners();
+                    if (!user || user.isAnonymous) {
+                        currentUserProfile = null;
+                        if (unsubscribeUserProfile) unsubscribeUserProfile();
+                        if (unsubscribeAllUsers) unsubscribeAllUsers();
+                        updateAccountUI();
+                        updateAuthGateVisibility();
+                        if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                        if (statusText) statusText.textContent = 'รอเข้าสู่ระบบ';
+                        return;
                     }
+
+                    updateAccountUI();
+                    updateAuthGateVisibility();
+                    if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                    if (statusText) statusText.textContent = 'ซิงค์ Cloud ข้ามอุปกรณ์';
+                    attachFirestoreListeners();
                 });
             } catch (err) {
                 console.error('Firebase initialization error:', err);
@@ -1355,16 +2312,16 @@
                 isInitialLoadDone = true;
                 if (loadingEl) loadingEl.classList.add('hidden');
                 if (statusDot) statusDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-                if (statusText) statusText.textContent = 'เชื่อมต่อ Cloud ไม่สำเร็จ';
+                if (statusText) statusText.textContent = 'โหมดสำรองในหน่วยความจำ';
                 loadFallbackDemoDataInMemory();
                 updateAccountUI();
+                updateAuthGateVisibility();
                 renderLibrary();
-                showToast(`เชื่อมต่อ Cloud ไม่สำเร็จ: ${err.message}`, 'error');
             }
         }
 
         // ---------------------------------------------------------
-        // 6. SEEDING DEMO NOVELS TO CLOUD FIRESTORE
+        // 7. SEEDING DEMO NOVELS
         // ---------------------------------------------------------
         async function seedDemoDataToCloud(silent = false) {
             const now = Date.now();
@@ -1413,12 +2370,12 @@
             }
 
             if (!silent) {
-                showToast(addedCount > 0 ? `เพิ่มนิยายตัวอย่างขึ้น Cloud สำเร็จ ${addedCount} เรื่อง` : 'มีนิยายตัวอย่างอยู่ในคลังแล้ว', 'success');
+                showToast(addedCount > 0 ? `เพิ่มนิยายตัวอย่างสำเร็จ ${addedCount} เรื่อง` : 'มีนิยายตัวอย่างอยู่ในคลังแล้ว', 'success');
             }
         }
 
         // ---------------------------------------------------------
-        // 7. VIEW NAVIGATION & LIBRARY RENDERING
+        // 8. VIEW NAVIGATION & LIBRARY RENDERING
         // ---------------------------------------------------------
         function updateScopeCounts() {
             const gdriveCountEl = document.getElementById('scope-count-gdrive');
@@ -1686,7 +2643,7 @@
         }
 
         // ---------------------------------------------------------
-        // 8. NOVEL DETAIL & CHAPTER TABLE OF CONTENTS
+        // 9. NOVEL DETAIL & CHAPTER TABLE OF CONTENTS
         // ---------------------------------------------------------
         function renderNovelDetail(novelId) {
             const novel = getNovelById(novelId);
@@ -1695,6 +2652,7 @@
                 return;
             }
 
+            const novelScope = getNovelScope(novelId);
             const theme = COVER_THEMES[novel.coverTheme] || COVER_THEMES.indigo;
             const coverEl = document.getElementById('detail-cover-container');
             if (coverEl) {
@@ -1722,23 +2680,31 @@
             document.getElementById('detail-author').textContent = novel.author;
             document.getElementById('detail-synopsis').textContent = novel.synopsis || 'ยังไม่มีรายละเอียดเรื่องย่อ';
 
-            const isGDrive = currentScope === 'gdrive';
-            const isPrivateNovel = privateNovelsMap.has(novel.id) && currentScope === 'private';
-            const moveScopeBtn = document.getElementById('detail-move-scope-btn');
-            const moveScopeLabel = document.getElementById('detail-move-scope-label');
+            const scopeBadge = document.getElementById('detail-scope-badge');
+            const moveBtn = document.getElementById('detail-move-scope-btn');
+            const moveLabel = document.getElementById('detail-move-scope-label');
+
+            if (scopeBadge) {
+                if (novelScope === 'gdrive') {
+                    scopeBadge.innerHTML = `<i class="fa-brands fa-google-drive text-emerald-500 mr-1"></i>Google Drive`;
+                } else if (novelScope === 'private') {
+                    scopeBadge.innerHTML = `<i class="fa-solid fa-lock text-amber-500 mr-1"></i>คลังส่วนตัว`;
+                } else {
+                    scopeBadge.innerHTML = `<i class="fa-solid fa-globe text-indigo-500 mr-1"></i>คลังนิยายกลาง`;
+                }
+            }
+
+            const isGDrive = novelScope === 'gdrive';
+            if (moveBtn && moveLabel) {
+                moveBtn.classList.toggle('hidden', isGDrive);
+                moveLabel.textContent = novelScope === 'public' ? 'ย้ายไปคลังส่วนตัว' : 'ย้ายไปคลังส่วนกลาง';
+            }
+
             const editNovelBtn = document.getElementById('detail-edit-novel-btn');
             const deleteNovelBtn = document.getElementById('detail-delete-novel-btn');
             const writerActions = document.getElementById('detail-writer-actions');
             const gdriveBadge = document.getElementById('detail-gdrive-badge');
 
-            if (moveScopeBtn) {
-                moveScopeBtn.classList.toggle('hidden', isGDrive);
-                if (moveScopeLabel) {
-                    moveScopeLabel.innerHTML = isPrivateNovel
-                        ? 'ย้ายไปคลังส่วนกลาง'
-                        : 'ย้ายไปคลังส่วนตัว';
-                }
-            }
             if (editNovelBtn) editNovelBtn.classList.toggle('hidden', isGDrive);
             if (deleteNovelBtn) deleteNovelBtn.classList.toggle('hidden', isGDrive);
             if (writerActions) writerActions.classList.toggle('hidden', isGDrive);
@@ -1810,9 +2776,10 @@
                 return;
             }
 
+            const isGDrive = getNovelScope(novel.id) === 'gdrive';
+
             container.innerHTML = filtered.map(ch => {
                 const words = estimateWordCount(ch.content);
-                const isGDrive = currentScope === 'gdrive';
                 const wordLabel = isGDrive && !ch.content ? 'Google Docs' : `~${words.toLocaleString()} คำ`;
                 return `
                     <div class="py-3.5 px-2 sm:px-3 flex items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-colors group">
@@ -1858,7 +2825,7 @@
         }
 
         // ---------------------------------------------------------
-        // 9. READER VIEW & READING SETTINGS (PRESERVES DOCS FORMAT)
+        // 10. READER VIEW & READING SETTINGS
         // ---------------------------------------------------------
         async function renderReader(novelId, chapterId) {
             const novel = getNovelById(novelId);
@@ -1894,7 +2861,7 @@
             const bodyEl = document.getElementById('reader-content-body');
             let contentText = chapter.content || '';
 
-            if (currentScope === 'gdrive' && chapter.fileId && !gdriveChapterCache.has(chapter.fileId)) {
+            if (getNovelScope(novelId) === 'gdrive' && chapter.fileId && !gdriveChapterCache.has(chapter.fileId)) {
                 document.getElementById('reader-wordcount-meta').innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดจาก Google Docs...`;
                 bodyEl.innerHTML = `
                     <div class="py-16 text-center opacity-70">
@@ -1911,7 +2878,6 @@
                         throw new Error(data.message || 'ไม่สามารถอ่านไฟล์ได้');
                     }
                 } catch (err) {
-                    console.error('Fetch Google Doc chapter error:', err);
                     bodyEl.innerHTML = `<p class="text-rose-500 text-center py-8">เกิดข้อผิดพลาดในการดึงเนื้อหาจาก Google Docs: ${escapeHtml(err.message)}</p>`;
                     return;
                 }
@@ -2027,7 +2993,7 @@
         window.addEventListener('scroll', updateReadingProgress, { passive: true });
 
         // ---------------------------------------------------------
-        // 10. CREATE / EDIT / DELETE NOVEL
+        // 11. CREATE / EDIT / MOVE / DELETE NOVEL
         // ---------------------------------------------------------
         function renderCoverThemeSwatches(selectedKey) {
             const container = document.getElementById('cover-theme-selector');
@@ -2048,30 +3014,6 @@
             renderCoverThemeSwatches(key);
         }
 
-        function selectNovelFormScope(scope) {
-            const hiddenInput = document.getElementById('novel-form-scope');
-            const btnPub = document.getElementById('form-scope-opt-public');
-            const btnPriv = document.getElementById('form-scope-opt-private');
-            if (hiddenInput) hiddenInput.value = scope;
-
-            const activeCls = ['bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-xs'];
-            const inactiveCls = ['bg-slate-50', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-700'];
-
-            if (btnPub && btnPriv) {
-                if (scope === 'public') {
-                    btnPub.classList.add(...activeCls);
-                    btnPub.classList.remove(...inactiveCls);
-                    btnPriv.classList.remove(...activeCls);
-                    btnPriv.classList.add(...inactiveCls);
-                } else {
-                    btnPriv.classList.add(...activeCls);
-                    btnPriv.classList.remove(...inactiveCls);
-                    btnPub.classList.remove(...activeCls);
-                    btnPub.classList.add(...inactiveCls);
-                }
-            }
-        }
-
         function openNovelModal(novelId = null) {
             if (currentScope === 'gdrive') {
                 switchLibraryScope('private');
@@ -2082,29 +3024,29 @@
             const titleInput = document.getElementById('novel-form-title');
             const authorInput = document.getElementById('novel-form-author');
             const categoryInput = document.getElementById('novel-form-category');
+            const scopeInput = document.getElementById('novel-form-scope');
             const synopsisInput = document.getElementById('novel-form-synopsis');
 
             if (novelId) {
                 const novel = getNovelById(novelId);
                 if (!novel) return;
-                const sourceScope = (currentScope === 'private' && privateNovelsMap.has(novel.id)) ? 'private' : 'public';
+                const existingScope = getNovelScope(novelId);
                 heading.innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-500"></i><span>แก้ไขข้อมูลนิยาย</span>`;
                 idInput.value = novel.id;
                 titleInput.value = novel.title || '';
                 authorInput.value = novel.author || '';
                 categoryInput.value = novel.category || 'โรแมนติก';
+                scopeInput.value = existingScope === 'private' ? 'private' : 'public';
                 synopsisInput.value = novel.synopsis || '';
-                selectNovelFormScope(sourceScope);
                 selectCoverTheme(novel.coverTheme || 'indigo');
             } else {
-                const defaultScope = currentScope === 'private' ? 'private' : 'public';
                 heading.innerHTML = `<i class="fa-solid fa-book-medical text-indigo-500"></i><span>สร้างเรื่องนิยายใหม่</span>`;
                 idInput.value = '';
                 titleInput.value = '';
-                authorInput.value = '';
+                authorInput.value = currentUserProfile?.displayName || '';
                 categoryInput.value = 'โรแมนติก';
+                scopeInput.value = currentScope === 'private' ? 'private' : 'public';
                 synopsisInput.value = '';
-                selectNovelFormScope(defaultScope);
                 selectCoverTheme('indigo');
             }
 
@@ -2115,118 +3057,13 @@
             document.getElementById('novel-modal').classList.add('hidden');
         }
 
-        async function moveNovelScope(novelId, targetScope, overrideMetadata = null) {
-            const sourceScope = (currentScope === 'private' && privateNovelsMap.has(novelId))
-                ? 'private'
-                : (publicNovelsMap.has(novelId) ? 'public' : 'private');
-
-            if (sourceScope === targetScope) return false;
-
-            const novel = getNovelById(novelId);
-            if (!novel) return false;
-
-            const now = Date.now();
-            const novelPayload = {
-                id: novel.id,
-                title: overrideMetadata?.title ?? novel.title,
-                author: overrideMetadata?.author ?? novel.author,
-                category: overrideMetadata?.category ?? novel.category,
-                coverTheme: overrideMetadata?.coverTheme ?? novel.coverTheme ?? 'indigo',
-                synopsis: overrideMetadata?.synopsis ?? novel.synopsis ?? '',
-                createdAt: novel.createdAt || now,
-                updatedAt: now
-            };
-
-            const chaptersList = [...(novel.chapters || [])];
-
-            if (isFirebaseReady && db && currentUser) {
-                const srcNovelsRef = sourceScope === 'private'
-                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
-                    : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
-                const srcChaptersRef = sourceScope === 'private'
-                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters')
-                    : collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
-
-                const dstNovelsRef = targetScope === 'private'
-                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
-                    : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
-                const dstChaptersRef = targetScope === 'private'
-                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters')
-                    : collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
-
-                try {
-                    // 1. บันทึกเรื่องและตอนทั้งหมดลงคลังปลายทางก่อนเพื่อความปลอดภัยของข้อมูล
-                    await setDoc(doc(dstNovelsRef, novel.id), novelPayload, { merge: true });
-                    for (const ch of chaptersList) {
-                        await setDoc(doc(dstChaptersRef, ch.id), {
-                            id: ch.id,
-                            novelId: novel.id,
-                            number: Number(ch.number) || 1,
-                            title: ch.title || 'ไม่มีชื่อตอน',
-                            content: ch.content || '',
-                            updatedAt: ch.updatedAt || now
-                        }, { merge: true });
-                    }
-
-                    // 2. ลบข้อมูลออกจากคลังต้นทาง
-                    for (const ch of chaptersList) {
-                        await deleteDoc(doc(srcChaptersRef, ch.id));
-                    }
-                    await deleteDoc(doc(srcNovelsRef, novel.id));
-                } catch (err) {
-                    console.error('Move novel scope error:', err);
-                    showToast(`ย้ายคลังนิยายไม่สำเร็จ: ${err.message}`, 'error');
-                    return false;
-                }
-            } else {
-                const srcNMap = sourceScope === 'private' ? privateNovelsMap : publicNovelsMap;
-                const srcCMap = sourceScope === 'private' ? privateChaptersMap : publicChaptersMap;
-                const dstNMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
-                const dstCMap = targetScope === 'private' ? privateChaptersMap : publicChaptersMap;
-
-                dstNMap.set(novel.id, novelPayload);
-                for (const ch of chaptersList) {
-                    dstCMap.set(ch.id, { ...ch, novelId: novel.id });
-                    srcCMap.delete(ch.id);
-                }
-                srcNMap.delete(novel.id);
-                updateScopeCounts();
-            }
-
-            currentScope = targetScope;
-            switchLibraryScope(targetScope);
-            navigateTo('detail', novel.id);
-
-            const targetLabel = targetScope === 'private' ? 'คลังส่วนตัว' : 'คลังนิยายกลาง';
-            showToast(`ย้ายเรื่อง "${novelPayload.title}" ไปยัง${targetLabel}เรียบร้อยแล้ว (${chaptersList.length} ตอน)`, 'success');
-            return true;
-        }
-
-        function promptMoveNovelScope(novelId) {
-            const novel = getNovelById(novelId);
-            if (!novel) return;
-
-            const isCurrentlyPrivate = currentScope === 'private' && privateNovelsMap.has(novel.id);
-            const targetScope = isCurrentlyPrivate ? 'public' : 'private';
-            const targetName = targetScope === 'private' ? 'คลังส่วนตัว' : 'คลังนิยายกลาง';
-            const chapterCount = novel.chapters ? novel.chapters.length : 0;
-
-            openConfirmDialog(
-                `ย้ายไปยัง${targetName}`,
-                `ต้องการย้ายเรื่อง "${novel.title}" พร้อมเนื้อหาทั้งหมด ${chapterCount} ตอน ไปไว้ที่${targetName}ใช่หรือไม่?`,
-                async () => {
-                    await moveNovelScope(novel.id, targetScope);
-                }
-            );
-        }
-
         async function saveNovel(event) {
             event.preventDefault();
             const existingId = document.getElementById('novel-form-id').value.trim();
             const title = document.getElementById('novel-form-title').value.trim();
             const author = document.getElementById('novel-form-author').value.trim();
             const category = document.getElementById('novel-form-category').value;
-            const targetScope = document.getElementById('novel-form-scope').value || 'public';
+            const selectedTargetScope = document.getElementById('novel-form-scope').value || 'public';
             const coverTheme = document.getElementById('novel-form-cover').value || 'indigo';
             const synopsis = document.getElementById('novel-form-synopsis').value.trim();
 
@@ -2235,26 +3072,11 @@
                 return;
             }
 
-            // กรณีแก้ไขเรื่องเดิมและมีการเปลี่ยนคลังจัดเก็บ ให้ย้ายทั้งเรื่องและตอนทั้งหมด
-            if (existingId) {
-                const sourceScope = (currentScope === 'private' && privateNovelsMap.has(existingId)) ? 'private' : 'public';
-                if (sourceScope !== targetScope) {
-                    closeNovelModal();
-                    await moveNovelScope(existingId, targetScope, {
-                        title,
-                        author,
-                        category,
-                        coverTheme,
-                        synopsis
-                    });
-                    return;
-                }
-            }
-
             const now = Date.now();
             const novelId = existingId || `novel-${now}-${Math.random().toString(36).substring(2, 7)}`;
-            const targetMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
-            const prev = targetMap.get(novelId) || {};
+            const oldScope = existingId ? getNovelScope(existingId) : selectedTargetScope;
+            const targetMap = selectedTargetScope === 'private' ? privateNovelsMap : publicNovelsMap;
+            const prev = targetMap.get(novelId) || (oldScope === 'private' ? privateNovelsMap.get(novelId) : publicNovelsMap.get(novelId)) || {};
 
             const novelObj = {
                 id: novelId,
@@ -2268,55 +3090,60 @@
             };
 
             if (isFirebaseReady && db && currentUser) {
-                const novelsRef = targetScope === 'private'
-                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
-                    : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
+                const novelsRef = getNovelsCollectionRef(selectedTargetScope);
                 try {
                     await setDoc(doc(novelsRef, novelId), novelObj, { merge: true });
-                    showToast(existingId ? 'ซิงค์การแก้ไขข้อมูลเรื่องขึ้น Cloud แล้ว' : 'สร้างนิยายเรื่องใหม่บน Cloud สำเร็จ!', 'success');
+                    if (existingId && oldScope !== selectedTargetScope) {
+                        await moveNovelToScope(novelId, selectedTargetScope);
+                    } else {
+                        showToast(existingId ? 'บันทึกการแก้ไขข้อมูลเรื่องแล้ว' : 'สร้างนิยายเรื่องใหม่สำเร็จ!', 'success');
+                    }
                 } catch (e) {
-                    console.error('Save novel error:', e);
-                    showToast(`บันทึกขึ้น Cloud ไม่สำเร็จ: ${e.message}`, 'error');
+                    showToast(`บันทึกไม่สำเร็จ: ${e.message}`, 'error');
                     return;
                 }
             } else {
-                targetMap.set(novelId, novelObj);
-                updateScopeCounts();
-                refreshCurrentView();
-                showToast('บันทึกข้อมูลชั่วคราวแล้ว', 'warning');
+                if (existingId && oldScope !== selectedTargetScope) {
+                    const srcNMap = oldScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                    srcNMap.set(novelId, novelObj);
+                    await moveNovelToScope(novelId, selectedTargetScope);
+                } else {
+                    targetMap.set(novelId, novelObj);
+                    updateScopeCounts();
+                    switchLibraryScope(selectedTargetScope);
+                    showToast(existingId ? 'บันทึกการแก้ไขข้อมูลเรื่องแล้ว' : 'สร้างนิยายเรื่องใหม่สำเร็จ!', 'success');
+                }
             }
 
             closeNovelModal();
-            if (currentScope !== targetScope) {
-                switchLibraryScope(targetScope);
-            }
             if (!existingId) navigateTo('detail', novelId);
         }
 
         function confirmDeleteNovel(novelId) {
             const novel = getNovelById(novelId);
             if (!novel) return;
+            const scope = getNovelScope(novelId);
 
             openConfirmDialog(
                 'ยืนยันการลบนิยาย',
-                `คุณต้องการลบเรื่อง "${novel.title}" และตอนทั้งหมดในเรื่องนี้ใช่หรือไม่? (จะถูกลบออกจากทุกอุปกรณ์)`,
+                `คุณต้องการลบเรื่อง "${novel.title}" และตอนทั้งหมดในเรื่องนี้ใช่หรือไม่?`,
                 async () => {
                     if (isFirebaseReady && db && currentUser) {
-                        const novelsRef = getNovelsCollectionRef();
-                        const chaptersRef = getChaptersCollectionRef();
+                        const novelsRef = getNovelsCollectionRef(scope);
+                        const chaptersRef = getChaptersCollectionRef(scope);
                         try {
                             for (const ch of (novel.chapters || [])) {
                                 await deleteDoc(doc(chaptersRef, ch.id));
                             }
                             await deleteDoc(doc(novelsRef, novelId));
-                            showToast('ลบนิยายออกจาก Cloud เรียบร้อยแล้ว', 'success');
+                            showToast('ลบนิยายเรียบร้อยแล้ว', 'success');
                         } catch (e) {
                             showToast(`ลบไม่สำเร็จ: ${e.message}`, 'error');
                             return;
                         }
                     } else {
-                        const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
-                        const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+                        const nMap = scope === 'private' ? privateNovelsMap : publicNovelsMap;
+                        const cMap = scope === 'private' ? privateChaptersMap : publicChaptersMap;
                         for (const ch of (novel.chapters || [])) cMap.delete(ch.id);
                         nMap.delete(novelId);
                         updateScopeCounts();
@@ -2329,7 +3156,7 @@
         }
 
         // ---------------------------------------------------------
-        // 11. CHAPTER EDITOR (CREATE / EDIT / AUTOSAVE / DELETE)
+        // 12. CHAPTER EDITOR & BULK IMPORTER
         // ---------------------------------------------------------
         async function openChapterEditor(chapterId = null) {
             const novel = getNovelById(window.currentNovelId);
@@ -2394,10 +3221,6 @@
                     content: document.getElementById('chapter-form-content').value
                 });
             }
-            const statusEl = document.getElementById('editor-autosave-status');
-            if (statusEl) {
-                statusEl.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-indigo-500 mr-1"></i> กดปุ่ม "เผยแพร่ / บันทึกตอน" เพื่อซิงค์ขึ้น Cloud`;
-            }
         }
 
         async function saveChapter() {
@@ -2414,21 +3237,21 @@
             }
 
             const now = Date.now();
+            const scope = getNovelScope(novel.id);
             const chapterId = editingChapterId || `ch-${novel.id}-${now}-${Math.random().toString(36).substring(2, 6)}`;
-            const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
-            const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+            const nMap = scope === 'private' ? privateNovelsMap : publicNovelsMap;
+            const cMap = scope === 'private' ? privateChaptersMap : publicChaptersMap;
             const chapterObj = { id: chapterId, novelId: novel.id, number, title, content, updatedAt: now };
 
             if (isFirebaseReady && db && currentUser) {
-                const chaptersRef = getChaptersCollectionRef();
-                const novelsRef = getNovelsCollectionRef();
+                const chaptersRef = getChaptersCollectionRef(scope);
+                const novelsRef = getNovelsCollectionRef(scope);
                 try {
                     await setDoc(doc(chaptersRef, chapterId), chapterObj);
                     await setDoc(doc(novelsRef, novel.id), { updatedAt: now }, { merge: true });
-                    showToast(`ซิงค์ตอนที่ ${number} ขึ้น Cloud เรียบร้อย! เปิดอ่านในมือถือได้ทันที`, 'success');
+                    showToast(`บันทึกตอนที่ ${number} เรียบร้อย!`, 'success');
                 } catch (e) {
-                    console.error('Save chapter error:', e);
-                    showToast(`บันทึกขึ้น Cloud ไม่สำเร็จ: ${e.message}`, 'error');
+                    showToast(`บันทึกไม่สำเร็จ: ${e.message}`, 'error');
                     return;
                 }
             } else {
@@ -2436,7 +3259,7 @@
                 const existingN = nMap.get(novel.id);
                 if (existingN) nMap.set(novel.id, { ...existingN, updatedAt: now });
                 refreshCurrentView();
-                showToast('บันทึกชั่วคราวแล้ว', 'warning');
+                showToast(`บันทึกตอนที่ ${number} เรียบร้อย!`, 'success');
             }
 
             inMemoryDraftsMap.delete(novel.id);
@@ -2448,21 +3271,22 @@
             if (!novel) return;
             const chapter = (novel.chapters || []).find(c => c.id === chapterId);
             if (!chapter) return;
+            const scope = getNovelScope(novel.id);
 
             openConfirmDialog(
                 'ยืนยันการลบตอนนิยาย',
                 `คุณต้องการลบ "ตอนที่ ${chapter.number}: ${chapter.title}" ใช่หรือไม่?`,
                 async () => {
                     if (isFirebaseReady && db && currentUser) {
-                        const chaptersRef = getChaptersCollectionRef();
+                        const chaptersRef = getChaptersCollectionRef(scope);
                         try {
                             await deleteDoc(doc(chaptersRef, chapterId));
-                            showToast('ลบตอนนิยายออกจาก Cloud เรียบร้อยแล้ว', 'success');
+                            showToast('ลบตอนนิยายเรียบร้อยแล้ว', 'success');
                         } catch (e) {
                             showToast(`ลบไม่สำเร็จ: ${e.message}`, 'error');
                         }
                     } else {
-                        const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+                        const cMap = scope === 'private' ? privateChaptersMap : publicChaptersMap;
                         cMap.delete(chapterId);
                         refreshCurrentView();
                         showToast('ลบตอนนิยายเรียบร้อยแล้ว', 'success');
@@ -2471,9 +3295,6 @@
             );
         }
 
-        // ---------------------------------------------------------
-        // 12. BULK CHAPTER IMPORTER
-        // ---------------------------------------------------------
         function openBulkImportModal() {
             const textarea = document.getElementById('bulk-import-textarea');
             const preview = document.getElementById('bulk-preview-count');
@@ -2523,9 +3344,7 @@
             const raw = document.getElementById('bulk-import-textarea')?.value || '';
             const parsed = parseBulkChaptersText(raw);
             const preview = document.getElementById('bulk-preview-count');
-            if (preview) {
-                preview.textContent = `ตรวจพบ ${parsed.length} ตอน`;
-            }
+            if (preview) preview.textContent = `ตรวจพบ ${parsed.length} ตอน`;
         }
 
         async function executeBulkImport() {
@@ -2541,24 +3360,23 @@
             }
 
             const now = Date.now();
-            const nMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
-            const cMap = currentScope === 'private' ? privateChaptersMap : publicChaptersMap;
+            const scope = getNovelScope(novel.id);
+            const nMap = scope === 'private' ? privateNovelsMap : publicNovelsMap;
+            const cMap = scope === 'private' ? privateChaptersMap : publicChaptersMap;
 
             if (isFirebaseReady && db && currentUser) {
-                const chaptersRef = getChaptersCollectionRef();
-                const novelsRef = getNovelsCollectionRef();
-                showToast(`กำลังอัปโหลด ${parsed.length} ตอนขึ้น Cloud...`, 'info');
+                const chaptersRef = getChaptersCollectionRef(scope);
+                const novelsRef = getNovelsCollectionRef(scope);
                 try {
                     for (let i = 0; i < parsed.length; i++) {
                         const ch = parsed[i];
                         const chId = `ch-${novel.id}-${now}-${i}-${Math.random().toString(36).substring(2, 5)}`;
-                        const chObj = { id: chId, novelId: novel.id, number: ch.number, title: ch.title, content: ch.content, updatedAt: now + i };
-                        await setDoc(doc(chaptersRef, chId), chObj);
+                        await setDoc(doc(chaptersRef, chId), { id: chId, novelId: novel.id, number: ch.number, title: ch.title, content: ch.content, updatedAt: now + i });
                     }
                     await setDoc(doc(novelsRef, novel.id), { updatedAt: now }, { merge: true });
-                    showToast(`นำเข้าและซิงค์ขึ้น Cloud สำเร็จทั้งหมด ${parsed.length} ตอน!`, 'success');
+                    showToast(`นำเข้าสำเร็จทั้งหมด ${parsed.length} ตอน!`, 'success');
                 } catch (e) {
-                    showToast(`เกิดข้อผิดพลาดในการอัปโหลด: ${e.message}`, 'error');
+                    showToast(`เกิดข้อผิดพลาด: ${e.message}`, 'error');
                     return;
                 }
             } else {
@@ -2576,7 +3394,7 @@
         }
 
         // ---------------------------------------------------------
-        // 13. BACKUP / RESTORE (JSON) & CLOUD SCANNER
+        // 13. BACKUP / RESTORE (JSON), SCANNER & THEME
         // ---------------------------------------------------------
         function toggleBackupMenu() {
             const dropdown = document.getElementById('backup-dropdown');
@@ -2630,16 +3448,12 @@
 
                     const now = Date.now();
                     const targetScope = currentScope === 'gdrive' ? 'private' : currentScope;
+                    const nMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                    const cMap = targetScope === 'private' ? privateChaptersMap : publicChaptersMap;
 
                     if (isFirebaseReady && db && currentUser) {
-                        const novelsRef = targetScope === 'private'
-                            ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
-                            : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
-                        const chaptersRef = targetScope === 'private'
-                            ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters')
-                            : collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
-
-                        showToast(`กำลังอัปโหลด ${novelsList.length} เรื่องขึ้น Cloud...`, 'info');
+                        const novelsRef = getNovelsCollectionRef(targetScope);
+                        const chaptersRef = getChaptersCollectionRef(targetScope);
                         for (const novel of novelsList) {
                             const nId = novel.id || `novel-${now}-${Math.random().toString(36).substring(2, 6)}`;
                             await setDoc(doc(novelsRef, nId), {
@@ -2668,8 +3482,6 @@
                             }
                         }
                     } else {
-                        const nMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
-                        const cMap = targetScope === 'private' ? privateChaptersMap : publicChaptersMap;
                         for (const novel of novelsList) {
                             const nId = novel.id || `novel-${now}-${Math.random().toString(36).substring(2, 6)}`;
                             nMap.set(nId, {
@@ -2699,14 +3511,9 @@
                     }
 
                     updateScopeCounts();
-                    if (currentScope === 'gdrive') {
-                        switchLibraryScope('private');
-                    } else {
-                        refreshCurrentView();
-                    }
-                    showToast(`นำเข้าและซิงค์ข้อมูลสำเร็จ ${novelsList.length} เรื่อง`, 'success');
+                    refreshCurrentView();
+                    showToast(`นำเข้าข้อมูลสำเร็จ ${novelsList.length} เรื่อง`, 'success');
                 } catch (err) {
-                    console.error('Import JSON error:', err);
                     showToast('ไม่สามารถอ่านไฟล์ JSON ได้', 'error');
                 } finally {
                     event.target.value = '';
@@ -2738,11 +3545,6 @@
                         <div class="text-base font-bold">${privateNovelsMap.size} เรื่อง / ${privateChaptersMap.size} ตอน</div>
                     </div>
                 </div>
-                <div class="text-xs text-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl">
-                    ${isFirebaseReady
-                        ? '<i class="fa-solid fa-cloud-check text-emerald-500 mr-1"></i> เชื่อมต่อ <strong>Cloud Firestore (readwrite-thai)</strong> เรียบร้อยแล้ว ข้อมูลทั้งหมดซิงค์ข้ามอุปกรณ์แบบเรียลไทม์'
-                        : '<i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> ยังไม่ได้เชื่อมต่อ Firebase'}
-                </div>
             `;
         }
 
@@ -2750,72 +3552,6 @@
             document.getElementById('recovery-modal').classList.add('hidden');
         }
 
-        // ---------------------------------------------------------
-        // 14. ACCOUNT & AUTHENTICATION MODAL
-        // ---------------------------------------------------------
-        function openAccountModal() {
-            updateAccountUI();
-            document.getElementById('account-modal').classList.remove('hidden');
-        }
-
-        function closeAccountModal() {
-            document.getElementById('account-modal').classList.add('hidden');
-        }
-
-        function setAuthMode(mode) {
-            authMode = mode;
-        }
-
-        async function handleEmailAuth(event) {
-            event.preventDefault();
-            if (!isFirebaseReady || !auth) {
-                showToast('ยังไม่สามารถเชื่อมต่อระบบบัญชีได้', 'warning');
-                closeAccountModal();
-                return;
-            }
-            const email = document.getElementById('auth-email-input').value.trim();
-            const password = document.getElementById('auth-password-input').value;
-
-            if (!email || !password) return;
-
-            try {
-                if (authMode === 'register') {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    showToast('สมัครบัญชีและเข้าสู่ระบบสำเร็จ!', 'success');
-                } else {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showToast('เข้าสู่ระบบสำเร็จ!', 'success');
-                }
-                closeAccountModal();
-            } catch (error) {
-                showToast(`เกิดข้อผิดพลาด: ${error.message}`, 'error');
-            }
-        }
-
-        async function handleSignOut() {
-            if (!auth) return;
-            try {
-                await signOut(auth);
-                await signInAnonymously(auth);
-                showToast('ออกจากระบบบัญชีอีเมลแล้ว', 'info');
-                closeAccountModal();
-            } catch (error) {}
-        }
-
-        function copyUserId() {
-            const uid = currentUser?.uid || 'not-connected';
-            const temp = document.createElement('textarea');
-            temp.value = uid;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            temp.remove();
-            showToast('คัดลอกรหัสผู้ใช้งานเรียบร้อยแล้ว', 'success');
-        }
-
-        // ---------------------------------------------------------
-        // 15. APP THEME & CUSTOM CONFIRM DIALOG
-        // ---------------------------------------------------------
         function cycleAppTheme() {
             const html = document.documentElement;
             const isDark = html.classList.toggle('dark');
@@ -2849,20 +3585,16 @@
         }
 
         // ---------------------------------------------------------
-        // 16. GOOGLE DRIVE / GOOGLE APPS SCRIPT INTEGRATION
+        // 14. GOOGLE DRIVE / GOOGLE APPS SCRIPT INTEGRATION
         // ---------------------------------------------------------
         function openGDriveModal() {
             const modal = document.getElementById('gdrive-modal');
             const input = document.getElementById('gdrive-url-input');
-            const codeSection = document.getElementById('gas-code-section');
             const codeEl = document.getElementById('gas-code-display');
             const statusEl = document.getElementById('gdrive-connection-status');
             const disconnectBtn = document.getElementById('gdrive-disconnect-btn');
 
             if (input) input.value = gdriveWebAppUrl;
-            if (codeSection) {
-                codeSection.classList.toggle('hidden', !GAS_SOURCE_CODE);
-            }
             if (codeEl) codeEl.textContent = GAS_SOURCE_CODE;
 
             if (gdriveWebAppUrl) {
@@ -2887,17 +3619,13 @@
         }
 
         function copyGasCode() {
-            if (!GAS_SOURCE_CODE) {
-                showToast('ไม่มีโค้ดสำหรับคัดลอก กรุณาวางลิงก์ Web App URL ด้านบนได้เลย', 'info');
-                return;
-            }
             const temp = document.createElement('textarea');
             temp.value = GAS_SOURCE_CODE;
             document.body.appendChild(temp);
             temp.select();
             document.execCommand('copy');
             temp.remove();
-            showToast('คัดลอกโค้ด Google Apps Script ฉบับสมบูรณ์เรียบร้อยแล้ว!', 'success');
+            showToast('คัดลอกโค้ด Google Apps Script เรียบร้อยแล้ว!', 'success');
         }
 
         async function saveAndConnectGDrive() {
@@ -2905,10 +3633,6 @@
             const url = (input?.value || '').trim();
             if (!url || !url.startsWith('http')) {
                 showToast('กรุณาวางลิงก์ Web App URL ที่ขึ้นต้นด้วย https://', 'warning');
-                return;
-            }
-            if (url.includes('drive.google.com')) {
-                showToast('ลิงก์นี้เป็นลิงก์ Google Drive กรุณาวาง Web App URL จาก Apps Script (ลงท้ายด้วย /exec)', 'warning');
                 return;
             }
             gdriveWebAppUrl = url;
@@ -2946,7 +3670,6 @@
                     return res.json();
                 })
                 .catch(() => {
-                    // Fallback JSONP กรณีรันใน Sandbox iframe ที่บล็อก CORS redirect ของ Google
                     return new Promise((resolve, reject) => {
                         const cbName = `__gas_cb_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
                         const jsonpUrl = new URL(urlObj.toString());
@@ -2955,7 +3678,7 @@
                         const script = document.createElement('script');
                         const timeoutId = setTimeout(() => {
                             cleanup();
-                            reject(new Error('หมดเวลาเชื่อมต่อ กรุณาตรวจสอบว่าตั้งค่า "Who has access: Anyone" ใน Apps Script แล้ว'));
+                            reject(new Error('หมดเวลาเชื่อมต่อ กรุณาตรวจสอบสิทธิ์ "Anyone" ใน Apps Script'));
                         }, 15000);
 
                         function cleanup() {
@@ -2971,7 +3694,7 @@
 
                         script.onerror = () => {
                             cleanup();
-                            reject(new Error('โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบ URL และสิทธิ์การเข้าถึงเป็น "Anyone (ทุกคน)"'));
+                            reject(new Error('โหลดข้อมูลไม่สำเร็จ'));
                         };
 
                         script.src = jsonpUrl.toString();
@@ -2990,7 +3713,6 @@
 
             try {
                 const data = await callGDriveWebApp({ action: 'list' });
-
                 if (data.status !== 'success' || !Array.isArray(data.novels)) {
                     throw new Error(data.message || 'รูปแบบข้อมูลจาก Apps Script ไม่ถูกต้อง');
                 }
@@ -3012,7 +3734,6 @@
                     refreshCurrentView();
                 }
             } catch (error) {
-                console.error('Google Drive sync error:', error);
                 if (!silent) {
                     showToast(`เชื่อมต่อ Google Drive ไม่สำเร็จ: ${error.message}`, 'error');
                 }
@@ -3020,11 +3741,12 @@
         }
 
         // ---------------------------------------------------------
-        // 17. EXPOSE FUNCTIONS GLOBALLY & BOOTSTRAP
+        // 15. EXPOSE FUNCTIONS GLOBALLY & BOOTSTRAP
         // ---------------------------------------------------------
         Object.assign(window, {
             navigateTo,
             switchLibraryScope,
+            toggleMoveNovelScope,
             selectCategoryFilter,
             clearLibrarySearch,
             renderLibrary,
@@ -3036,9 +3758,6 @@
             changeFontSize,
             navigateChapter,
             selectCoverTheme,
-            selectNovelFormScope,
-            moveNovelScope,
-            promptMoveNovelScope,
             openNovelModal,
             closeNovelModal,
             saveNovel,
@@ -3058,11 +3777,18 @@
             openRecoveryModal,
             closeRecoveryModal,
             seedDemoDataToCloud,
+            switchGateTab,
+            handleGateAuthSubmit,
+            handleLogout,
+            claimOwnershipWithKey,
+            openOwnerDashboard,
+            closeOwnerDashboard,
+            switchOwnerTab,
+            updateUserApprovalStatus,
+            approveAllPendingUsers,
+            saveOwnerMasterKey,
             openAccountModal,
             closeAccountModal,
-            setAuthMode,
-            handleEmailAuth,
-            handleSignOut,
             copyUserId,
             cycleAppTheme,
             closeConfirmModal,
@@ -3074,7 +3800,6 @@
             syncFromGoogleDrive
         });
 
-        // เริ่มต้นเชื่อมต่อ Cloud Firestore ทันทีที่เปิดหน้าเว็บ
         initAuth();
     </script>
 </body>
