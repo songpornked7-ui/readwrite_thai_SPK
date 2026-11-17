@@ -334,6 +334,10 @@
                             <i class="fa-solid fa-book-open"></i>
                             <span>เริ่มอ่านตอนแรก</span>
                         </button>
+                        <button id="detail-move-scope-btn" onclick="promptMoveNovelScope(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/60 text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-right-left"></i>
+                            <span id="detail-move-scope-label">ย้ายคลังนิยาย</span>
+                        </button>
                         <button id="detail-edit-novel-btn" onclick="openNovelModal(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors flex items-center gap-2">
                             <i class="fa-solid fa-pen"></i>
                             <span>แก้ไขข้อมูลเรื่อง</span>
@@ -555,6 +559,23 @@
                             <option value="ดราม่า / สะท้อนสังคม">ดราม่า / สะท้อนสังคม</option>
                             <option value="วาย (BL) / ยูริ (GL)">วาย (BL) / ยูริ (GL)</option>
                         </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">ตำแหน่งคลังที่จัดเก็บ</label>
+                    <input type="hidden" id="novel-form-scope" value="public">
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button type="button" id="form-scope-opt-public" onclick="selectNovelFormScope('public')"
+                            class="py-2.5 px-3 rounded-2xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all bg-indigo-600 text-white border-indigo-600 shadow-xs">
+                            <i class="fa-solid fa-globe"></i>
+                            <span>คลังนิยายกลาง</span>
+                        </button>
+                        <button type="button" id="form-scope-opt-private" onclick="selectNovelFormScope('private')"
+                            class="py-2.5 px-3 rounded-2xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700">
+                            <i class="fa-solid fa-lock"></i>
+                            <span>คลังส่วนตัว</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1702,11 +1723,22 @@
             document.getElementById('detail-synopsis').textContent = novel.synopsis || 'ยังไม่มีรายละเอียดเรื่องย่อ';
 
             const isGDrive = currentScope === 'gdrive';
+            const isPrivateNovel = privateNovelsMap.has(novel.id) && currentScope === 'private';
+            const moveScopeBtn = document.getElementById('detail-move-scope-btn');
+            const moveScopeLabel = document.getElementById('detail-move-scope-label');
             const editNovelBtn = document.getElementById('detail-edit-novel-btn');
             const deleteNovelBtn = document.getElementById('detail-delete-novel-btn');
             const writerActions = document.getElementById('detail-writer-actions');
             const gdriveBadge = document.getElementById('detail-gdrive-badge');
 
+            if (moveScopeBtn) {
+                moveScopeBtn.classList.toggle('hidden', isGDrive);
+                if (moveScopeLabel) {
+                    moveScopeLabel.innerHTML = isPrivateNovel
+                        ? 'ย้ายไปคลังส่วนกลาง'
+                        : 'ย้ายไปคลังส่วนตัว';
+                }
+            }
             if (editNovelBtn) editNovelBtn.classList.toggle('hidden', isGDrive);
             if (deleteNovelBtn) deleteNovelBtn.classList.toggle('hidden', isGDrive);
             if (writerActions) writerActions.classList.toggle('hidden', isGDrive);
@@ -2016,6 +2048,30 @@
             renderCoverThemeSwatches(key);
         }
 
+        function selectNovelFormScope(scope) {
+            const hiddenInput = document.getElementById('novel-form-scope');
+            const btnPub = document.getElementById('form-scope-opt-public');
+            const btnPriv = document.getElementById('form-scope-opt-private');
+            if (hiddenInput) hiddenInput.value = scope;
+
+            const activeCls = ['bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-xs'];
+            const inactiveCls = ['bg-slate-50', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-700'];
+
+            if (btnPub && btnPriv) {
+                if (scope === 'public') {
+                    btnPub.classList.add(...activeCls);
+                    btnPub.classList.remove(...inactiveCls);
+                    btnPriv.classList.remove(...activeCls);
+                    btnPriv.classList.add(...inactiveCls);
+                } else {
+                    btnPriv.classList.add(...activeCls);
+                    btnPriv.classList.remove(...inactiveCls);
+                    btnPub.classList.remove(...activeCls);
+                    btnPub.classList.add(...inactiveCls);
+                }
+            }
+        }
+
         function openNovelModal(novelId = null) {
             if (currentScope === 'gdrive') {
                 switchLibraryScope('private');
@@ -2031,20 +2087,24 @@
             if (novelId) {
                 const novel = getNovelById(novelId);
                 if (!novel) return;
+                const sourceScope = (currentScope === 'private' && privateNovelsMap.has(novel.id)) ? 'private' : 'public';
                 heading.innerHTML = `<i class="fa-solid fa-pen-to-square text-indigo-500"></i><span>แก้ไขข้อมูลนิยาย</span>`;
                 idInput.value = novel.id;
                 titleInput.value = novel.title || '';
                 authorInput.value = novel.author || '';
                 categoryInput.value = novel.category || 'โรแมนติก';
                 synopsisInput.value = novel.synopsis || '';
+                selectNovelFormScope(sourceScope);
                 selectCoverTheme(novel.coverTheme || 'indigo');
             } else {
-                heading.innerHTML = `<i class="fa-solid fa-book-medical text-indigo-500"></i><span>สร้างเรื่องนิยายใหม่ (${currentScope === 'private' ? 'คลังส่วนตัว' : 'คลังนิยายกลาง'})</span>`;
+                const defaultScope = currentScope === 'private' ? 'private' : 'public';
+                heading.innerHTML = `<i class="fa-solid fa-book-medical text-indigo-500"></i><span>สร้างเรื่องนิยายใหม่</span>`;
                 idInput.value = '';
                 titleInput.value = '';
                 authorInput.value = '';
                 categoryInput.value = 'โรแมนติก';
                 synopsisInput.value = '';
+                selectNovelFormScope(defaultScope);
                 selectCoverTheme('indigo');
             }
 
@@ -2055,12 +2115,118 @@
             document.getElementById('novel-modal').classList.add('hidden');
         }
 
+        async function moveNovelScope(novelId, targetScope, overrideMetadata = null) {
+            const sourceScope = (currentScope === 'private' && privateNovelsMap.has(novelId))
+                ? 'private'
+                : (publicNovelsMap.has(novelId) ? 'public' : 'private');
+
+            if (sourceScope === targetScope) return false;
+
+            const novel = getNovelById(novelId);
+            if (!novel) return false;
+
+            const now = Date.now();
+            const novelPayload = {
+                id: novel.id,
+                title: overrideMetadata?.title ?? novel.title,
+                author: overrideMetadata?.author ?? novel.author,
+                category: overrideMetadata?.category ?? novel.category,
+                coverTheme: overrideMetadata?.coverTheme ?? novel.coverTheme ?? 'indigo',
+                synopsis: overrideMetadata?.synopsis ?? novel.synopsis ?? '',
+                createdAt: novel.createdAt || now,
+                updatedAt: now
+            };
+
+            const chaptersList = [...(novel.chapters || [])];
+
+            if (isFirebaseReady && db && currentUser) {
+                const srcNovelsRef = sourceScope === 'private'
+                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
+                    : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
+                const srcChaptersRef = sourceScope === 'private'
+                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters')
+                    : collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
+
+                const dstNovelsRef = targetScope === 'private'
+                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
+                    : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
+                const dstChaptersRef = targetScope === 'private'
+                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'chapters')
+                    : collection(db, 'artifacts', appId, 'public', 'data', 'chapters');
+
+                try {
+                    // 1. บันทึกเรื่องและตอนทั้งหมดลงคลังปลายทางก่อนเพื่อความปลอดภัยของข้อมูล
+                    await setDoc(doc(dstNovelsRef, novel.id), novelPayload, { merge: true });
+                    for (const ch of chaptersList) {
+                        await setDoc(doc(dstChaptersRef, ch.id), {
+                            id: ch.id,
+                            novelId: novel.id,
+                            number: Number(ch.number) || 1,
+                            title: ch.title || 'ไม่มีชื่อตอน',
+                            content: ch.content || '',
+                            updatedAt: ch.updatedAt || now
+                        }, { merge: true });
+                    }
+
+                    // 2. ลบข้อมูลออกจากคลังต้นทาง
+                    for (const ch of chaptersList) {
+                        await deleteDoc(doc(srcChaptersRef, ch.id));
+                    }
+                    await deleteDoc(doc(srcNovelsRef, novel.id));
+                } catch (err) {
+                    console.error('Move novel scope error:', err);
+                    showToast(`ย้ายคลังนิยายไม่สำเร็จ: ${err.message}`, 'error');
+                    return false;
+                }
+            } else {
+                const srcNMap = sourceScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                const srcCMap = sourceScope === 'private' ? privateChaptersMap : publicChaptersMap;
+                const dstNMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
+                const dstCMap = targetScope === 'private' ? privateChaptersMap : publicChaptersMap;
+
+                dstNMap.set(novel.id, novelPayload);
+                for (const ch of chaptersList) {
+                    dstCMap.set(ch.id, { ...ch, novelId: novel.id });
+                    srcCMap.delete(ch.id);
+                }
+                srcNMap.delete(novel.id);
+                updateScopeCounts();
+            }
+
+            currentScope = targetScope;
+            switchLibraryScope(targetScope);
+            navigateTo('detail', novel.id);
+
+            const targetLabel = targetScope === 'private' ? 'คลังส่วนตัว' : 'คลังนิยายกลาง';
+            showToast(`ย้ายเรื่อง "${novelPayload.title}" ไปยัง${targetLabel}เรียบร้อยแล้ว (${chaptersList.length} ตอน)`, 'success');
+            return true;
+        }
+
+        function promptMoveNovelScope(novelId) {
+            const novel = getNovelById(novelId);
+            if (!novel) return;
+
+            const isCurrentlyPrivate = currentScope === 'private' && privateNovelsMap.has(novel.id);
+            const targetScope = isCurrentlyPrivate ? 'public' : 'private';
+            const targetName = targetScope === 'private' ? 'คลังส่วนตัว' : 'คลังนิยายกลาง';
+            const chapterCount = novel.chapters ? novel.chapters.length : 0;
+
+            openConfirmDialog(
+                `ย้ายไปยัง${targetName}`,
+                `ต้องการย้ายเรื่อง "${novel.title}" พร้อมเนื้อหาทั้งหมด ${chapterCount} ตอน ไปไว้ที่${targetName}ใช่หรือไม่?`,
+                async () => {
+                    await moveNovelScope(novel.id, targetScope);
+                }
+            );
+        }
+
         async function saveNovel(event) {
             event.preventDefault();
             const existingId = document.getElementById('novel-form-id').value.trim();
             const title = document.getElementById('novel-form-title').value.trim();
             const author = document.getElementById('novel-form-author').value.trim();
             const category = document.getElementById('novel-form-category').value;
+            const targetScope = document.getElementById('novel-form-scope').value || 'public';
             const coverTheme = document.getElementById('novel-form-cover').value || 'indigo';
             const synopsis = document.getElementById('novel-form-synopsis').value.trim();
 
@@ -2069,9 +2235,25 @@
                 return;
             }
 
+            // กรณีแก้ไขเรื่องเดิมและมีการเปลี่ยนคลังจัดเก็บ ให้ย้ายทั้งเรื่องและตอนทั้งหมด
+            if (existingId) {
+                const sourceScope = (currentScope === 'private' && privateNovelsMap.has(existingId)) ? 'private' : 'public';
+                if (sourceScope !== targetScope) {
+                    closeNovelModal();
+                    await moveNovelScope(existingId, targetScope, {
+                        title,
+                        author,
+                        category,
+                        coverTheme,
+                        synopsis
+                    });
+                    return;
+                }
+            }
+
             const now = Date.now();
             const novelId = existingId || `novel-${now}-${Math.random().toString(36).substring(2, 7)}`;
-            const targetMap = currentScope === 'private' ? privateNovelsMap : publicNovelsMap;
+            const targetMap = targetScope === 'private' ? privateNovelsMap : publicNovelsMap;
             const prev = targetMap.get(novelId) || {};
 
             const novelObj = {
@@ -2086,7 +2268,9 @@
             };
 
             if (isFirebaseReady && db && currentUser) {
-                const novelsRef = getNovelsCollectionRef();
+                const novelsRef = targetScope === 'private'
+                    ? collection(db, 'artifacts', appId, 'users', currentUser.uid, 'novels')
+                    : collection(db, 'artifacts', appId, 'public', 'data', 'novels');
                 try {
                     await setDoc(doc(novelsRef, novelId), novelObj, { merge: true });
                     showToast(existingId ? 'ซิงค์การแก้ไขข้อมูลเรื่องขึ้น Cloud แล้ว' : 'สร้างนิยายเรื่องใหม่บน Cloud สำเร็จ!', 'success');
@@ -2103,6 +2287,9 @@
             }
 
             closeNovelModal();
+            if (currentScope !== targetScope) {
+                switchLibraryScope(targetScope);
+            }
             if (!existingId) navigateTo('detail', novelId);
         }
 
@@ -2849,6 +3036,9 @@
             changeFontSize,
             navigateChapter,
             selectCoverTheme,
+            selectNovelFormScope,
+            moveNovelScope,
+            promptMoveNovelScope,
             openNovelModal,
             closeNovelModal,
             saveNovel,
