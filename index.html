@@ -202,7 +202,7 @@
                     ค้นพบเรื่องราวใหม่ หรือซิงค์นิยายจาก Google Drive
                 </h1>
                 <p class="text-indigo-100 text-xs sm:text-sm mb-5">
-                    อ่านสบายตา ปรับฟอนต์และธีมได้ตามใจ พร้อมระบบดึงตอนนิยายอัตโนมัติจากโฟลเดอร์ Google Docs และบันทึกข้อมูลในเครื่องปลอดภัย 100%
+                    อ่านสบายตา ปรับฟอนต์และธีมได้ตามใจ พร้อมระบบดึงตอนนิยายอัตโนมัติจากโฟลเดอร์ Google Docs และบันทึกข้อมูลบน Cloud ข้ามอุปกรณ์
                 </p>
 
                 <!-- Search Input -->
@@ -797,7 +797,7 @@
                 </div>
 
                 <!-- Copyable Google Apps Script Code -->
-                <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80">
+                <div id="gas-code-section" class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/80">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                             <i class="fa-solid fa-code text-indigo-500"></i>
@@ -847,7 +847,7 @@
         } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
         // =========================================================
-        // ★ วางค่า FIREBASE CONFIG ของคุณตรงนี้ (สำหรับ GitHub Pages) ★
+        // ★ ค่า FIREBASE CONFIG ของคุณ (สำหรับ GitHub Pages / Cloud) ★
         // =========================================================
         const MY_FIREBASE_CONFIG = {
             apiKey: "AIzaSyAsw9aIyoxBM8ZF2sw0ZIzJ-L3zrpVfA9c",
@@ -855,9 +855,12 @@
             projectId: "readwrite-thai",
             storageBucket: "readwrite-thai.firebasestorage.app",
             messagingSenderId: "633260979367",
-            appId: "1:633260979367:web:35055eeb7bbc89657c5782"
+            appId: "1:633260979367:web:35055eeb7bbc89657c5782",
             measurementId: "G-8VCH0QLLTK"
         };
+
+        // ประกาศตัวแปรโค้ด Google Apps Script เป็นค่าว่างเพื่อป้องกัน ReferenceError
+        const GAS_SOURCE_CODE = '';
 
         // ---------------------------------------------------------
         // 1. COVER THEMES & INITIAL SEED NOVELS
@@ -974,7 +977,7 @@
             lineHeight: '1.95'
         };
 
-        // ตรวจสอบว่าผู้ใช้ใส่ค่า firebaseConfig จริงแล้วหรือยัง
+        // ตรวจสอบและดึงค่า Firebase Config
         function resolveFirebaseConfig() {
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                 try {
@@ -993,7 +996,7 @@
             return null;
         }
 
-        // โหลดนิยายตั้งต้นเข้าหน่วยความจำชั่วคราว กรณียังไม่ได้ใส่ค่า Firebase Config
+        // โหลดนิยายตั้งต้นเข้าหน่วยความจำชั่วคราว กรณีเชื่อมต่อ Firebase ไม่ได้
         function loadFallbackDemoDataInMemory() {
             const now = Date.now();
             DEFAULT_NOVELS.forEach((item, idx) => {
@@ -1054,7 +1057,6 @@
         function estimateWordCount(text) {
             if (!text || !text.trim()) return 0;
             const cleaned = text.trim();
-            // Count space-separated tokens + approximate Thai syllables/words by character length
             const spaceTokens = cleaned.split(/\s+/).filter(Boolean).length;
             const thaiChars = (cleaned.match(/[\u0E00-\u0E7F]/g) || []).length;
             return Math.max(spaceTokens, Math.round(thaiChars / 4.2));
@@ -1121,7 +1123,7 @@
             }
             if (statusEl) {
                 if (!isFirebaseReady) {
-                    statusEl.textContent = 'ยังไม่ได้ใส่ค่า firebaseConfig (โหมดทดลอง)';
+                    statusEl.textContent = 'ยังไม่ได้เชื่อมต่อ Cloud (โหมดทดลอง)';
                     statusEl.className = 'font-bold text-amber-500';
                 } else if (isEmailUser) {
                     statusEl.textContent = `ซิงค์ Cloud แล้ว (${currentUser.email})`;
@@ -1214,7 +1216,6 @@
                     }
                 });
 
-                // ถ้านี่เป็นครั้งแรกที่เปิดฐานข้อมูลบน Cloud และยังไม่มีเรื่องเลย ให้เพิ่มนิยายตัวอย่างให้อัตโนมัติ
                 if (!hasCheckedInitialSeed) {
                     hasCheckedInitialSeed = true;
                     if (snap.empty) {
@@ -1229,6 +1230,8 @@
                 refreshCurrentView();
             }, (err) => {
                 console.error('Public novels sync error:', err);
+                const loadingEl = document.getElementById('library-loading-state');
+                if (loadingEl) loadingEl.classList.add('hidden');
                 showToast('ไม่สามารถดึงข้อมูลจาก Cloud ได้ กรุณาตรวจสอบ Firestore Rules', 'error');
             });
 
@@ -1859,7 +1862,6 @@
             const bodyEl = document.getElementById('reader-content-body');
             let contentText = chapter.content || '';
 
-            // Fetch chapter content on-demand from Google Docs when opened
             if (currentScope === 'gdrive' && chapter.fileId && !gdriveChapterCache.has(chapter.fileId)) {
                 document.getElementById('reader-wordcount-meta').innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังโหลดจาก Google Docs...`;
                 bodyEl.innerHTML = `
@@ -1885,7 +1887,6 @@
 
             document.getElementById('reader-wordcount-meta').innerHTML = `<i class="fa-regular fa-file-lines mr-1"></i> ~${estimateWordCount(contentText).toLocaleString()} คำ`;
 
-            // Preserve paragraphs, empty blank lines (scene breaks), and leading spaces from Google Docs
             const rawLines = contentText.split(/\r?\n/);
             const hasContent = rawLines.some(line => line.trim().length > 0);
 
@@ -1896,7 +1897,6 @@
                     if (line.trim().length === 0) {
                         return `<div class="h-4" aria-hidden="true"></div>`;
                     }
-                    // If the author already indented with spaces/tabs in Docs, avoid double-indenting
                     const alreadyIndented = /^[\s\u00A0\t]{2,}/.test(line);
                     const styleAttr = alreadyIndented ? 'style="text-indent: 0;"' : '';
                     return `<p class="novel-paragraph" ${styleAttr}>${escapeHtml(line)}</p>`;
@@ -1995,7 +1995,7 @@
         window.addEventListener('scroll', updateReadingProgress, { passive: true });
 
         // ---------------------------------------------------------
-        // 10. CREATE / EDIT / DELETE NOVEL (ALWAYS SAVED TO LOCALSTORAGE)
+        // 10. CREATE / EDIT / DELETE NOVEL
         // ---------------------------------------------------------
         function renderCoverThemeSwatches(selectedKey) {
             const container = document.getElementById('cover-theme-selector');
@@ -2099,7 +2099,7 @@
                 targetMap.set(novelId, novelObj);
                 updateScopeCounts();
                 refreshCurrentView();
-                showToast('บันทึกข้อมูลชั่วคราวแล้ว (กรุณาใส่ค่า firebaseConfig เพื่อซิงค์ข้ามอุปกรณ์)', 'warning');
+                showToast('บันทึกข้อมูลชั่วคราวแล้ว', 'warning');
             }
 
             closeNovelModal();
@@ -2249,7 +2249,7 @@
                 const existingN = nMap.get(novel.id);
                 if (existingN) nMap.set(novel.id, { ...existingN, updatedAt: now });
                 refreshCurrentView();
-                showToast('บันทึกชั่วคราวแล้ว (กรุณาใส่ค่า firebaseConfig เพื่อซิงค์ข้ามอุปกรณ์)', 'warning');
+                showToast('บันทึกชั่วคราวแล้ว', 'warning');
             }
 
             inMemoryDraftsMap.delete(novel.id);
@@ -2390,8 +2390,6 @@
 
         // ---------------------------------------------------------
         // 13. BACKUP / RESTORE (JSON) & CLOUD SCANNER
-        // ---------------------------------------------------------
-        // 13. BACKUP / RESTORE (JSON) & STORAGE SCANNER
         // ---------------------------------------------------------
         function toggleBackupMenu() {
             const dropdown = document.getElementById('backup-dropdown');
@@ -2555,8 +2553,8 @@
                 </div>
                 <div class="text-xs text-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl">
                     ${isFirebaseReady
-                        ? '<i class="fa-solid fa-cloud-check text-emerald-500 mr-1"></i> เชื่อมต่อ <strong>Cloud Firestore</strong> เรียบร้อยแล้ว ข้อมูลทั้งหมดซิงค์ข้ามอุปกรณ์แบบเรียลไทม์'
-                        : '<i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> ยังไม่ได้ใส่ค่า <code>MY_FIREBASE_CONFIG</code> ในโค้ด HTML'}
+                        ? '<i class="fa-solid fa-cloud-check text-emerald-500 mr-1"></i> เชื่อมต่อ <strong>Cloud Firestore (readwrite-thai)</strong> เรียบร้อยแล้ว ข้อมูลทั้งหมดซิงค์ข้ามอุปกรณ์แบบเรียลไทม์'
+                        : '<i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1"></i> ยังไม่ได้เชื่อมต่อ Firebase'}
                 </div>
             `;
         }
@@ -2584,7 +2582,7 @@
         async function handleEmailAuth(event) {
             event.preventDefault();
             if (!isFirebaseReady || !auth) {
-                showToast('กรุณาใส่ค่า MY_FIREBASE_CONFIG ในไฟล์ HTML ก่อนใช้งานบัญชีออนไลน์', 'warning');
+                showToast('ยังไม่สามารถเชื่อมต่อระบบบัญชีได้', 'warning');
                 closeAccountModal();
                 return;
             }
@@ -2662,18 +2660,22 @@
         function closeConfirmModal() {
             document.getElementById('confirm-modal').classList.add('hidden');
         }
-        const GAS_SOURCE_CODE = "// โค้ด Google Apps Script";
+
         // ---------------------------------------------------------
         // 16. GOOGLE DRIVE / GOOGLE APPS SCRIPT INTEGRATION
         // ---------------------------------------------------------
         function openGDriveModal() {
             const modal = document.getElementById('gdrive-modal');
             const input = document.getElementById('gdrive-url-input');
+            const codeSection = document.getElementById('gas-code-section');
             const codeEl = document.getElementById('gas-code-display');
             const statusEl = document.getElementById('gdrive-connection-status');
             const disconnectBtn = document.getElementById('gdrive-disconnect-btn');
 
             if (input) input.value = gdriveWebAppUrl;
+            if (codeSection) {
+                codeSection.classList.toggle('hidden', !GAS_SOURCE_CODE);
+            }
             if (codeEl) codeEl.textContent = GAS_SOURCE_CODE;
 
             if (gdriveWebAppUrl) {
@@ -2698,6 +2700,10 @@
         }
 
         function copyGasCode() {
+            if (!GAS_SOURCE_CODE) {
+                showToast('ไม่มีโค้ดสำหรับคัดลอก กรุณาวางลิงก์ Web App URL ด้านบนได้เลย', 'info');
+                return;
+            }
             const temp = document.createElement('textarea');
             temp.value = GAS_SOURCE_CODE;
             document.body.appendChild(temp);
