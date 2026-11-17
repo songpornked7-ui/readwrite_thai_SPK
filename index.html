@@ -136,7 +136,7 @@
                         </div>
                     </div>
 
-                    <!-- Optional Owner Key Field during registration -->
+                    <!-- Registration Info Box -->
                     <div id="gate-owner-key-field" class="hidden pt-1">
                         <div class="p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-800/70">
                             <p class="text-[11px] text-indigo-700 dark:text-indigo-300 leading-relaxed">
@@ -880,7 +880,6 @@
                 </div>
             </div>
 
-            <!-- Claim Owner Section (if not yet owner) -->
             <div id="claim-owner-box" class="hidden"></div>
 
             <button id="account-signout-btn" onclick="handleLogout()" class="w-full py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
@@ -1078,15 +1077,16 @@
         const OWNER_EMAIL = 'songpornked7@gmail.com';
 
         // =========================================================
-        // ★ วางค่า FIREBASE CONFIG ของคุณตรงนี้ (สำหรับ GitHub Pages) ★
+        // ★ ค่า FIREBASE CONFIG ของคุณ (สำหรับ GitHub Pages) ★
         // =========================================================
         const MY_FIREBASE_CONFIG = {
-            apiKey: "ใส่_API_KEY_ของคุณที่นี่",
-            authDomain: "ใส่_AUTH_DOMAIN_ของคุณที่นี่",
-            projectId: "ใส่_PROJECT_ID_ของคุณที่นี่",
-            storageBucket: "ใส่_STORAGE_BUCKET_ของคุณที่นี่",
-            messagingSenderId: "ใส่_MESSAGING_SENDER_ID_ของคุณที่นี่",
-            appId: "ใส่_APP_ID_ของคุณที่นี่"
+            apiKey: "AIzaSyAsw9aIyoxBM8ZF2sw0ZIzJ-L3zrpVfA9c",
+            authDomain: "://firebaseapp.com",
+            projectId: "readwrite-thai",
+            storageBucket: "readwrite-thai.firebasestorage.app",
+            messagingSenderId: "633260979367",
+            appId: "1:633260979367:web:35055eeb7bbc89657c5782",
+            measurementId: "G-8VCH0QLLTK"
         };
 
         const GAS_SOURCE_CODE = `// วางโค้ดนี้ใน Google Apps Script (Extensions > Apps Script) แล้วกด Deploy > Web app (Who has access: Anyone)
@@ -1865,30 +1865,6 @@ function listNovelsFromDrive() {
                 }, { merge: true });
             }
             showToast(`อนุมัติสมาชิกทั้งหมด ${pendingUsers.length} คนเรียบร้อยแล้ว!`, 'success');
-        }
-
-        async function saveOwnerMasterKey() {
-            if (currentUserProfile?.role !== 'owner') return;
-            const newKey = document.getElementById('owner-master-key-input')?.value.trim();
-            if (!newKey || newKey.length < 4) {
-                showToast('กรุณากรอกรหัสลับอย่างน้อย 4 ตัวอักษร', 'warning');
-                return;
-            }
-            if (!isFirebaseReady || !db) {
-                ownerMasterKey = newKey;
-                showToast('บันทึกรหัสลับเจ้าของเว็บเรียบร้อยแล้ว!', 'success');
-                return;
-            }
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'ownerConfig'), {
-                    masterKey: newKey,
-                    updatedAt: Date.now()
-                }, { merge: true });
-                ownerMasterKey = newKey;
-                showToast('บันทึกรหัสลับเจ้าของเว็บเรียบร้อยแล้ว!', 'success');
-            } catch (err) {
-                showToast(`บันทึกไม่สำเร็จ: ${err.message}`, 'error');
-            }
         }
 
         function openAccountModal() {
