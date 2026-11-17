@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="overflow-x-hidden max-w-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>ReadWrite Thai - คลังนิยายและสตูดิโอนักเขียน</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,9 +26,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        body {
+        html, body {
             font-family: 'Sarabun', sans-serif;
             overflow-x: hidden;
+            max-width: 100%;
+            width: 100%;
         }
         .font-sarabun { font-family: 'Sarabun', sans-serif; }
         .font-prompt { font-family: 'Prompt', sans-serif; }
@@ -53,6 +55,7 @@
             text-indent: 2.2em;
             margin-bottom: 1.15em;
             word-break: break-word;
+            overflow-wrap: break-word;
             white-space: pre-wrap;
         }
 
@@ -66,7 +69,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200 overflow-x-hidden max-w-full">
 
     <!-- Reading Progress Bar (Top Fixed in Reader View) -->
     <div id="reading-progress-container" class="hidden fixed top-0 left-0 right-0 h-1 bg-slate-200/50 dark:bg-slate-800/50 z-50">
@@ -74,21 +77,21 @@
     </div>
 
     <!-- Toast Notifications Container -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+    <div id="toast-container" class="fixed bottom-4 right-0 left-0 sm:left-auto sm:right-5 z-[100] flex flex-col gap-2.5 max-w-sm w-full mx-auto sm:mx-0 pointer-events-none px-4 sm:px-0"></div>
 
     <!-- ========================================================= -->
     <!-- AUTH GATE OVERLAY (หน้าต่างเข้าสู่ระบบ / สมัครสมาชิก / รออนุมัติ) -->
     <!-- ========================================================= -->
-    <div id="auth-gate-screen" class="fixed inset-0 z-[70] bg-slate-950/65 backdrop-blur-md overflow-y-auto flex items-center justify-center p-4">
-        <div class="max-w-md w-full my-auto">
+    <div id="auth-gate-screen" class="fixed inset-0 z-[70] bg-slate-950/70 backdrop-blur-md overflow-y-auto flex items-center justify-center p-3 sm:p-4">
+        <div class="max-w-md w-full my-auto max-h-[92dvh] overflow-y-auto rounded-3xl">
             <!-- Card 1: Login & Register Form -->
-            <div id="auth-gate-form-card" class="bg-white/95 dark:bg-slate-900/95 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl">
+            <div id="auth-gate-form-card" class="bg-white/95 dark:bg-slate-900/95 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-8 shadow-2xl">
                 <!-- Brand Header inside Modal -->
-                <div class="text-center mb-5">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-lg mx-auto mb-3">
-                        <i class="fa-solid fa-feather-pointed text-xl"></i>
+                <div class="text-center mb-4 sm:mb-5">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-lg mx-auto mb-2.5">
+                        <i class="fa-solid fa-feather-pointed text-lg sm:text-xl"></i>
                     </div>
-                    <h1 class="font-prompt font-bold text-xl sm:text-2xl text-slate-900 dark:text-white">
+                    <h1 class="font-prompt font-bold text-lg sm:text-2xl text-slate-900 dark:text-white">
                         ReadWrite <span class="text-indigo-600 dark:text-indigo-400">Thai</span>
                     </h1>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -97,18 +100,18 @@
                 </div>
 
                 <!-- Tabs: Login vs Register -->
-                <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 mb-5">
+                <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 mb-4 sm:mb-5">
                     <button type="button" id="gate-tab-login" onclick="switchGateTab('login')"
                         class="py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all bg-indigo-600 text-white shadow-xs">
-                        <i class="fa-solid fa-right-to-bracket mr-1.5"></i>เข้าสู่ระบบ
+                        <i class="fa-solid fa-right-to-bracket mr-1"></i>เข้าสู่ระบบ
                     </button>
                     <button type="button" id="gate-tab-register" onclick="switchGateTab('register')"
                         class="py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-600 dark:text-slate-300">
-                        <i class="fa-solid fa-user-plus mr-1.5"></i>สมัครสมาชิกใหม่
+                        <i class="fa-solid fa-user-plus mr-1"></i>สมัครสมาชิกใหม่
                     </button>
                 </div>
 
-                <form onsubmit="handleGateAuthSubmit(event)" class="space-y-3.5">
+                <form onsubmit="handleGateAuthSubmit(event)" class="space-y-3">
                     <div id="gate-name-field" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">ชื่อผู้ใช้ / นามปากกา *</label>
                         <div class="relative">
@@ -153,37 +156,37 @@
                     </button>
                 </form>
 
-                <div class="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
                     <span><i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i>ระบบอนุมัติโดยเจ้าของเว็บ</span>
-                    <button type="button" onclick="cycleAppTheme()" class="hover:text-indigo-500 transition-colors">
+                    <button type="button" onclick="cycleAppTheme()" class="hover:text-indigo-500 transition-colors p-1">
                         <i class="fa-solid fa-circle-half-stroke mr-1"></i>สลับธีม
                     </button>
                 </div>
             </div>
 
             <!-- Card 2: Pending / Rejected Approval Screen -->
-            <div id="auth-gate-pending-card" class="hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-2xl text-center">
-                <div id="pending-status-icon" class="w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mx-auto mb-4 text-3xl">
+            <div id="auth-gate-pending-card" class="hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-8 shadow-2xl text-center">
+                <div id="pending-status-icon" class="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mx-auto mb-3.5 text-2xl sm:text-3xl">
                     <i class="fa-solid fa-hourglass-half fa-spin" style="--fa-animation-duration: 3s;"></i>
                 </div>
-                <h2 id="pending-status-title" class="font-prompt font-bold text-xl text-slate-900 dark:text-white mb-2">
+                <h2 id="pending-status-title" class="font-prompt font-bold text-lg sm:text-xl text-slate-900 dark:text-white mb-2">
                     กำลังรอเจ้าของเว็บอนุมัติบัญชี
                 </h2>
-                <p id="pending-status-desc" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-5">
+                <p id="pending-status-desc" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
                     ขอบคุณที่สมัครสมาชิก! บัญชีของคุณถูกส่งไปยังเจ้าของเว็บเรียบร้อยแล้ว เมื่อเจ้าของเว็บกดอนุมัติ หน้านี้จะเปิดเข้าสู่คลังนิยายให้อัตโนมัติทันที
                 </p>
 
-                <div class="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-4 text-left text-xs space-y-2 mb-6 border border-slate-200/70 dark:border-slate-700/70">
-                    <div class="flex justify-between">
-                        <span class="text-slate-400">ชื่อผู้ใช้:</span>
-                        <span id="pending-user-name" class="font-bold text-slate-800 dark:text-slate-100">-</span>
+                <div class="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-3.5 text-left text-xs space-y-2 mb-5 border border-slate-200/70 dark:border-slate-700/70">
+                    <div class="flex justify-between gap-2">
+                        <span class="text-slate-400 flex-shrink-0">ชื่อผู้ใช้:</span>
+                        <span id="pending-user-name" class="font-bold text-slate-800 dark:text-slate-100 truncate">-</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-400">อีเมล:</span>
-                        <span id="pending-user-email" class="font-semibold text-slate-700 dark:text-slate-200">-</span>
+                    <div class="flex justify-between gap-2">
+                        <span class="text-slate-400 flex-shrink-0">อีเมล:</span>
+                        <span id="pending-user-email" class="font-semibold text-slate-700 dark:text-slate-200 truncate">-</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-400">สถานะปัจจุบัน:</span>
+                    <div class="flex justify-between items-center gap-2">
+                        <span class="text-slate-400 flex-shrink-0">สถานะปัจจุบัน:</span>
                         <span id="pending-user-badge" class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold">รออนุมัติ (Pending)</span>
                     </div>
                 </div>
@@ -198,23 +201,23 @@
     </div>
 
     <!-- Main Top Navigation Bar -->
-    <header id="main-navbar" class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <header id="main-navbar" class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 w-full max-w-full">
+        <div class="max-w-6xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 min-w-0">
             <!-- Logo & Brand -->
-            <div onclick="navigateTo('library')" class="flex items-center gap-2.5 cursor-pointer group flex-shrink-0">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-                    <i class="fa-solid fa-feather-pointed text-lg"></i>
+            <div onclick="navigateTo('library')" class="flex items-center gap-2 cursor-pointer group min-w-0 flex-shrink">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform flex-shrink-0">
+                    <i class="fa-solid fa-feather-pointed text-base sm:text-lg"></i>
                 </div>
-                <div>
-                    <span class="font-prompt font-bold text-lg tracking-tight text-slate-900 dark:text-white block leading-none">
+                <div class="min-w-0">
+                    <span class="font-prompt font-bold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white block leading-none truncate">
                         ReadWrite <span class="text-indigo-600 dark:text-indigo-400">Thai</span>
                     </span>
                     <span class="text-[11px] text-slate-400 hidden sm:inline-block">คลังนิยายและสตูดิโอนักเขียน</span>
                 </div>
             </div>
 
-            <!-- Library Scope Switcher (Public vs Private) -->
-            <div class="hidden md:flex items-center bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl border border-slate-200/70 dark:border-slate-700/70">
+            <!-- Library Scope Switcher (Desktop Only) -->
+            <div class="hidden md:flex items-center bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl border border-slate-200/70 dark:border-slate-700/70 flex-shrink-0">
                 <button id="scope-btn-public" onclick="switchLibraryScope('public')" class="px-4 py-1.5 rounded-xl text-xs font-semibold transition-all bg-indigo-600 text-white shadow-xs flex items-center gap-1.5">
                     <i class="fa-solid fa-globe"></i>
                     <span>คลังนิยายกลาง</span>
@@ -228,80 +231,151 @@
             </div>
 
             <!-- Right Controls -->
-            <div class="flex items-center gap-2">
-                <!-- Storage / Cloud Status Pill -->
+            <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                <!-- Storage / Cloud Status Pill (Desktop XL Only) -->
                 <div class="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs text-slate-500 dark:text-slate-400">
                     <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
                     <span id="cloud-status-text">กำลังเชื่อมต่อ...</span>
                 </div>
 
-                <!-- Create New Novel CTA -->
-                <button onclick="openNovelModal()" class="px-3.5 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm hover:shadow transition-all flex items-center gap-2">
+                <!-- Primary Action 1: Create New Novel CTA (Always visible on mobile & desktop) -->
+                <button onclick="openNovelModal()" class="h-9 sm:h-10 px-3 sm:px-3.5 rounded-xl sm:rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm hover:shadow transition-all flex items-center gap-1.5 flex-shrink-0">
                     <i class="fa-solid fa-plus"></i>
-                    <span>แต่งเรื่องใหม่</span>
+                    <span>แต่งเรื่อง<span class="hidden sm:inline">ใหม่</span></span>
                 </button>
 
-                <!-- Backup / Tools Dropdown -->
-                <div id="backup-menu-wrapper" class="relative">
-                    <button onclick="toggleBackupMenu()" title="เครื่องมือสำรองข้อมูลและกู้คืน" class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors">
-                        <i class="fa-solid fa-cloud-arrow-down"></i>
-                    </button>
-                    <div id="backup-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50 text-sm">
-                        <div class="px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">จัดการข้อมูลและคลังนิยาย</div>
-                        <button onclick="exportDataJSON()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-slate-700 dark:text-slate-200">
-                            <i class="fa-solid fa-file-export text-indigo-500 w-4"></i>
-                            <span>ส่งออกไฟล์สำรอง (.JSON)</span>
-                        </button>
-                        <label class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-slate-700 dark:text-slate-200 cursor-pointer">
-                            <i class="fa-solid fa-file-import text-emerald-500 w-4"></i>
-                            <span>นำเข้าไฟล์สำรอง (.JSON)</span>
-                            <input type="file" accept=".json" onchange="importDataJSON(event)" class="hidden">
-                        </label>
-                        <button onclick="openRecoveryModal()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-slate-700 dark:text-slate-200">
-                            <i class="fa-solid fa-magnifying-glass-chart text-amber-500 w-4"></i>
-                            <span>ตรวจสอบสถานะฐานข้อมูล</span>
-                        </button>
-                        <div class="my-1 border-t border-slate-100 dark:border-slate-800"></div>
-                        <button onclick="seedDemoDataToCloud(false); toggleBackupMenu();" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-indigo-600 dark:text-indigo-400 font-medium">
-                            <i class="fa-solid fa-wand-magic-sparkles w-4"></i>
-                            <span>โหลดนิยายตัวอย่างเข้าคลัง</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Dark Mode Toggle -->
-                <button id="global-theme-btn" onclick="cycleAppTheme()" title="สลับโหมดมืด/สว่าง" class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors">
-                    <i class="fa-solid fa-moon text-base"></i>
-                </button>
-
-                <!-- Owner Control Center Button (Visible ONLY to Site Owner) -->
+                <!-- Primary Action 2: Owner Control Center Button (Always visible to Owner on mobile & desktop) -->
                 <button id="nav-owner-dashboard-btn" onclick="openOwnerDashboard()" title="ศูนย์ควบคุมเจ้าของเว็บ & อนุมัติสมาชิก"
-                    class="hidden relative h-10 px-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center gap-2 text-xs font-bold shadow-sm transition-all">
+                    class="hidden relative h-9 sm:h-10 px-2.5 sm:px-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white items-center gap-1.5 text-xs font-bold shadow-sm transition-all flex-shrink-0">
                     <i class="fa-solid fa-crown"></i>
-                    <span class="hidden md:inline">จัดการเว็บ</span>
+                    <span>จัดการเว็บ</span>
                     <span id="nav-pending-badge" class="hidden px-1.5 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-extrabold leading-none animate-bounce">0</span>
                 </button>
 
-                <!-- Account Button -->
-                <button onclick="openAccountModal()" title="ข้อมูลบัญชี" class="h-10 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs font-semibold transition-colors">
-                    <i id="nav-account-icon" class="fa-solid fa-user-astronaut text-indigo-500"></i>
-                    <span id="nav-account-label" class="hidden sm:inline max-w-[90px] truncate">นักเขียน</span>
-                </button>
+                <!-- Desktop-only Secondary Controls (Hidden on Mobile < md) -->
+                <div class="hidden md:flex items-center gap-2">
+                    <!-- Backup / Tools Dropdown -->
+                    <div id="backup-menu-wrapper" class="relative">
+                        <button onclick="toggleBackupMenu()" title="เครื่องมือสำรองข้อมูลและกู้คืน" class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors">
+                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                        </button>
+                        <div id="backup-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50 text-sm">
+                            <div class="px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">จัดการข้อมูลและคลังนิยาย</div>
+                            <button onclick="exportDataJSON()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-slate-700 dark:text-slate-200">
+                                <i class="fa-solid fa-file-export text-indigo-500 w-4"></i>
+                                <span>ส่งออกไฟล์สำรอง (.JSON)</span>
+                            </button>
+                            <label class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-slate-700 dark:text-slate-200 cursor-pointer">
+                                <i class="fa-solid fa-file-import text-emerald-500 w-4"></i>
+                                <span>นำเข้าไฟล์สำรอง (.JSON)</span>
+                                <input type="file" accept=".json" onchange="importDataJSON(event)" class="hidden">
+                            </label>
+                            <button onclick="openRecoveryModal()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-slate-700 dark:text-slate-200">
+                                <i class="fa-solid fa-magnifying-glass-chart text-amber-500 w-4"></i>
+                                <span>ตรวจสอบสถานะฐานข้อมูล</span>
+                            </button>
+                            <div class="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+                            <button onclick="seedDemoDataToCloud(false); toggleBackupMenu();" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2.5 text-indigo-600 dark:text-indigo-400 font-medium">
+                                <i class="fa-solid fa-wand-magic-sparkles w-4"></i>
+                                <span>โหลดนิยายตัวอย่างเข้าคลัง</span>
+                            </button>
+                        </div>
+                    </div>
 
-                <!-- Direct Logout Button -->
-                <button onclick="handleLogout()" title="ออกจากระบบ (Logout)" class="h-10 px-3 rounded-2xl bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/70 text-rose-600 dark:text-rose-400 flex items-center gap-1.5 text-xs font-bold transition-colors">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span class="hidden lg:inline">ออก</span>
-                </button>
+                    <!-- Dark Mode Toggle -->
+                    <button id="global-theme-btn" onclick="cycleAppTheme()" title="สลับโหมดมืด/สว่าง" class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-moon text-base"></i>
+                    </button>
+
+                    <!-- Account Button -->
+                    <button onclick="openAccountModal()" title="ข้อมูลบัญชี" class="h-10 px-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-2 text-xs font-semibold transition-colors">
+                        <i id="nav-account-icon" class="fa-solid fa-user-astronaut text-indigo-500"></i>
+                        <span id="nav-account-label" class="max-w-[90px] truncate">นักเขียน</span>
+                    </button>
+
+                    <!-- Direct Logout Button -->
+                    <button onclick="handleLogout()" title="ออกจากระบบ (Logout)" class="h-10 px-3 rounded-2xl bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/70 text-rose-600 dark:text-rose-400 flex items-center gap-1.5 text-xs font-bold transition-colors">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="hidden lg:inline">ออก</span>
+                    </button>
+                </div>
+
+                <!-- Mobile Hamburger Menu Button (Visible ONLY on Mobile < md) -->
+                <div id="mobile-menu-wrapper" class="relative md:hidden flex-shrink-0">
+                    <button id="mobile-hamburger-btn" onclick="toggleMobileMenu()" aria-label="เปิดเมนูเพิ่มเติม"
+                        class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors">
+                        <i id="mobile-hamburger-icon" class="fa-solid fa-bars text-base"></i>
+                    </button>
+
+                    <!-- Mobile Dropdown Drawer -->
+                    <div id="mobile-menu-dropdown" class="hidden fixed right-3 left-3 top-[3.75rem] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-3 z-50 text-sm max-h-[82dvh] overflow-y-auto">
+                        <!-- Account Summary Header inside Mobile Menu -->
+                        <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 mb-2 flex items-center justify-between gap-2">
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-slate-900 dark:text-white truncate" id="mobile-menu-username">นักเขียน</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate" id="mobile-menu-email">-</div>
+                            </div>
+                            <span id="mobile-cloud-badge" class="px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold flex-shrink-0">
+                                Cloud พร้อมใช้
+                            </span>
+                        </div>
+
+                        <div class="space-y-1">
+                            <button onclick="closeMobileMenu(); openAccountModal();" class="w-full px-3.5 py-3 rounded-2xl text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 text-slate-700 dark:text-slate-200 font-medium">
+                                <i class="fa-solid fa-user-astronaut text-indigo-500 w-5 text-center"></i>
+                                <span>ข้อมูลบัญชีผู้ใช้งาน (UID)</span>
+                            </button>
+
+                            <button onclick="cycleAppTheme(); updateMobileThemeLabel();" class="w-full px-3.5 py-3 rounded-2xl text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-200 font-medium">
+                                <span class="flex items-center gap-3">
+                                    <i id="mobile-theme-icon" class="fa-solid fa-moon text-amber-500 w-5 text-center"></i>
+                                    <span id="mobile-theme-label">เปลี่ยนเป็นโหมดกลางคืน</span>
+                                </span>
+                                <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                            </button>
+
+                            <div class="my-1.5 border-t border-slate-100 dark:border-slate-800"></div>
+                            <div class="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">สำรองข้อมูลและคลังนิยาย</div>
+
+                            <button onclick="closeMobileMenu(); exportDataJSON();" class="w-full px-3.5 py-3 rounded-2xl text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 text-slate-700 dark:text-slate-200">
+                                <i class="fa-solid fa-file-export text-indigo-500 w-5 text-center"></i>
+                                <span>ส่งออกไฟล์สำรอง (.JSON)</span>
+                            </button>
+
+                            <label class="w-full px-3.5 py-3 rounded-2xl text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 text-slate-700 dark:text-slate-200 cursor-pointer">
+                                <i class="fa-solid fa-file-import text-emerald-500 w-5 text-center"></i>
+                                <span>นำเข้าไฟล์สำรอง (.JSON)</span>
+                                <input type="file" accept=".json" onchange="closeMobileMenu(); importDataJSON(event);" class="hidden">
+                            </label>
+
+                            <button onclick="closeMobileMenu(); openRecoveryModal();" class="w-full px-3.5 py-3 rounded-2xl text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 text-slate-700 dark:text-slate-200">
+                                <i class="fa-solid fa-magnifying-glass-chart text-amber-500 w-5 text-center"></i>
+                                <span>ตรวจสอบสถานะฐานข้อมูล</span>
+                            </button>
+
+                            <button onclick="closeMobileMenu(); seedDemoDataToCloud(false);" class="w-full px-3.5 py-3 rounded-2xl text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-3 text-indigo-600 dark:text-indigo-400 font-medium">
+                                <i class="fa-solid fa-wand-magic-sparkles w-5 text-center"></i>
+                                <span>โหลดนิยายตัวอย่างเข้าคลัง</span>
+                            </button>
+
+                            <div class="my-1.5 border-t border-slate-100 dark:border-slate-800"></div>
+
+                            <button onclick="closeMobileMenu(); handleLogout();" class="w-full px-3.5 py-3 rounded-2xl text-left bg-rose-50/70 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 flex items-center gap-3 text-rose-600 dark:text-rose-400 font-bold">
+                                <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
+                                <span>ออกจากระบบ (Logout)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Mobile Scope Switcher Bar -->
         <div class="flex md:hidden items-center justify-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-950 border-t border-slate-200/60 dark:border-slate-800">
-            <button id="mobile-scope-public" onclick="switchLibraryScope('public')" class="flex-1 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white">
+            <button id="mobile-scope-public" onclick="switchLibraryScope('public')" class="flex-1 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white">
                 <i class="fa-solid fa-globe mr-1"></i> คลังนิยายกลาง
             </button>
-            <button id="mobile-scope-private" onclick="switchLibraryScope('private')" class="flex-1 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            <button id="mobile-scope-private" onclick="switchLibraryScope('private')" class="flex-1 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                 <i class="fa-solid fa-lock mr-1"></i> คลังส่วนตัว
             </button>
         </div>
@@ -310,26 +384,26 @@
     <!-- ========================================================= -->
     <!-- VIEW 1: LIBRARY (หน้าหลักคลังนิยาย)                        -->
     <!-- ========================================================= -->
-    <main id="view-library" class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <main id="view-library" class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-5 sm:py-8">
         <!-- Hero Banner & Search Bar -->
-        <div class="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg mb-7 relative overflow-hidden">
-            <i class="fa-solid fa-book-open-reader text-white/10 text-9xl absolute -right-4 -bottom-6 pointer-events-none"></i>
+        <div class="bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 rounded-3xl p-5 sm:p-8 text-white shadow-lg mb-6 sm:mb-7 relative overflow-hidden">
+            <i class="fa-solid fa-book-open-reader text-white/10 text-8xl sm:text-9xl absolute -right-4 -bottom-6 pointer-events-none"></i>
             <div class="max-w-2xl relative z-10">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs text-xs font-medium mb-3">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs text-[11px] sm:text-xs font-medium mb-2.5 sm:mb-3">
                     <i class="fa-solid fa-sparkles text-amber-300"></i> พื้นที่อ่านและเขียนนิยายออนไลน์ ซิงค์ข้อมูลข้ามอุปกรณ์
                 </span>
-                <h1 class="font-prompt text-2xl sm:text-3xl font-bold mb-2 leading-snug">
+                <h1 class="font-prompt text-xl sm:text-3xl font-bold mb-2 leading-snug">
                     ค้นพบเรื่องราวใหม่ หรือสร้างสรรค์นิยายในแบบของคุณ
                 </h1>
-                <p class="text-indigo-100 text-xs sm:text-sm mb-5">
+                <p class="text-indigo-100 text-xs sm:text-sm mb-4 sm:mb-5">
                     อ่านสบายตา ปรับฟอนต์และธีมได้ตามใจ พร้อมระบบจัดการคลังนิยายกลางและคลังส่วนตัวที่ซิงค์ผ่าน Cloud อัตโนมัติ
                 </p>
 
                 <!-- Search Input -->
                 <div class="relative flex items-center">
-                    <i class="fa-solid fa-magnifying-glass text-slate-400 absolute left-4"></i>
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 absolute left-3.5 sm:left-4 text-sm"></i>
                     <input id="library-search-input" type="text" oninput="renderLibrary()" placeholder="ค้นหาชื่อเรื่อง, นามปากกา, คำโปรย หรือหมวดหมู่..."
-                        class="w-full pl-11 pr-10 py-3 rounded-2xl bg-white text-slate-800 placeholder-slate-400 text-sm shadow-md focus:outline-none focus:ring-2 focus:ring-amber-300">
+                        class="w-full pl-10 sm:pl-11 pr-10 py-2.5 sm:py-3 rounded-2xl bg-white text-slate-800 placeholder-slate-400 text-sm shadow-md focus:outline-none focus:ring-2 focus:ring-amber-300">
                     <button id="clear-search-btn" onclick="clearLibrarySearch()" class="hidden absolute right-3 text-slate-400 hover:text-slate-600 p-1">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
@@ -338,12 +412,12 @@
         </div>
 
         <!-- Category Pills & Sort Filter -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-            <div id="category-filter-pills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6">
+            <div id="category-filter-pills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 max-w-full">
                 <!-- Populated by JS -->
             </div>
 
-            <div class="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+            <div class="flex items-center justify-end gap-2 flex-shrink-0">
                 <span class="text-xs text-slate-400">เรียงตาม:</span>
                 <select id="library-sort-select" onchange="renderLibrary()" class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
                     <option value="updated">อัปเดตล่าสุด</option>
@@ -354,13 +428,13 @@
         </div>
 
         <!-- Section Heading -->
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2.5">
-                <h2 id="library-section-heading" class="font-prompt font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
+        <div class="flex items-center justify-between gap-2 mb-4">
+            <div class="flex items-center gap-2 min-w-0">
+                <h2 id="library-section-heading" class="font-prompt font-bold text-base sm:text-xl text-slate-900 dark:text-white truncate">
                     รายการนิยายในคลังกลาง
                 </h2>
             </div>
-            <span id="library-total-count" class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 text-xs font-semibold">
+            <span id="library-total-count" class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 text-xs font-semibold flex-shrink-0">
                 0 เรื่อง
             </span>
         </div>
@@ -372,24 +446,24 @@
         </div>
 
         <!-- Novels Grid -->
-        <div id="novels-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div id="novels-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             <!-- Populated by JS -->
         </div>
 
         <!-- Empty State -->
-        <div id="library-empty-state" class="hidden py-16 px-4 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700">
-            <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-500 flex items-center justify-center mx-auto mb-4 text-2xl">
+        <div id="library-empty-state" class="hidden py-12 sm:py-16 px-4 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-500 flex items-center justify-center mx-auto mb-4 text-xl sm:text-2xl">
                 <i class="fa-solid fa-book-open"></i>
             </div>
-            <h3 id="empty-state-title" class="font-prompt font-bold text-lg text-slate-800 dark:text-white mb-1">ยังไม่มีนิยายในหมวดนี้</h3>
-            <p id="empty-state-desc" class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-5">
+            <h3 id="empty-state-title" class="font-prompt font-bold text-base sm:text-lg text-slate-800 dark:text-white mb-1">ยังไม่มีนิยายในหมวดนี้</h3>
+            <p id="empty-state-desc" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-5">
                 เริ่มต้นแต่งนิยายเรื่องแรกของคุณ ข้อมูลจะถูกซิงค์ออนไลน์ผ่าน Cloud อัตโนมัติ อ่านได้ทั้งในคอมและมือถือ
             </p>
-            <div class="flex flex-wrap items-center justify-center gap-3">
-                <button onclick="openNovelModal()" class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3">
+                <button onclick="openNovelModal()" class="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all">
                     <i class="fa-solid fa-plus mr-1.5"></i> สร้างนิยายเรื่องใหม่
                 </button>
-                <button onclick="seedDemoDataToCloud(false)" class="px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all">
+                <button onclick="seedDemoDataToCloud(false)" class="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all">
                     <i class="fa-solid fa-wand-magic-sparkles mr-1.5 text-indigo-500"></i> เพิ่มนิยายตัวอย่าง
                 </button>
             </div>
@@ -399,25 +473,25 @@
     <!-- ========================================================= -->
     <!-- VIEW 2: NOVEL DETAIL & TABLE OF CONTENTS (หน้ารายละเอียด)   -->
     <!-- ========================================================= -->
-    <section id="view-detail" class="hidden flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <section id="view-detail" class="hidden flex-1 max-w-5xl w-full mx-auto px-3 sm:px-6 py-5 sm:py-8">
         <!-- Back Button -->
-        <button onclick="navigateTo('library')" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 mb-5 transition-colors">
+        <button onclick="navigateTo('library')" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 mb-4 sm:mb-5 py-1 transition-colors">
             <i class="fa-solid fa-arrow-left"></i>
             <span>กลับสู่หน้าคลังนิยาย</span>
         </button>
 
         <!-- Novel Hero Card -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-8 shadow-sm mb-7">
-            <div class="flex flex-col sm:flex-row gap-6">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-8 shadow-sm mb-6 sm:mb-7">
+            <div class="flex flex-col sm:flex-row gap-5 sm:gap-6">
                 <!-- Cover Art -->
-                <div id="detail-cover-container" class="w-36 h-52 sm:w-44 sm:h-64 rounded-2xl shadow-lg overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
+                <div id="detail-cover-container" class="w-32 h-48 sm:w-44 sm:h-64 rounded-2xl shadow-lg overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
                     <!-- Populated by JS -->
                 </div>
 
                 <!-- Metadata & Actions -->
                 <div class="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
-                        <div class="flex flex-wrap items-center gap-2 mb-2.5">
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2.5">
                             <span id="detail-category" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300">
                                 หมวดหมู่
                             </span>
@@ -429,36 +503,36 @@
                             </span>
                         </div>
 
-                        <h1 id="detail-title" class="font-prompt text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white leading-snug mb-2">
+                        <h1 id="detail-title" class="font-prompt text-xl sm:text-3xl font-bold text-slate-900 dark:text-white leading-snug mb-2 text-center sm:text-left break-words">
                             ชื่อเรื่องนิยาย
                         </h1>
 
-                        <p class="text-sm text-slate-600 dark:text-slate-300 font-medium mb-4 flex items-center gap-2">
+                        <p class="text-sm text-slate-600 dark:text-slate-300 font-medium mb-4 flex items-center justify-center sm:justify-start gap-2">
                             <i class="fa-solid fa-pen-nib text-indigo-500"></i>
                             <span>โดย <span id="detail-author">นามปากกา</span></span>
                         </p>
 
-                        <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line mb-5">
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">คำโปรย / เรื่องย่อ</div>
+                        <div class="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line mb-5 break-words">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">คำโปรย / เรื่องย่อ</div>
                             <p id="detail-synopsis">รายละเอียดเรื่องย่อ...</p>
                         </div>
                     </div>
 
-                    <!-- Primary Action Buttons -->
-                    <div id="detail-action-buttons" class="flex flex-wrap items-center gap-2.5 pt-2">
-                        <button id="detail-start-read-btn" onclick="startReadingFirstChapter()" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                    <!-- Primary Action Buttons (Responsive Grid on Mobile, Flex on Desktop) -->
+                    <div id="detail-action-buttons" class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 pt-1">
+                        <button id="detail-start-read-btn" onclick="startReadingFirstChapter()" class="col-span-2 sm:col-span-1 px-4 sm:px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
                             <i class="fa-solid fa-book-open"></i>
                             <span>เริ่มอ่านตอนแรก</span>
                         </button>
-                        <button id="detail-move-scope-btn" onclick="toggleMoveNovelScope(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 text-sm font-semibold transition-colors flex items-center gap-2">
+                        <button id="detail-move-scope-btn" onclick="toggleMoveNovelScope(window.currentNovelId)" class="col-span-2 sm:col-span-1 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-2">
                             <i class="fa-solid fa-right-left"></i>
                             <span id="detail-move-scope-label">ย้ายไปคลังส่วนตัว</span>
                         </button>
-                        <button id="detail-edit-novel-btn" onclick="openNovelModal(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium transition-colors flex items-center gap-2">
+                        <button id="detail-edit-novel-btn" onclick="openNovelModal(window.currentNovelId)" class="px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-pen"></i>
-                            <span>แก้ไขข้อมูลเรื่อง</span>
+                            <span>แก้ไขข้อมูล</span>
                         </button>
-                        <button id="detail-delete-novel-btn" onclick="confirmDeleteNovel(window.currentNovelId)" class="px-4 py-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 text-sm font-medium transition-colors flex items-center gap-2">
+                        <button id="detail-delete-novel-btn" onclick="confirmDeleteNovel(window.currentNovelId)" class="px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 text-xs sm:text-sm font-medium transition-colors flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-trash-can"></i>
                             <span>ลบเรื่อง</span>
                         </button>
@@ -468,36 +542,36 @@
         </div>
 
         <!-- Table of Contents & Writer Studio Panel -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-5 sm:p-7 shadow-sm">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
-                <div class="flex items-center gap-3">
-                    <h2 class="font-prompt font-bold text-lg sm:text-xl text-slate-900 dark:text-white">สารบัญตอนนิยาย</h2>
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-7 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3.5 pb-4 sm:pb-5 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center justify-between md:justify-start gap-3">
+                    <h2 class="font-prompt font-bold text-base sm:text-xl text-slate-900 dark:text-white">สารบัญตอนนิยาย</h2>
                     <span id="detail-chapter-count" class="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 text-xs font-bold">
                         0 ตอน
                     </span>
                 </div>
 
                 <!-- Writer Studio Actions -->
-                <div id="detail-writer-actions" class="flex flex-wrap items-center gap-2.5">
-                    <button onclick="openChapterEditor()" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all flex items-center gap-2">
+                <div id="detail-writer-actions" class="grid grid-cols-2 sm:flex items-center gap-2">
+                    <button onclick="openChapterEditor()" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-feather"></i>
                         <span>+ เขียนตอนใหม่</span>
                     </button>
-                    <button onclick="openBulkImportModal()" class="px-4 py-2.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-300 text-xs sm:text-sm font-semibold transition-all flex items-center gap-2">
+                    <button onclick="openBulkImportModal()" class="px-3.5 sm:px-4 py-2.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-300 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-layer-group"></i>
-                        <span>วางลงหลายตอนรวดเดียว</span>
+                        <span>ลงหลายตอน</span>
                     </button>
                 </div>
             </div>
 
             <!-- Chapter Filter & Sort -->
-            <div class="flex items-center justify-between gap-3 py-4">
-                <div class="relative flex-1 max-w-xs">
+            <div class="flex items-center justify-between gap-2.5 py-3.5 sm:py-4">
+                <div class="relative flex-1 sm:max-w-xs">
                     <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs absolute left-3.5 top-1/2 -translate-y-1/2"></i>
                     <input id="chapter-search-input" type="text" oninput="renderChapterList()" placeholder="ค้นหาเลขตอน หรือชื่อตอน..."
                         class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:border-indigo-500">
                 </div>
-                <button id="chapter-sort-btn" onclick="toggleChapterSortOrder()" title="สลับเรียงลำดับตอน" class="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-indigo-400 transition-colors">
+                <button id="chapter-sort-btn" onclick="toggleChapterSortOrder()" title="สลับเรียงลำดับตอน" class="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-indigo-400 transition-colors flex-shrink-0">
                     <i class="fa-solid fa-arrow-down-1-9"></i>
                 </button>
             </div>
@@ -508,8 +582,8 @@
             </div>
 
             <!-- Empty Chapters State -->
-            <div id="chapters-empty-state" class="hidden py-12 text-center">
-                <p class="text-sm text-slate-400 mb-4">ยังไม่มีตอนนิยายในเรื่องนี้ เริ่มเขียนตอนที่ 1 ได้เลย!</p>
+            <div id="chapters-empty-state" class="hidden py-10 sm:py-12 text-center">
+                <p class="text-xs sm:text-sm text-slate-400 mb-4">ยังไม่มีตอนนิยายในเรื่องนี้ เริ่มเขียนตอนที่ 1 ได้เลย!</p>
                 <button onclick="openChapterEditor()" class="px-5 py-2.5 rounded-2xl bg-indigo-600 text-white text-xs sm:text-sm font-semibold">
                     <i class="fa-solid fa-plus mr-1.5"></i> เพิ่มตอนที่ 1
                 </button>
@@ -520,28 +594,29 @@
     <!-- ========================================================= -->
     <!-- VIEW 3: READER (หน้าอ่านนิยายปรับแต่งได้)                   -->
     <!-- ========================================================= -->
-    <section id="view-reader" class="hidden flex-1 reader-theme-light transition-colors duration-200">
+    <section id="view-reader" class="hidden flex-1 reader-theme-light transition-colors duration-200 w-full max-w-full">
         <!-- Reader Top Bar -->
         <div id="reader-topbar" class="sticky top-0 z-30 border-b backdrop-blur-md bg-white/95 border-slate-200 text-slate-800 transition-colors">
-            <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
-                <button onclick="navigateTo('detail', window.currentNovelId)" class="flex items-center gap-2 text-sm font-medium opacity-80 hover:opacity-100 transition-opacity flex-shrink-0">
+            <div class="max-w-4xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2 min-w-0">
+                <button onclick="navigateTo('detail', window.currentNovelId)" class="flex items-center gap-1.5 text-xs sm:text-sm font-medium opacity-80 hover:opacity-100 transition-opacity flex-shrink-0 py-2 px-1">
                     <i class="fa-solid fa-chevron-left"></i>
-                    <span class="hidden sm:inline">สารบัญ</span>
+                    <span>สารบัญ</span>
                 </button>
 
-                <div class="min-w-0 text-center flex-1">
-                    <div id="reader-nav-novel-title" class="text-[11px] opacity-60 truncate">ชื่อเรื่อง</div>
+                <div class="min-w-0 text-center flex-1 px-1">
+                    <div id="reader-nav-novel-title" class="text-[10px] sm:text-[11px] opacity-60 truncate">ชื่อเรื่อง</div>
                     <div id="reader-nav-chapter-title" class="text-xs sm:text-sm font-bold truncate">ตอนที่ 1</div>
                 </div>
 
-                <button onclick="toggleReaderSettings()" class="px-3 py-1.5 rounded-xl border border-current/20 text-xs font-semibold flex items-center gap-1.5 hover:bg-indigo-500/10 transition-colors flex-shrink-0">
+                <button onclick="toggleReaderSettings()" class="px-2.5 sm:px-3 py-1.5 rounded-xl border border-current/20 text-xs font-semibold flex items-center gap-1.5 hover:bg-indigo-500/10 transition-colors flex-shrink-0">
                     <i class="fa-solid fa-font"></i>
-                    <span>ตั้งค่าการอ่าน</span>
+                    <span class="hidden sm:inline">ตั้งค่าการอ่าน</span>
+                    <span class="sm:hidden">ตั้งค่า</span>
                 </button>
             </div>
 
             <!-- Collapsible Reader Settings Drawer -->
-            <div id="reader-settings-panel" class="hidden border-t border-current/10 bg-white px-4 py-4 shadow-lg">
+            <div id="reader-settings-panel" class="hidden border-t border-current/10 bg-white px-3 sm:px-4 py-4 shadow-lg max-h-[75dvh] overflow-y-auto">
                 <div class="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
                     <!-- Background Theme -->
                     <div>
@@ -567,9 +642,9 @@
                     <div>
                         <div class="font-semibold opacity-70 mb-2">ขนาดตัวอักษร</div>
                         <div class="flex items-center justify-between gap-2 bg-current/5 rounded-xl p-1">
-                            <button onclick="changeFontSize(-2)" class="w-9 h-8 rounded-lg border border-current/20 font-bold hover:bg-indigo-500/10">ก-</button>
+                            <button onclick="changeFontSize(-2)" class="w-10 h-8 rounded-lg border border-current/20 font-bold hover:bg-indigo-500/10">ก-</button>
                             <span id="reader-font-size-display" class="font-bold">18 px</span>
-                            <button onclick="changeFontSize(2)" class="w-9 h-8 rounded-lg border border-current/20 font-bold hover:bg-indigo-500/10">ก+</button>
+                            <button onclick="changeFontSize(2)" class="w-10 h-8 rounded-lg border border-current/20 font-bold hover:bg-indigo-500/10">ก+</button>
                         </div>
                     </div>
 
@@ -587,15 +662,15 @@
         </div>
 
         <!-- Reader Article Body -->
-        <article class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
-            <header class="text-center pb-8 mb-8 border-b border-current/15">
+        <article class="max-w-3xl mx-auto px-4 sm:px-8 py-8 sm:py-14">
+            <header class="text-center pb-6 sm:pb-8 mb-6 sm:mb-8 border-b border-current/15">
                 <span id="reader-chapter-badge" class="inline-block px-3.5 py-1 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 text-xs font-bold mb-3">
                     ตอนที่ 1
                 </span>
-                <h1 id="reader-chapter-heading" class="font-prompt text-2xl sm:text-3xl font-bold leading-snug mb-3">
+                <h1 id="reader-chapter-heading" class="font-prompt text-xl sm:text-3xl font-bold leading-snug mb-3 break-words">
                     ชื่อตอนนิยาย
                 </h1>
-                <div class="flex items-center justify-center gap-4 text-xs opacity-65">
+                <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs opacity-65">
                     <span id="reader-author-meta"><i class="fa-solid fa-pen-nib mr-1"></i> นามปากกา</span>
                     <span id="reader-wordcount-meta"><i class="fa-regular fa-file-lines mr-1"></i> ~0 คำ</span>
                 </div>
@@ -607,17 +682,17 @@
             </div>
 
             <!-- Bottom Chapter Navigation -->
-            <footer class="mt-14 pt-8 border-t border-current/15 flex items-center justify-between gap-3">
-                <button id="reader-prev-btn" onclick="navigateChapter(-1)" class="px-5 py-3 rounded-2xl border border-current/20 text-sm font-semibold disabled:opacity-30 disabled:pointer-events-none hover:bg-indigo-500/10 transition-colors flex items-center gap-2">
+            <footer class="mt-12 sm:mt-14 pt-6 sm:pt-8 border-t border-current/15 flex items-center justify-between gap-2">
+                <button id="reader-prev-btn" onclick="navigateChapter(-1)" class="flex-1 sm:flex-initial px-3.5 sm:px-5 py-3 rounded-2xl border border-current/20 text-xs sm:text-sm font-semibold disabled:opacity-30 disabled:pointer-events-none hover:bg-indigo-500/10 transition-colors flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-arrow-left"></i>
                     <span>ตอนก่อนหน้า</span>
                 </button>
 
-                <button onclick="navigateTo('detail', window.currentNovelId)" class="px-4 py-3 rounded-2xl border border-current/20 text-sm font-medium hover:bg-indigo-500/10 transition-colors">
+                <button onclick="navigateTo('detail', window.currentNovelId)" aria-label="สารบัญตอน" class="px-4 py-3 rounded-2xl border border-current/20 text-sm font-medium hover:bg-indigo-500/10 transition-colors flex-shrink-0">
                     <i class="fa-solid fa-list-ul"></i>
                 </button>
 
-                <button id="reader-next-btn" onclick="navigateChapter(1)" class="px-5 py-3 rounded-2xl bg-indigo-600 text-white text-sm font-semibold disabled:opacity-30 disabled:pointer-events-none hover:bg-indigo-700 shadow-sm transition-colors flex items-center gap-2">
+                <button id="reader-next-btn" onclick="navigateChapter(1)" class="flex-1 sm:flex-initial px-3.5 sm:px-5 py-3 rounded-2xl bg-indigo-600 text-white text-xs sm:text-sm font-semibold disabled:opacity-30 disabled:pointer-events-none hover:bg-indigo-700 shadow-sm transition-colors flex items-center justify-center gap-1.5">
                     <span>ตอนถัดไป</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
@@ -630,10 +705,10 @@
     <!-- ========================================================= -->
 
     <!-- 1. Create / Edit Novel Modal -->
-    <div id="novel-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 sm:p-7 shadow-2xl my-auto">
-            <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-100 dark:border-slate-800">
-                <h3 id="novel-modal-title" class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+    <div id="novel-modal" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full shadow-2xl my-auto max-h-[90dvh] flex flex-col overflow-hidden">
+            <div class="flex items-center justify-between px-5 sm:px-7 py-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+                <h3 id="novel-modal-title" class="font-prompt font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-book-medical text-indigo-500"></i>
                     <span>สร้างเรื่องนิยายใหม่</span>
                 </h3>
@@ -642,65 +717,67 @@
                 </button>
             </div>
 
-            <form onsubmit="saveNovel(event)" class="space-y-4">
-                <input type="hidden" id="novel-form-id">
-                <input type="hidden" id="novel-form-cover" value="indigo">
+            <form onsubmit="saveNovel(event)" class="flex flex-col flex-1 overflow-hidden">
+                <div class="p-5 sm:p-7 space-y-4 overflow-y-auto flex-1">
+                    <input type="hidden" id="novel-form-id">
+                    <input type="hidden" id="novel-form-cover" value="indigo">
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">ชื่อเรื่องนิยาย *</label>
-                    <input id="novel-form-title" type="text" required placeholder="เช่น ลิขิตรักข้ามเวลา..."
-                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">นามปากกา *</label>
-                        <input id="novel-form-author" type="text" required placeholder="ระบุนามปากกาของคุณ"
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">ชื่อเรื่องนิยาย *</label>
+                        <input id="novel-form-title" type="text" required placeholder="เช่น ลิขิตรักข้ามเวลา..."
                             class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
                     </div>
 
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">นามปากกา *</label>
+                            <input id="novel-form-author" type="text" required placeholder="ระบุนามปากกาของคุณ"
+                                class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">หมวดหมู่</label>
+                            <select id="novel-form-category" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                                <option value="โรแมนติก">โรแมนติก</option>
+                                <option value="โรมานซ์">โรมานซ์</option>
+                                <option value="แฟนตาซี">แฟนตาซี</option>
+                                <option value="กำลังภายใน / ย้อนยุค">กำลังภายใน / ย้อนยุค</option>
+                                <option value="สืบสวนสอบสวน">สืบสวนสอบสวน</option>
+                                <option value="ไซไฟ / อนาคต">ไซไฟ / อนาคต</option>
+                                <option value="ดราม่า / สะท้อนสังคม">ดราม่า / สะท้อนสังคม</option>
+                                <option value="วาย (BL) / ยูริ (GL)">วาย (BL) / ยูริ (GL)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Target Library Scope Selector -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">หมวดหมู่</label>
-                        <select id="novel-form-category" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
-                            <option value="โรแมนติก">โรแมนติก</option>
-                            <option value="โรมานซ์">โรมานซ์</option>
-                            <option value="แฟนตาซี">แฟนตาซี</option>
-                            <option value="กำลังภายใน / ย้อนยุค">กำลังภายใน / ย้อนยุค</option>
-                            <option value="สืบสวนสอบสวน">สืบสวนสอบสวน</option>
-                            <option value="ไซไฟ / อนาคต">ไซไฟ / อนาคต</option>
-                            <option value="ดราม่า / สะท้อนสังคม">ดราม่า / สะท้อนสังคม</option>
-                            <option value="วาย (BL) / ยูริ (GL)">วาย (BL) / ยูริ (GL)</option>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">ตำแหน่งคลังที่จัดเก็บ (เลือกหรือย้ายคลังได้)</label>
+                        <select id="novel-form-scope" class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:border-indigo-500">
+                            <option value="public">🌐 คลังนิยายกลาง (ทุกคนที่ได้รับอนุมัติมองเห็น)</option>
+                            <option value="private">🔒 คลังส่วนตัว (เห็นเฉพาะบัญชีของคุณ)</option>
                         </select>
                     </div>
-                </div>
 
-                <!-- Target Library Scope Selector -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">ตำแหน่งคลังที่จัดเก็บ (เลือกหรือย้ายคลังได้)</label>
-                    <select id="novel-form-scope" class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none focus:border-indigo-500">
-                        <option value="public">🌐 คลังนิยายกลาง (ทุกคนที่ได้รับอนุมัติมองเห็น)</option>
-                        <option value="private">🔒 คลังส่วนตัว (เห็นเฉพาะบัญชีของคุณ)</option>
-                    </select>
-                </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">สีปกหนังสือ</label>
+                        <div id="cover-theme-selector" class="grid grid-cols-6 gap-2">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">สีปกหนังสือ</label>
-                    <div id="cover-theme-selector" class="grid grid-cols-6 gap-2">
-                        <!-- Rendered by JS -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">คำโปรย / เรื่องย่อ</label>
+                        <textarea id="novel-form-synopsis" rows="3" placeholder="เขียนคำโปรยดึงดูดนักอ่าน..."
+                            class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500"></textarea>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">คำโปรย / เรื่องย่อ</label>
-                    <textarea id="novel-form-synopsis" rows="4" placeholder="เขียนคำโปรยดึงดูดนักอ่าน..."
-                        class="w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500"></textarea>
-                </div>
-
-                <div class="flex items-center justify-end gap-2.5 pt-3">
-                    <button type="button" onclick="closeNovelModal()" class="px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium">
+                <div class="flex items-center justify-end gap-2.5 px-5 sm:px-7 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900 flex-shrink-0">
+                    <button type="button" onclick="closeNovelModal()" class="px-4 sm:px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-medium">
                         ยกเลิก
                     </button>
-                    <button type="submit" class="px-6 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm">
+                    <button type="submit" class="px-5 sm:px-6 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm">
                         บันทึกข้อมูลเรื่อง
                     </button>
                 </div>
@@ -710,17 +787,17 @@
 
     <!-- 2. Chapter Editor Modal -->
     <div id="chapter-editor-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full h-[92dvh] flex flex-col shadow-2xl overflow-hidden">
             <!-- Header -->
-            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-                <div class="min-w-0">
-                    <div id="chapter-editor-novel-name" class="text-xs text-indigo-500 font-semibold truncate">ชื่อเรื่อง</div>
-                    <h3 id="chapter-editor-heading" class="font-prompt font-bold text-base sm:text-lg text-slate-900 dark:text-white">เขียนตอนนิยายใหม่</h3>
+            <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 flex-shrink-0">
+                <div class="min-w-0 flex-1">
+                    <div id="chapter-editor-novel-name" class="text-[11px] sm:text-xs text-indigo-500 font-semibold truncate">ชื่อเรื่อง</div>
+                    <h3 id="chapter-editor-heading" class="font-prompt font-bold text-sm sm:text-lg text-slate-900 dark:text-white truncate">เขียนตอนนิยายใหม่</h3>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="saveChapter()" class="px-5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                    <button onclick="saveChapter()" class="px-3.5 sm:px-5 py-2 rounded-xl sm:rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs flex items-center gap-1.5">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>เผยแพร่ / บันทึกตอน</span>
+                        <span>บันทึก<span class="hidden sm:inline"> / เผยแพร่</span></span>
                     </button>
                     <button onclick="closeChapterEditor()" class="w-9 h-9 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
                         <i class="fa-solid fa-xmark"></i>
@@ -729,31 +806,31 @@
             </div>
 
             <!-- Chapter Title & Number Inputs -->
-            <div class="px-5 py-3 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row gap-3">
-                <div class="w-full sm:w-28">
+            <div class="px-4 sm:px-5 py-3 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 flex flex-row gap-2.5 flex-shrink-0">
+                <div class="w-20 sm:w-28 flex-shrink-0">
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1">ตอนที่</label>
                     <input id="chapter-form-number" type="number" min="1" value="1"
-                        class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:border-indigo-500">
+                        class="w-full px-2.5 sm:px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold focus:outline-none focus:border-indigo-500">
                 </div>
-                <div class="flex-1">
+                <div class="flex-1 min-w-0">
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1">ชื่อตอน *</label>
                     <input id="chapter-form-title" type="text" placeholder="ระบุชื่อตอน..."
-                        class="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none focus:border-indigo-500">
+                        class="w-full px-3 sm:px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-medium focus:outline-none focus:border-indigo-500">
                 </div>
             </div>
 
             <!-- Main Writing Area -->
-            <div class="flex-1 p-5 overflow-hidden flex flex-col">
-                <textarea id="chapter-form-content" oninput="handleEditorTyping()" placeholder="เริ่มพิมพ์หรือวางเนื้อหานิยายของคุณที่นี่... (กดปุ่ม 'เผยแพร่ / บันทึกตอน' ด้านบนเพื่อซิงค์เข้า Cloud ข้ามอุปกรณ์)"
-                    class="flex-1 w-full resize-none bg-transparent text-slate-800 dark:text-slate-100 text-base leading-relaxed focus:outline-none font-sarabun"></textarea>
+            <div class="flex-1 p-4 sm:p-5 overflow-hidden flex flex-col">
+                <textarea id="chapter-form-content" oninput="handleEditorTyping()" placeholder="เริ่มพิมพ์หรือวางเนื้อหานิยายของคุณที่นี่..."
+                    class="flex-1 w-full resize-none bg-transparent text-slate-800 dark:text-slate-100 text-sm sm:text-base leading-relaxed focus:outline-none font-sarabun"></textarea>
             </div>
 
             <!-- Footer Word Count & Autosave Status -->
-            <div class="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
-                <div id="editor-autosave-status">
-                    <i class="fa-solid fa-cloud mr-1 text-indigo-500"></i> พร้อมซิงค์ข้อมูลขึ้น Cloud ข้ามอุปกรณ์
+            <div class="px-4 sm:px-5 py-2.5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-[11px] sm:text-xs text-slate-400 flex-shrink-0">
+                <div id="editor-autosave-status" class="truncate">
+                    <i class="fa-solid fa-cloud mr-1 text-indigo-500"></i> พร้อมซิงค์ข้อมูลขึ้น Cloud
                 </div>
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                     <span>ประมาณ <strong id="editor-word-count" class="text-slate-600 dark:text-slate-200">0</strong> คำ</span>
                     <span><strong id="editor-char-count" class="text-slate-600 dark:text-slate-200">0</strong> ตัวอักษร</span>
                 </div>
@@ -762,37 +839,36 @@
     </div>
 
     <!-- 3. Bulk Chapter Importer Modal -->
-    <div id="bulk-import-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full p-6 shadow-2xl">
-            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
-                <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+    <div id="bulk-import-modal" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full p-5 sm:p-6 shadow-2xl my-auto max-h-[90dvh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+                <h3 class="font-prompt font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-layer-group text-indigo-500"></i>
-                    <span>วางลงหลายตอนพร้อมกัน (Bulk Import)</span>
+                    <span>วางลงหลายตอนพร้อมกัน</span>
                 </h3>
                 <button onclick="closeBulkImportModal()" class="w-8 h-8 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed flex-shrink-0">
                 วางข้อความนิยายหลายตอนรวดเดียว ระบบจะแยกตอนให้อัตโนมัติเมื่อขึ้นบรรทัดใหม่ด้วยคำว่า
-                <code class="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-semibold">ตอนที่ 1 ชื่อตอน</code> หรือ
-                <code class="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-semibold">ตอนที่ 2 ชื่อตอน</code>
+                <code class="px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-semibold">ตอนที่ 1 ชื่อตอน</code>
             </p>
 
-            <textarea id="bulk-import-textarea" oninput="previewBulkChapters()" rows="10"
+            <textarea id="bulk-import-textarea" oninput="previewBulkChapters()" rows="8"
                 placeholder="ตัวอย่าง:&#10;ตอนที่ 1 จุดเริ่มต้นแห่งโชคชะตา&#10;เนื้อหาของตอนที่ 1...&#10;&#10;ตอนที่ 2 การพบกันโดยบังเอิญ&#10;เนื้อหาของตอนที่ 2..."
-                class="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500 mb-4"></textarea>
+                class="w-full flex-1 p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500 mb-4"></textarea>
 
-            <div class="flex items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-2.5 flex-shrink-0">
                 <span id="bulk-preview-count" class="px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 text-xs font-bold">
                     ตรวจพบ 0 ตอน
                 </span>
                 <div class="flex items-center gap-2">
-                    <button onclick="closeBulkImportModal()" class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium">
+                    <button onclick="closeBulkImportModal()" class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-medium">
                         ยกเลิก
                     </button>
-                    <button onclick="executeBulkImport()" class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm">
+                    <button onclick="executeBulkImport()" class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm">
                         นำเข้าทั้งหมด
                     </button>
                 </div>
@@ -801,10 +877,10 @@
     </div>
 
     <!-- 4. Database & Storage Recovery Scanner Modal -->
-    <div id="recovery-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 shadow-2xl">
+    <div id="recovery-modal" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 sm:p-6 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
-                <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <h3 class="font-prompt font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-magnifying-glass-chart text-amber-500"></i>
                     <span>ตรวจสอบสถานะฐานข้อมูล Cloud</span>
                 </h3>
@@ -814,16 +890,16 @@
             </div>
             <div id="recovery-scan-results" class="space-y-3 mb-5"></div>
             <div class="flex justify-end">
-                <button onclick="closeRecoveryModal()" class="px-5 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm font-semibold">ปิดหน้าต่าง</button>
+                <button onclick="closeRecoveryModal()" class="px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-sm font-semibold">ปิดหน้าต่าง</button>
             </div>
         </div>
     </div>
 
     <!-- 5. Account & Auth Modal -->
-    <div id="account-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 shadow-2xl">
+    <div id="account-modal" class="hidden fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 sm:p-6 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
-                <h3 class="font-prompt font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <h3 class="font-prompt font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-user-astronaut text-indigo-500"></i>
                     <span>ข้อมูลบัญชีผู้ใช้งาน</span>
                 </h3>
@@ -832,24 +908,24 @@
                 </button>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 mb-4 text-xs space-y-2">
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">ชื่อผู้ใช้:</span>
-                    <span id="account-modal-name" class="font-bold text-slate-800 dark:text-white">-</span>
+            <div class="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-4 mb-4 text-xs space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-slate-400 flex-shrink-0">ชื่อผู้ใช้:</span>
+                    <span id="account-modal-name" class="font-bold text-slate-800 dark:text-white truncate">-</span>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">อีเมล:</span>
-                    <span id="account-modal-status" class="font-bold text-emerald-600 dark:text-emerald-400">-</span>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-slate-400 flex-shrink-0">อีเมล:</span>
+                    <span id="account-modal-status" class="font-bold text-emerald-600 dark:text-emerald-400 truncate">-</span>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-400">ระดับสิทธิ์:</span>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-slate-400 flex-shrink-0">ระดับสิทธิ์:</span>
                     <span id="account-modal-role" class="font-bold text-indigo-600 dark:text-indigo-400">สมาชิก</span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="text-slate-400">รหัสผู้ใช้งาน (UID):</span>
-                    <div class="flex items-center gap-1.5">
-                        <code id="account-uid-display" class="text-[11px] bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">-</code>
-                        <button onclick="copyUserId()" title="คัดลอก UID" class="text-indigo-500 hover:text-indigo-600"><i class="fa-regular fa-copy"></i></button>
+                    <span class="text-slate-400 flex-shrink-0">รหัสผู้ใช้งาน (UID):</span>
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <code id="account-uid-display" class="text-[11px] bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 truncate max-w-[140px] sm:max-w-[200px]">-</code>
+                        <button onclick="copyUserId()" title="คัดลอก UID" class="text-indigo-500 hover:text-indigo-600 p-1 flex-shrink-0"><i class="fa-regular fa-copy"></i></button>
                     </div>
                 </div>
             </div>
@@ -862,13 +938,13 @@
     </div>
 
     <!-- 6. Custom Confirmation Modal -->
-    <div id="confirm-modal" class="hidden fixed inset-0 z-[60] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-6 shadow-2xl text-center">
+    <div id="confirm-modal" class="hidden fixed inset-0 z-[60] bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-5 sm:p-6 shadow-2xl text-center">
             <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-500 flex items-center justify-center mx-auto mb-3 text-xl">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 id="confirm-modal-title" class="font-prompt font-bold text-lg text-slate-900 dark:text-white mb-1.5">ยืนยันการดำเนินการ</h3>
-            <p id="confirm-modal-message" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">คุณแน่ใจหรือไม่?</p>
+            <h3 id="confirm-modal-title" class="font-prompt font-bold text-base sm:text-lg text-slate-900 dark:text-white mb-1.5">ยืนยันการดำเนินการ</h3>
+            <p id="confirm-modal-message" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-5">คุณแน่ใจหรือไม่?</p>
             <div class="flex items-center justify-center gap-2.5">
                 <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium">
                     ยกเลิก
@@ -882,69 +958,69 @@
 
     <!-- 7. OWNER SUPER-ADMIN DASHBOARD MODAL (ศูนย์ควบคุมเจ้าของเว็บ) -->
     <div id="owner-dashboard-modal" class="hidden fixed inset-0 z-[55] bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-5 sm:p-7 shadow-2xl my-auto max-h-[90vh] flex flex-col">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-7 shadow-2xl my-auto max-h-[90dvh] flex flex-col overflow-hidden">
             <!-- Header -->
-            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-lg shadow-md">
+            <div class="flex items-center justify-between pb-3.5 sm:pb-4 mb-3.5 sm:mb-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0 gap-2">
+                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-base sm:text-lg shadow-md flex-shrink-0">
                         <i class="fa-solid fa-crown"></i>
                     </div>
-                    <div>
-                        <h3 class="font-prompt font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
-                            ศูนย์ควบคุมเจ้าของเว็บ (Owner Control Center)
+                    <div class="min-w-0">
+                        <h3 class="font-prompt font-bold text-base sm:text-xl text-slate-900 dark:text-white truncate">
+                            ศูนย์ควบคุมเจ้าของเว็บ
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">
-                            อนุมัติผู้สมัครใหม่ ตรวจสอบสมาชิกทั้งหมด และดูแลภาพรวมคลังนิยายทั้งระบบ
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+                            อนุมัติผู้สมัครใหม่ ตรวจสอบสมาชิก และดูแลนิยายทั้งหมด
                         </p>
                     </div>
                 </div>
-                <button onclick="closeOwnerDashboard()" class="w-9 h-9 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
+                <button onclick="closeOwnerDashboard()" class="w-9 h-9 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center flex-shrink-0">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             <!-- Stats Overview Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 flex-shrink-0">
-                <div class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mb-4 sm:mb-5 flex-shrink-0">
+                <div class="p-3 sm:p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60">
                     <div class="text-[11px] font-semibold text-amber-700 dark:text-amber-300">รออนุมัติเข้าเว็บ</div>
-                    <div id="owner-stat-pending" class="text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">0</div>
+                    <div id="owner-stat-pending" class="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">0</div>
                 </div>
-                <div class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60">
+                <div class="p-3 sm:p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60">
                     <div class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">สมาชิกที่อนุมัติแล้ว</div>
-                    <div id="owner-stat-approved" class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">0</div>
+                    <div id="owner-stat-approved" class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">0</div>
                 </div>
-                <div class="p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/70 dark:border-indigo-800/60">
+                <div class="p-3 sm:p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/70 dark:border-indigo-800/60">
                     <div class="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">นิยายในคลังกลาง</div>
-                    <div id="owner-stat-novels" class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">0</div>
+                    <div id="owner-stat-novels" class="text-xl sm:text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">0</div>
                 </div>
-                <div class="p-3.5 rounded-2xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200/70 dark:border-violet-800/60">
+                <div class="p-3 sm:p-3.5 rounded-2xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200/70 dark:border-violet-800/60">
                     <div class="text-[11px] font-semibold text-violet-700 dark:text-violet-300">จำนวนตอนทั้งหมด</div>
-                    <div id="owner-stat-chapters" class="text-2xl font-extrabold text-violet-600 dark:text-violet-400 mt-0.5">0</div>
+                    <div id="owner-stat-chapters" class="text-xl sm:text-2xl font-extrabold text-violet-600 dark:text-violet-400 mt-0.5">0</div>
                 </div>
             </div>
 
             <!-- Owner Tabs -->
-            <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar flex-shrink-0">
+            <div class="flex items-center gap-2 pb-3 mb-3.5 border-b border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar flex-shrink-0">
                 <button id="owner-tab-users" onclick="switchOwnerTab('users')"
-                    class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white whitespace-nowrap">
+                    class="px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white whitespace-nowrap">
                     <i class="fa-solid fa-users-gear mr-1.5"></i>อนุมัติ & จัดการสมาชิก
                 </button>
                 <button id="owner-tab-content" onclick="switchOwnerTab('content')"
-                    class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                    class="px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 whitespace-nowrap">
                     <i class="fa-solid fa-book-atlas mr-1.5"></i>ดูนิยายทั้งหมดในเว็บ
                 </button>
             </div>
 
             <!-- Tab Content Area -->
-            <div class="flex-1 overflow-y-auto pr-1 space-y-4">
+            <div class="flex-1 overflow-y-auto pr-0.5 space-y-4">
                 <!-- Tab 1: Users & Approvals -->
                 <div id="owner-panel-users" class="space-y-4">
                     <div id="owner-pending-section" class="hidden">
-                        <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center justify-between gap-2 mb-2">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
                                 <i class="fa-solid fa-bell mr-1"></i> ผู้สมัครใหม่ที่รออนุมัติ
                             </h4>
-                            <button onclick="approveAllPendingUsers()" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+                            <button onclick="approveAllPendingUsers()" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex-shrink-0">
                                 <i class="fa-solid fa-check-double mr-1"></i>อนุมัติทั้งหมด
                             </button>
                         </div>
@@ -1182,7 +1258,7 @@
         }
 
         // ---------------------------------------------------------
-        // 4. UTILITY & UI HELPER FUNCTIONS
+        // 4. UTILITY & MOBILE MENU HELPER FUNCTIONS
         // ---------------------------------------------------------
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
@@ -1240,7 +1316,7 @@
             toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border shadow-xl text-xs sm:text-sm font-medium transition-all duration-300 opacity-0 translate-y-2 ${styles[type] || styles.info}`;
             toast.innerHTML = `
                 <i class="fa-solid ${icons[type] || icons.info} flex-shrink-0"></i>
-                <span class="flex-1 leading-snug">${escapeHtml(message)}</span>
+                <span class="flex-1 leading-snug break-words">${escapeHtml(message)}</span>
             `;
             container.appendChild(toast);
 
@@ -1252,6 +1328,37 @@
                 toast.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => toast.remove(), 300);
             }, 3400);
+        }
+
+        function toggleMobileMenu() {
+            const dropdown = document.getElementById('mobile-menu-dropdown');
+            const icon = document.getElementById('mobile-hamburger-icon');
+            if (!dropdown) return;
+            const willOpen = dropdown.classList.contains('hidden');
+            dropdown.classList.toggle('hidden');
+            if (icon) {
+                icon.className = willOpen ? 'fa-solid fa-xmark text-base' : 'fa-solid fa-bars text-base';
+            }
+            updateMobileThemeLabel();
+        }
+
+        function closeMobileMenu() {
+            const dropdown = document.getElementById('mobile-menu-dropdown');
+            const icon = document.getElementById('mobile-hamburger-icon');
+            if (dropdown) dropdown.classList.add('hidden');
+            if (icon) icon.className = 'fa-solid fa-bars text-base';
+        }
+
+        function updateMobileThemeLabel() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const iconEl = document.getElementById('mobile-theme-icon');
+            const labelEl = document.getElementById('mobile-theme-label');
+            if (iconEl) {
+                iconEl.className = isDark ? 'fa-solid fa-sun text-amber-400 w-5 text-center' : 'fa-solid fa-moon text-indigo-500 w-5 text-center';
+            }
+            if (labelEl) {
+                labelEl.textContent = isDark ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดกลางคืน';
+            }
         }
 
         // ---------------------------------------------------------
@@ -1289,10 +1396,16 @@
             const roleEl = document.getElementById('account-modal-role');
             const uidEl = document.getElementById('account-uid-display');
 
+            const mobileUserEl = document.getElementById('mobile-menu-username');
+            const mobileEmailEl = document.getElementById('mobile-menu-email');
+
             const isOwner = isOwnerEmailAddress(currentUser?.email) || currentUserProfile?.role === 'owner';
             const displayName = currentUserProfile?.displayName || (currentUser?.email ? currentUser.email.split('@')[0] : 'นักเขียน');
 
             if (labelEl) labelEl.textContent = displayName;
+            if (mobileUserEl) mobileUserEl.textContent = isOwner ? `👑 ${displayName} (เจ้าของเว็บ)` : displayName;
+            if (mobileEmailEl) mobileEmailEl.textContent = currentUser?.email || 'ยังไม่ได้เข้าสู่ระบบ';
+
             if (iconEl) {
                 iconEl.className = isOwner
                     ? 'fa-solid fa-crown text-amber-500'
@@ -1360,14 +1473,14 @@
                 const badgeEl = document.getElementById('pending-user-badge');
 
                 if (isRejected) {
-                    iconEl.className = 'w-16 h-16 rounded-3xl bg-rose-50 dark:bg-rose-950/60 text-rose-500 flex items-center justify-center mx-auto mb-4 text-3xl';
+                    iconEl.className = 'w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-rose-50 dark:bg-rose-950/60 text-rose-500 flex items-center justify-center mx-auto mb-3.5 text-2xl sm:text-3xl';
                     iconEl.innerHTML = '<i class="fa-solid fa-ban"></i>';
                     titleEl.textContent = 'บัญชีนี้ไม่ได้รับการอนุมัติเข้าใช้งาน';
                     descEl.textContent = 'เจ้าของเว็บได้ระงับหรือปฏิเสธคำขอเข้าใช้งานของบัญชีนี้ กรุณาติดต่อเจ้าของเว็บหรือออกจากระบบ';
                     badgeEl.className = 'px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-bold';
                     badgeEl.textContent = 'ไม่อนุมัติ (Rejected)';
                 } else {
-                    iconEl.className = 'w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mx-auto mb-4 text-3xl';
+                    iconEl.className = 'w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mx-auto mb-3.5 text-2xl sm:text-3xl';
                     iconEl.innerHTML = '<i class="fa-solid fa-hourglass-half fa-spin" style="--fa-animation-duration: 3s;"></i>';
                     titleEl.textContent = 'กำลังรอเจ้าของเว็บอนุมัติบัญชี';
                     descEl.textContent = 'ขอบคุณที่สมัครสมาชิก! บัญชีของคุณถูกส่งไปยังเจ้าของเว็บเรียบร้อยแล้ว เมื่อเจ้าของเว็บกดอนุมัติ หน้านี้จะเปิดเข้าสู่คลังนิยายให้อัตโนมัติทันที';
@@ -1501,6 +1614,7 @@
 
         async function handleLogout() {
             try {
+                closeMobileMenu();
                 closeAccountModal();
                 closeOwnerDashboard();
                 if (unsubscribeUserProfile) unsubscribeUserProfile();
@@ -1525,6 +1639,7 @@
         }
 
         function openOwnerDashboard() {
+            closeMobileMenu();
             const isOwner = isOwnerEmailAddress(currentUser?.email) || currentUserProfile?.role === 'owner';
             if (!isOwner) {
                 showToast('เฉพาะเจ้าของเว็บเท่านั้นที่เข้าถึงหน้านี้ได้', 'error');
@@ -1545,8 +1660,8 @@
                 const panel = document.getElementById(`owner-panel-${t}`);
                 if (btn) {
                     btn.className = t === tab
-                        ? 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white whitespace-nowrap'
-                        : 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 whitespace-nowrap';
+                        ? 'px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white whitespace-nowrap'
+                        : 'px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 whitespace-nowrap';
                 }
                 if (panel) panel.classList.toggle('hidden', t !== tab);
             });
@@ -1588,7 +1703,7 @@
                         </div>
                         <div class="flex items-center gap-2 flex-shrink-0">
                             <button onclick="updateUserApprovalStatus('${escapeHtml(u.uid)}', 'approved')"
-                                class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs flex items-center gap-1.5">
+                                class="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-check"></i><span>อนุมัติทันที</span>
                             </button>
                             <button onclick="updateUserApprovalStatus('${escapeHtml(u.uid)}', 'rejected')"
@@ -1618,10 +1733,10 @@
                                     : '<span class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-[10px] font-bold">รออนุมัติ</span>';
 
                         return `
-                            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="font-bold text-sm text-slate-900 dark:text-white">${escapeHtml(u.displayName || 'ไม่ระบุชื่อ')}</span>
+                                        <span class="font-bold text-sm text-slate-900 dark:text-white truncate">${escapeHtml(u.displayName || 'ไม่ระบุชื่อ')}</span>
                                         ${statusBadge}
                                     </div>
                                     <div class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">${escapeHtml(u.email)}</div>
@@ -1657,7 +1772,7 @@
                             <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-3">
                                 <div class="min-w-0">
                                     <div class="font-bold text-sm text-slate-900 dark:text-white truncate">${escapeHtml(n.title)}</div>
-                                    <div class="text-xs text-slate-500 dark:text-slate-400">โดย ${escapeHtml(n.author)} • ${escapeHtml(n.category)} • ${chCount} ตอน</div>
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 truncate">โดย ${escapeHtml(n.author)} • ${escapeHtml(n.category)} • ${chCount} ตอน</div>
                                 </div>
                                 <div class="flex items-center gap-2 flex-shrink-0">
                                     <button onclick="closeOwnerDashboard(); switchLibraryScope('public'); navigateTo('detail', '${escapeHtml(n.id)}')"
@@ -2144,8 +2259,8 @@
                 }
                 if (mEl) {
                     mEl.className = isActive
-                        ? 'flex-1 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white'
-                        : 'flex-1 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
+                        ? 'flex-1 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white'
+                        : 'flex-1 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
                 }
             });
 
@@ -2162,6 +2277,7 @@
         }
 
         function navigateTo(view, novelId = null, chapterId = null) {
+            closeMobileMenu();
             window.currentView = view;
             if (novelId) window.currentNovelId = novelId;
             if (chapterId) window.currentChapterId = chapterId;
@@ -2301,9 +2417,9 @@
                 const latestChapter = chapterCount > 0 ? novel.chapters[chapterCount - 1] : null;
 
                 return `
-                    <div onclick="navigateTo('detail', '${escapeHtml(novel.id)}')" class="group bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 shadow-xs hover:shadow-xl hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 cursor-pointer flex flex-col justify-between">
+                    <div onclick="navigateTo('detail', '${escapeHtml(novel.id)}')" class="group bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 shadow-xs hover:shadow-xl hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-200 cursor-pointer flex flex-col justify-between min-w-0">
                         <div>
-                            <div class="flex gap-4 mb-4">
+                            <div class="flex gap-3.5 sm:gap-4 mb-3.5 sm:mb-4">
                                 <div class="w-20 h-28 rounded-2xl bg-gradient-to-br ${theme.gradient} text-white p-2.5 flex flex-col justify-between shadow-md flex-shrink-0 group-hover:scale-105 transition-transform relative overflow-hidden">
                                     <i class="fa-solid ${theme.icon} text-white/25 text-3xl absolute -right-1 -bottom-1"></i>
                                     <span class="text-[9px] uppercase tracking-wider font-semibold bg-black/25 px-1.5 py-0.5 rounded-md w-fit truncate max-w-full">
@@ -2316,10 +2432,10 @@
 
                                 <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                                     <div>
-                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 mb-1.5">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 mb-1.5 max-w-full truncate">
                                             ${escapeHtml(novel.category || 'ทั่วไป')}
                                         </span>
-                                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-snug line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                        <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-snug line-clamp-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors break-words">
                                             ${escapeHtml(novel.title)}
                                         </h3>
                                     </div>
@@ -2329,17 +2445,17 @@
                                 </div>
                             </div>
 
-                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed mb-4">
+                            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed mb-3.5 sm:mb-4 break-words">
                                 ${escapeHtml(novel.synopsis || 'ไม่มีคำโปรย')}
                             </p>
                         </div>
 
-                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                            <span class="font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+                            <span class="font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5 flex-shrink-0">
                                 <i class="fa-solid fa-layer-group"></i>
                                 ${chapterCount} ตอน
                             </span>
-                            <span class="truncate max-w-[160px]" title="${latestChapter ? escapeHtml(latestChapter.title) : ''}">
+                            <span class="truncate min-w-0" title="${latestChapter ? escapeHtml(latestChapter.title) : ''}">
                                 ${latestChapter ? `ตอนที่ ${latestChapter.number}: ${escapeHtml(latestChapter.title)}` : formatRelativeTime(novel.updatedAt)}
                             </span>
                         </div>
@@ -2363,16 +2479,16 @@
             const coverEl = document.getElementById('detail-cover-container');
             if (coverEl) {
                 coverEl.innerHTML = `
-                    <div class="w-full h-full bg-gradient-to-br ${theme.gradient} text-white p-4 flex flex-col justify-between relative overflow-hidden">
-                        <i class="fa-solid ${theme.icon} text-white/15 text-7xl absolute -right-3 -bottom-3"></i>
-                        <span class="text-[10px] font-semibold uppercase tracking-wider bg-black/25 px-2.5 py-1 rounded-full w-fit">
+                    <div class="w-full h-full bg-gradient-to-br ${theme.gradient} text-white p-3.5 sm:p-4 flex flex-col justify-between relative overflow-hidden">
+                        <i class="fa-solid ${theme.icon} text-white/15 text-6xl sm:text-7xl absolute -right-3 -bottom-3"></i>
+                        <span class="text-[10px] font-semibold uppercase tracking-wider bg-black/25 px-2.5 py-1 rounded-full w-fit max-w-full truncate">
                             ${escapeHtml(novel.category || 'นิยาย')}
                         </span>
                         <div class="relative z-10">
-                            <div class="font-bold text-base sm:text-lg leading-snug line-clamp-4 mb-1.5">
+                            <div class="font-bold text-sm sm:text-lg leading-snug line-clamp-4 mb-1.5">
                                 ${escapeHtml(novel.title)}
                             </div>
-                            <div class="text-xs text-white/80 truncate">
+                            <div class="text-[11px] sm:text-xs text-white/80 truncate">
                                 ${escapeHtml(novel.author)}
                             </div>
                         </div>
@@ -2468,24 +2584,24 @@
                 const words = estimateWordCount(ch.content);
                 const wordLabel = `~${words.toLocaleString()} คำ`;
                 return `
-                    <div class="py-3.5 px-2 sm:px-3 flex items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-colors group">
-                        <div onclick="navigateTo('reader', '${escapeHtml(novel.id)}', '${escapeHtml(ch.id)}')" class="flex-1 min-w-0 cursor-pointer flex items-center gap-3">
-                            <span class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold text-xs sm:text-sm flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                    <div class="py-3 px-1.5 sm:px-3 flex items-center justify-between gap-2 sm:gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-colors group">
+                        <div onclick="navigateTo('reader', '${escapeHtml(novel.id)}', '${escapeHtml(ch.id)}')" class="flex-1 min-w-0 cursor-pointer flex items-center gap-2.5 sm:gap-3">
+                            <span class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold text-xs sm:text-sm flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                                 #${escapeHtml(ch.number)}
                             </span>
                             <div class="min-w-0 flex-1">
                                 <h4 class="font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                     ตอนที่ ${escapeHtml(ch.number)}: ${escapeHtml(ch.title)}
                                 </h4>
-                                <div class="text-xs text-slate-400 flex items-center gap-3 mt-0.5">
+                                <div class="text-[11px] sm:text-xs text-slate-400 flex items-center gap-2.5 sm:gap-3 mt-0.5">
                                     <span><i class="fa-regular fa-file-lines mr-1"></i>${wordLabel}</span>
-                                    <span>${formatRelativeTime(ch.updatedAt)}</span>
+                                    <span class="truncate">${formatRelativeTime(ch.updatedAt)}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-1">
-                            <button onclick="navigateTo('reader', '${escapeHtml(novel.id)}', '${escapeHtml(ch.id)}')" title="อ่านตอนนี้" class="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white text-xs font-medium transition-colors">
+                        <div class="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+                            <button onclick="navigateTo('reader', '${escapeHtml(novel.id)}', '${escapeHtml(ch.id)}')" title="อ่านตอนนี้" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white text-xs font-medium transition-colors">
                                 อ่าน
                             </button>
                             <button onclick="openChapterEditor('${escapeHtml(ch.id)}')" title="แก้ไขตอน" class="p-2 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors">
@@ -2678,6 +2794,7 @@
         }
 
         function openNovelModal(novelId = null) {
+            closeMobileMenu();
             const modal = document.getElementById('novel-modal');
             const heading = document.getElementById('novel-modal-title');
             const idInput = document.getElementById('novel-form-id');
@@ -3067,6 +3184,12 @@
             if (wrapper && dropdown && !wrapper.contains(e.target)) {
                 dropdown.classList.add('hidden');
             }
+
+            const mobileWrapper = document.getElementById('mobile-menu-wrapper');
+            const mobileDropdown = document.getElementById('mobile-menu-dropdown');
+            if (mobileWrapper && mobileDropdown && !mobileWrapper.contains(e.target)) {
+                closeMobileMenu();
+            }
         });
 
         function exportDataJSON() {
@@ -3092,7 +3215,9 @@
         }
 
         function importDataJSON(event) {
-            toggleBackupMenu();
+            const dropdown = document.getElementById('backup-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+
             const file = event.target.files?.[0];
             if (!file) return;
 
@@ -3217,6 +3342,7 @@
                     ? '<i class="fa-solid fa-sun text-amber-400 text-base"></i>'
                     : '<i class="fa-solid fa-moon text-base"></i>';
             }
+            updateMobileThemeLabel();
         }
 
         function openConfirmDialog(title, message, onConfirm) {
@@ -3272,6 +3398,9 @@
             previewBulkChapters,
             executeBulkImport,
             toggleBackupMenu,
+            toggleMobileMenu,
+            closeMobileMenu,
+            updateMobileThemeLabel,
             exportDataJSON,
             importDataJSON,
             openRecoveryModal,
